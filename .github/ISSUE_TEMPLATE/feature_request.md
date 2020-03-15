@@ -18,8 +18,11 @@ A clear and concise description of any alternative solutions or features you've 
 
 ## User Stories (optional)
 
-**Feature:** _[Brief description of feature]_
 As a _[role or persona]_, I want _[goal/ need]_ so that _[why]_
+
+**Feature:** _[Brief description of feature]_
+
+_[Any additional descriptions on feature]_
 
 **Scenario:** Please use _[Gherkin](https://cucumber.io/docs/gherkin/reference/)_ here
 
