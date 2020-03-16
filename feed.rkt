@@ -33,5 +33,5 @@
                         (string->bytes/utf-8 tweet))))))
 
 ;;; Store the tweets
-(store-tweets (get-tweets "BonfaceKilz")
-              "BonfaceKilz")
+(store-tweets (get-tweets "AbePalmer")
+              "AbePalmer")
