@@ -22,7 +22,7 @@
   (let [(html-body (html->xexp
                     (hash-ref (json-response-body (get-tweets "AbePalmer"))
                               'body)))
-        (query (sxpath '(// (p (@ (equal? (class "timeline-Tweet-text")))))))]
+        (query (sxpath "//p[contains(@class, 'timeline-Tweet-text')]/text()"))]
     (query html-body)))
 
 (define (store-tweets tweets queue-name)
@@ -32,7 +32,9 @@
                     (for ([x xs])
                       (fn x))))]
     (for-each tweets (lambda (tweet)
-                         (redis-list-prepend! c queue-name (xexp->html-bytes tweet))))))
+                       (redis-list-prepend!
+                        c queue-name
+                        (string->bytes/utf-8 tweet))))))
 
-;;; Store the tweets
-(store-tweets tweets "AbePalmer");
+;; ;;; Store the tweets
+(store-tweets tweets "AbePalmer")
