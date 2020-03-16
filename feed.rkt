@@ -3,7 +3,9 @@
 (require simple-http)
 (require json)
 (require html-parsing)
+(require html-writing)
 (require sxml/sxpath)
+(require redis)
 
 (define (get-tweets name)
   """Get Tweets from a user's feed"""
@@ -23,7 +25,14 @@
         (query (sxpath '(// (p (@ (equal? (class "timeline-Tweet-text")))))))]
     (query html-body)))
 
-;;; Demo: display tweets
-;;; TODO: store later in some db
-(display tweets)
+(define (store-tweets tweets queue-name)
+  """Store tweets to a list"
+  (let [(c (make-redis))
+        (for-each (lambda (xs fn)
+                    (for ([x xs])
+                      (fn x))))]
+    (for-each tweets (lambda (tweet)
+                         (redis-list-prepend! c queue-name (xexp->html-bytes tweet))))))
 
+;;; Store the tweets
+(store-tweets tweets "AbePalmer");
