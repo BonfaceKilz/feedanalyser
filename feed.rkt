@@ -10,6 +10,10 @@
 (define-syntax-rule (extract-from-tweet fn path tweet)
   (fn ((sxpath path) tweet)))
 
+(define (for-each xs fn)
+  (for ([x xs])
+    (fn x)))
+
 (define (get-tweets name)
   """Get Tweets from a user's feed"""
   (let* [(requester (update-ssl (update-host json-requester "syndication.twitter.com") #t))
@@ -27,27 +31,31 @@
          (query-tweets (sxpath "//li[contains(@class, 'timeline-Tweet')]/div[contains(@class, 'timeline-Tweet')]"))]
     (query-tweets html-body)))
 
+(define (tweet->json tweet)
+  (let [(author (extract-from-tweet car "//span[contains(@class, 'TweetAuthor-name')]/text()" tweet))
+        (time-posted (extract-from-tweet cadar "//time/@title" tweet))
+        (raw-html (extract-from-tweet xexp->html "//p[contains(@class, 'timeline-Tweet-text')]" tweet))]
+    (string->bytes/utf-8 (string-append
+                          "{'author': '"
+                          author
+                          "', 'time': '"
+                          time-posted
+                          "', 'tweet': '"
+                          raw-html
+                          "' }"))))
 
-(define (store-tweets tweets queue-name)
+(define (display-tweets name)
+  (for-each (get-tweets name)
+            (lambda (tweet)
+              (begin
+                (newline)
+                (display (tweet->json tweet))
+                (newline)))))
+
+(define (store-tweets name)
   """Store tweets to a list"
-  (let [(c (make-redis))
-        (for-each (lambda (xs fn)
-                    (for ([x xs])
-                      (fn x))))]
-    (for-each tweets (lambda (tweet)
-                       (let [(author (extract-from-tweet car "//span[contains(@class, 'TweetAuthor-name')]/text()" tweet))
-                             (time-posted (extract-from-tweet cadar "//time/@title" tweet))
-                             (raw-html (extract-from-tweet xexp->html "//p[contains(@class, 'timeline-Tweet-text')]" tweet))]
-                         (redis-list-append!
-                          c queue-name
-                          (string->bytes/utf-8 (string-append
-                                                "{'author': '"
-                                                author
-                                                "' , 'time': '"
-                                                time-posted
-                                                "' , 'tweet': '"
-                                                raw-html
-                                                "' }"))))))))
-
-;;; Store the tweets
-(store-tweets (get-tweets "AbePalmer") "AbePalmer")
+  (let [(c (make-redis))]
+    (for-each (get-tweets name) (lambda (tweet)
+                                  (redis-list-append!
+                                   c name
+                                   (tweet->json tweet))))))
