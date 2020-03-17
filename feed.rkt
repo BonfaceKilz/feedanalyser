@@ -10,9 +10,8 @@
 (define-syntax-rule (extract-from-tweet fn path tweet)
   (fn ((sxpath path) tweet)))
 
-(define (for-each xs fn)
-  (for ([x xs])
-    (fn x)))
+;; Define the default user as AbePalmer
+(define twitter-user (make-parameter "AbePalmer"))
 
 (define (get-tweets name)
   """Get Tweets from a user's feed"""
@@ -45,17 +44,18 @@
                           "' }"))))
 
 (define (display-tweets name)
-  (for-each (get-tweets name)
-            (lambda (tweet)
+  (for-each (lambda (tweet)
               (begin
                 (newline)
                 (display (tweet->json tweet))
-                (newline)))))
+                (newline)))
+            (get-tweets name)))
 
 (define (store-tweets name)
   """Store tweets to a list"
   (let [(c (make-redis))]
-    (for-each (get-tweets name) (lambda (tweet)
-                                  (redis-list-append!
-                                   c name
-                                   (tweet->json tweet))))))
+    (for-each (lambda (tweet)
+                (redis-list-append!
+                 c name
+                 (tweet->json tweet)))
+              (get-tweets name) )))
