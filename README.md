@@ -9,9 +9,9 @@ racket feed.rkt -u "AbePalmer" -a "display"
 To store the tweets:
 ```
 racket feed.rkt -u "AbePalmer" -a "store"
-``**
+```
 
-Tweets are stored in a queue as a JSON in the format:
+Tweets are stored in a REDIS queue as a JSON in the format:
 
 ```
 {
