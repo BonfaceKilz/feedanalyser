@@ -1,5 +1,5 @@
 #! /usr/bin/env racket
-#lang racket/base
+#lang racket
 
 (require simple-http)
 (require html-parsing)
@@ -10,8 +10,9 @@
 (define-syntax-rule (extract-from-tweet fn path tweet)
   (fn ((sxpath path) tweet)))
 
-;; Define the default user as AbePalmer
+;; Define the default user and action
 (define twitter-user (make-parameter "AbePalmer"))
+(define action (make-parameter "display"))
 
 (define (get-tweets name)
   """Get Tweets from a user's feed"""
@@ -59,3 +60,26 @@
                  c name
                  (tweet->json tweet)))
               (get-tweets name) )))
+
+(define parser
+  (command-line
+   #:usage-help
+   "Print out a user's tweets by:"
+   "    ./feed -u <user-name> -a display"
+   "Store the tweets to a redis instance:"
+   "    ./feed -u <user-name> -a store"
+
+   #:once-each
+   [("-u" "--user") user
+                   "The twitter handle of the user"
+                   (twitter-user user)]
+   [("-a" "--action") user-action
+                     "Either store the tweets to Redis or display them"
+                     (action user-action)]
+   #:args () (void)))
+
+
+(cond
+  [(equal? (action) "store") (store-tweets (twitter-user))]
+  [(equal? (action) "display") (display-tweets (twitter-user))]
+  [else (display "Please perform the correct action")])
