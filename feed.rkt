@@ -4,6 +4,8 @@
 (require simple-http)
 (require html-parsing)
 (require html-writing)
+(require sxml)
+(require xml)
 (require sxml/sxpath)
 (require json)
 (require redis)
@@ -36,7 +38,7 @@
   "Convert a single tweet to a valid JSON object"
   (let [(author (extract-from-tweet car "//span[contains(@class, 'TweetAuthor-screenName')]/text()" tweet))
         (time-posted (extract-from-tweet cadar "//time/@title" tweet))
-        (raw-html (bytes->string/utf-8 (extract-from-tweet xexp->html-bytes "//p[contains(@class, 'timeline-Tweet-text')]" tweet)))]
+        (raw-html (srl:sxml->html (extract-from-tweet car "//p[contains(@class, 'timeline-Tweet-text')]" tweet)))]
     (jsexpr->string (make-hash `((author . ,author)
                                  (time-posted . ,time-posted)
                                  (tweet . ,raw-html))))))
