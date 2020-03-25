@@ -1,12 +1,38 @@
 <!doctype html>
 <html lang="en">
     <style type="text/css">
-     article {
-         padding: 2em;
+     body {
+         background: #F8F8F8;
      }
+
+     article {
+         padding: 1em 2em;
+         min-width: 10em;
+         width: 40%;
+         margin: 0 auto;
+         border: 1px solid #eee ;
+     }
+
      article > p {
+         margin-top: 0;
+     }
+
+     article > p, .author {
+         font-family: Helvetica, Arial, Sans-Serif;
          line-height: 1.5;
      }
+
+     .author {
+         font-weight: bold;
+         padding: 0;
+     }
+
+     .time {
+         font-size: 0.9em;
+         font-style: italic;
+         color: #303030;
+     }
+
     </style>
 
     <head>
@@ -19,10 +45,13 @@
             @for/list[([t tweets])]{
             @list{
             <article>
+                <span class="author"> @(hash-ref t 'author) </span>
+                <br/>
+
                 @(hash-ref t 'tweet)
                 <br/>
-                <span>Published by: @(hash-ref t 'author) </span>
-                at <span> @(hash-ref t 'time-posted) </span>
+
+                <span class="time"> @(hash-ref t 'time-posted) </span>
 
             </article>
             }}
