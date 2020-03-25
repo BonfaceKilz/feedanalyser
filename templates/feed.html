@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <style type="text/css">
+     article {
+         padding: 2em;
+     }
+     article > p {
+         line-height: 1.5;
+     }
+    </style>
+
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Twitter Feed</title>
+    </head>
+
+    <body>
+        <section>
+            @for/list[([t tweets])]{
+            @list{
+            <article>
+                @(hash-ref t 'tweet)
+                <br/>
+                <span>Published by: @(hash-ref t 'author) </span>
+                at <span> @(hash-ref t 'time-posted) </span>
+
+            </article>
+            }}
+        </section>
+    </body>
+</html>
