@@ -23,7 +23,7 @@
 
 (if (directory-exists? "build")
     (when (file-exists? '"build/index.html")
-      (delete-file '"build/inpdex.html"))
+      (delete-file '"build/index.html"))
     (make-directory "build"))
 
 (define (generate-html-file)
