@@ -1,0 +1,8 @@
+#!/bin/bash
+
+while true
+do
+    racket feed.rkt -u "AbePalmer" -a "store";
+    racket html-generator.rkt;
+    sleep 60;
+done
