@@ -5,4 +5,5 @@
                "html-parsing"
                "html-writing"
                "redis-lib"
-               "sxml"))
+               "sxml"
+               "lens-lib"))

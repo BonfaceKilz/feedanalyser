@@ -1,7 +1,7 @@
 ---
 name: User Story
 about: Suggest an idea for this project
-title: ''
+title: ['Feature] My-cool-new-feature'
 labels: ''
 assignees: ''
 
