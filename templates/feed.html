@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
     <style type="text/css">
-     body {
-         background: #F8F8F8;
+                         body {
+     background: #F8F8F8;
      }
 
      article {
@@ -22,15 +22,42 @@
          line-height: 1.5;
      }
 
-     .author {
-         font-weight: bold;
-         padding: 0;
+     .tab {
+         overflow: hidden;
+         border: 1px solid #ccc;
+         background-color: #f1f1f1;
+         display: flex;
+         flex-direction: row;
+         justify-content: center;
      }
 
-     .time {
-         font-size: 0.9em;
-         font-style: italic;
-         color: #303030;
+     /* Style the buttons that are used to open the tab content */
+     .tab button {
+         background-color: inherit;
+         float: left;
+         border: none;
+         outline: none;
+         cursor: pointer;
+         padding: 14px 16px;
+         transition: 0.3s;
+     }
+
+     /* Change background color of buttons on hover */
+     .tab button:hover {
+         background-color: #ddd;
+     }
+
+     /* Create an active/current tablink class */
+     .tab button.active {
+         background-color: #ccc;
+     }
+
+     /* Style the tab content */
+     .tabcontent {
+         display: none;
+         padding: 6px 12px;
+         border: 1px solid #ccc;
+         border-top: none;
      }
 
     </style>
@@ -41,20 +68,60 @@
     </head>
 
     <body>
-        <section>
+        <div class="tab">
+            <button id="defaultOpen" class="tablinks" onclick="openFeed(event, 'twitter')">Twitter</button>
+            <button class="tablinks" onclick="openFeed(event, 'github')">GitHub</button>
+            <button class="tablinks" onclick="openFeed(event, 'slack')">Slack</button>
+        </div>
+        <section id="twitter" class="tabcontent">
             @for/list[([t tweets])]{
             @list{
             <article>
-                <span class="author"> @(hash-ref t 'author) </span>
-                <br/>
-
-                @(hash-ref t 'tweet)
-                <br/>
-
-                <span class="time"> @(hash-ref t 'time-posted) </span>
-
+                <p> @t </p>
             </article>
             }}
         </section>
+
+        <section id="github" class="tabcontent">
+            @for/list[([commit commits])]{
+            @list{
+            <article>
+                <span class="author"> @(hash-ref (hash-ref commit 'author) 'name) </span>
+                <br/>
+
+                <p> @(hash-ref commit 'message) </p>
+                <span class="time"> @(hash-ref (hash-ref commit 'author) 'date) </span>
+            </article>
+            }}
+
+        </section>
+
+        <section id="slack" class="tabcontent">
+            Slack
+        </section>
+
+        <script type="text/javascript">
+         document.getElementById("defaultOpen").click();
+         function openFeed(evt, platformName) {
+             // Declare all variables
+             let i, tabcontent, tablinks;
+
+             // Get all elements with class="tabcontent" and hide them
+             tabcontent = document.getElementsByClassName("tabcontent");
+             for (i = 0; i < tabcontent.length; i++) {
+                 tabcontent[i].style.display = "none";
+             }
+
+             // Get all elements with class="tablinks" and remove the class "active"
+             tablinks = document.getElementsByClassName("tablinks");
+             for (i = 0; i < tablinks.length; i++) {
+                 tablinks[i].className = tablinks[i].className.replace(" active", "");
+             }
+
+             // Show the current tab, and add an "active" class to the button that opened the tab
+             document.getElementById(platformName).style.display = "block";
+             evt.currentTarget.className += " active";
+         }
+        </script>
     </body>
 </html>
