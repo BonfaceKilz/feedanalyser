@@ -1,6 +1,10 @@
 #! /usr/bin/env racket
 #lang racket
 
+(require web-server/templates)
+(require redis)
+(require json)
+
 (require "feeds/twitter.rkt")
 (require "feeds/github.rkt")
 
@@ -8,28 +12,27 @@
 (define twitter-user (make-parameter "pjotrprins"))
 (define action (make-parameter "display"))
 
-(define parser
-  (command-line
-   #:usage-help
-   "Print out a user's tweets by:"
-   "    ./feed -u <user-name> -a display"
-   "Store the tweets to a redis instance:"
-   "    ./feed -u <user-name> -a store"
+(define (redis/read name)
+  (let* [(c (make-redis))]
+    (redis-list-get c name)))
 
-   #:once-each
-   [("-u" "--user") user
-                    "The twitter handle of the user"
-                    (twitter-user user)]
-   [("-a" "--action") user-action
-                      "Either store the tweets to Redis or display them"
-                      (action user-action)]
-   #:args () (void)))
+(if (directory-exists? "build")
+    (when (file-exists? '"build/index.html")
+      (delete-file '"build/index.html"))
+    (make-directory "build"))
 
-(cond
-  [(equal? (action) "store") (store-tweets (twitter-user)
-                                           (has-words?
-                                            '("corona" "covid" "crisis")))]
-  [(equal? (action) "display") (display-tweets (twitter-user)
-                                               (has-words?
-                                                '("corona" "covid" "crisis")))]
-  [else (display "Please perform the correct action")])
+(define (generate-html-file)
+  (define (fast-template tweets commits)
+    (include-template "templates/feed.html"))
+  (call-with-output-file "build/index.html"
+    (lambda (out)
+      (let [(tweets (redis/read "BioHackanthoTweets"))
+            (commits (redis/read "Github"))]
+        (when (and tweets commits)
+          (write-string (fast-template
+                         (reverse tweets)
+                         (map bytes->jsexpr commits)) out))))))
+
+
+(store-gh-commits "Schematize")
+(generate-html-file)
