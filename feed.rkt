@@ -26,7 +26,7 @@
     (include-template "templates/feed.html"))
   (call-with-output-file "build/index.html"
     (lambda (out)
-      (let [(tweets (redis/read "BioHackanthonTweets"))
+      (let [(tweets (redis/read "BioHackathonTweets"))
             (commits (redis/read "Github"))]
         (when (and tweets commits)
           (write-string (fast-template
