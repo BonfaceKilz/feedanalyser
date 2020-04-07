@@ -6,4 +6,4 @@
                "html-writing"
                "redis-lib"
                "sxml"
-               "SSE"))
+               "lens-lib"))
