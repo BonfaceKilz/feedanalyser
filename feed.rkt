@@ -39,7 +39,7 @@
 (define (ghcommits->hash repo-name)
   """Get commits from a repo"""
   (let* [(requester (update-ssl (update-host json-requester "api.github.com") #t))
-         (params `'((page . "1") (per_page . "10")))]
+         (params '((page . "1") (per_page . "10")))]
     (json-response-body
      (get requester "/repos/graph-genome/Schematize/commits" #:params params))))
 
