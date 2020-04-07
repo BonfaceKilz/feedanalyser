@@ -27,3 +27,15 @@
                  "Github"
                  (jsexpr->bytes (lens-view commit-lens commit))))
               (ghcommits->hash repository))))
+
+(define (read-gh-commits repository)
+  """Store commits to a list"
+  (let [(c (make-redis))
+        (commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
+                                   (hash-ref-lens 'commit)))]
+    (for-each (lambda (commit)
+                (redis-list-append!
+                 c
+                 "Github"
+                 (jsexpr->bytes (lens-view commit-lens commit))))
+              (ghcommits->hash repository))))
