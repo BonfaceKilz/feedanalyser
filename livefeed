@@ -11,7 +11,7 @@
 # biohackathon
 store_tweets () {
     FILE=tweets.txt
-g    twint -s "#covid_19_bh20" --limit 10 > $FILE
+    twint -s "#covid_19_bh20" --limit 10 > $FILE
     while read -r line; do
         redis-cli rpush BioHackathonTweets "$line";
     done < $FILE
