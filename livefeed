@@ -21,5 +21,5 @@ while true; do
     redis-cli del BioHackathonTweets
     store_tweets
     racket feed.rkt
-    sleep 60
+    sleep 15m
 done
