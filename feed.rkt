@@ -5,7 +5,7 @@
 (require "feeds/github.rkt")
 
 ;; Define the default user and action
-(define twitter-user (make-parameter "AbePalmer"))
+(define twitter-user (make-parameter "pjotrprins"))
 (define action (make-parameter "display"))
 
 (define parser
