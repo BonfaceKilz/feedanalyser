@@ -41,7 +41,7 @@
   (let* [(requester (update-ssl (update-host json-requester "api.github.com") #t))
          (params '((page . "1") (per_page . "10")))]
     (json-response-body
-     (get requester "/repos/graph-genome/Schematize/commits" #:params params))))
+     (get requester (string-append "/repos/graph-genome/" repo-name "/commits") #:params params))))
 
 (define (tweet->json tweet)
   "Convert a single tweet to a valid JSON object"
