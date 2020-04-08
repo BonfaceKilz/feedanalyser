@@ -30,7 +30,7 @@
             (commits (redis/read "Github"))]
         (when (and tweets commits)
           (write-string (fast-template
-                         (reverse tweets)
+                         tweets
                          (map bytes->jsexpr commits)) out))))))
 
 

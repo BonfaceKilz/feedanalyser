@@ -21,6 +21,7 @@
   (let [(c (make-redis))
         (commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
                                    (hash-ref-lens 'commit)))]
+    (redis-remove! c "Github")
     (for-each (lambda (commit)
                 (redis-list-append!
                  c
