@@ -38,3 +38,12 @@ bash livefeed &
 - Better UI
 - Expose content using an API
 - Come up with a sane deployment process
+
+#### RoadMap
+
+- [ ] Better Parsing from Twitter
+- [ ] Fetch Pull Requests and merges from GitHub and display them
+- [ ] Fetch Data from Slack
+- [ ] Make a lib layer and add project to upstream to racket-lang.org
+- [ ] Fetch Data from IRC
+- [ ] Add NLP to make more meaningful data
