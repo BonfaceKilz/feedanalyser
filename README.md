@@ -42,6 +42,8 @@ bash livefeed &
 #### RoadMap
 
 - [ ] Better Parsing from Twitter
+- [ ] Add package and dependencies to Guix
+- [ ] Integrate to GN2
 - [ ] Fetch Pull Requests and merges from GitHub and display them
 - [ ] Fetch Data from Slack
 - [ ] Make a lib layer and add project to upstream to racket-lang.org
