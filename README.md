@@ -1,6 +1,10 @@
 ### What is Feed Analyser?
 
-This aggregates content from different channels and displays them in one place. In most hackathons, organisations and sometimes events, content is spread over different places e.g. Discord, slack, IRC, mailing list, issue trackers etc. This project aims to aggregate to fetch news from different places and displays them in one place.
+This aggregates content from different channels and displays them in one place.
+In most hackathons, organisations and sometimes events, content is spread over
+different places e.g. Discord, slack, IRC, mailing list, issue trackers etc.
+This project aims to aggregate news from different places and display them in
+one place.
 
 For now, the project supports twitter and github.
 
@@ -8,7 +12,11 @@ You can view a demo [here](https://feed.bonfacemunyoki.com/).
 
 ### How does it work?
 
-The program scrapes content from twitter and github with optional filters(at least for now) and stores the data into redis queues after which it generates a simple HTML page- our feed- which can you can server using any server of your choice. This page is re-generated every 15 minutes.
+The program scrapes content from twitter and github with optional filters(at
+least for now) and stores the data into redis queues after which it generates a
+simple HTML page- our feed- which you can then serve using any server of your
+choice. This page is re-generated every 15 minutes. Alternatively, you can use
+another client to read from the redis queue!
 
 _Why are you storing things to Redis? Why not just generate pages straight from them?__
 
