@@ -38,8 +38,7 @@
    (lambda (tweet)
      (let* [(ts (remove* (list "\n" '()) (string-split tweet "$@@$")))]
        (when (not (null? ts))
-         `((author ,(string-normalize-spaces (first ts)) tweet
-                   ,(string-normalize-spaces (second ts)) timeposted
-                   ,(string-normalize-spaces (third ts)))))
-       ))
+         (make-hash `((author ,(string-normalize-spaces (first ts)))
+                      (tweet ,(string-normalize-spaces (second ts)))
+                      (timeposted ,(string-normalize-spaces (third ts))))))))
    (get-raw-tweets name #:number number)))
