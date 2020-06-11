@@ -1,18 +1,38 @@
 #lang racket
 
-(provide get-tweets)
+(require racket/date
+         gregor
+         redis)
 
-;;; TODO Replace later
-(define (store-tweets name filter-fn)
-  """Store tweets to a list"
-  (let [(c (make-redis))]
-    (for-each (lambda (tweet)
-                (redis-list-append!
-                 c
-                 name
-                 (string->bytes/utf-8 (tweet->json tweet))))
-              (filter filter-fn
-                      (get-tweets name)))))
+(provide get-tweets
+         store-tweet)
+
+(define (store-tweet client tweet-hash)
+  (let* [(vote-score 432)
+         (tweet (car (hash-ref tweet-hash 'tweet)))
+         (author (car (hash-ref tweet-hash 'author)))
+         (timeposted (car (hash-ref tweet-hash 'timeposted)))
+         (timeposted-in-seconds (->posix (parse-datetime timeposted  "yyyy-MM-dd HH:mm:ss")))
+         (redis-tweet-key (string-append
+                "tweet:"
+                (number->string
+                 (equal-hash-code tweet))))]
+    (if (not (redis-has-key? client redis-tweet-key))
+        (begin
+          (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
+          (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
+          (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
+          (redis-zset-add!
+           client
+           "tweet-score:"
+           redis-tweet-key
+           (+ vote-score timeposted-in-seconds))
+          (redis-zset-add!
+           client
+           "tweet-time:"
+           redis-tweet-key
+           timeposted-in-seconds))
+        #f)))
 
 (define (get-raw-tweets name #:number [number 10])
   (let* [(n (if (string? number)
