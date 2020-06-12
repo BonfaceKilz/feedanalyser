@@ -7,7 +7,8 @@
 (provide get-tweets/redis
          get-tweets/twitter
          store-tweet
-         store-multiple-tweets)
+         store-multiple-tweets
+         vote-tweet)
 
 (define (remove-expired-tweets-from-zsets client)
   (let [(tweet-scores (redis-subzset
@@ -106,18 +107,9 @@
            (redis-hash-get client tweet-hash))
          tweet-scores)))
 
-(define (vote-tweet client tweet #:upvote? [upvote #t])
-  (let* [(tweet/string
-          (if (byte? tweet)
-              (bytes->string/utf-8 tweet)
-              tweet))
-         (redis-tweet-key
-          (string-append
-           "tweet:"
-           (number->string
-            (equal-hash-code tweet/string))))
-         (n (if upvote 1 -1) )]
-    (redis-zset-incr! client "tweet-score:" redis-tweet-key n)))
+(define (vote-tweet client tweet-hash #:upvote? [upvote #t])
+  (let [(n (if upvote 1 -1) )]
+    (redis-zset-incr! client "tweet-score:" tweet-hash n)))
 
 
 (define (store-multiple-tweets client name)
