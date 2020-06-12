@@ -6,4 +6,5 @@
     (provide (all-from-out e0 e ...))))
 
 (reprovide
- "private/twitter.rkt")
+ "private/twitter.rkt"
+ "private/github.rkt")
