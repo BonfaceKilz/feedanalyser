@@ -43,6 +43,7 @@
         (begin
           (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
           (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
+          (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
           (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
           (redis-zset-add!
            client
