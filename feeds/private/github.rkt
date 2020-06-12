@@ -3,11 +3,11 @@
 (provide ghcommits->hash
          store-gh-commits)
 
-(require simple-http)
-(require json)
-(require redis)
-(require lens/common)
-(require lens/data/hash)
+(require simple-http
+         json
+         redis
+         lens/common
+         lens/data/hash)
 
 (define (ghcommits->hash repo-name)
   """Get commits from a repo"""
