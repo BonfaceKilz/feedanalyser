@@ -7,7 +7,7 @@
 (provide get-tweets/redis
          get-tweets/twitter
          store-tweet
-         store-all-tweets)
+         store-multiple-tweets)
 
 (define (remove-expired-tweets-from-zsets client)
   (let [(tweet-scores (redis-subzset
@@ -119,8 +119,7 @@
     (redis-zset-incr! client "tweet-score:" redis-tweet-key n)))
 
 
-(define (store-all-tweets name)
-  (define c (make-redis))
+(define (store-multiple-tweets client name)
   (for-each (lambda (tweet)
-              (store-tweet c tweet))
+              (store-tweet client tweet))
             (get-tweets/twitter name)))
