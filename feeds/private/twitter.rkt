@@ -9,6 +9,21 @@
          store-tweet
          store-all-tweets)
 
+(define (remove-expired-tweets-from-zsets client)
+  (let [(tweet-scores (redis-subzset
+                       client
+                       "tweet-score:"
+                       #:start 0
+                       #:stop -1))]
+    (map (lambda (tweet-hash)
+           (unless (redis-has-key? client tweet-hash)
+               ;;; Remove expired tweets from the relevant zsets
+             (begin
+               (redis-zset-remove! client "tweet-score:" tweet-hash)
+               (redis-zset-remove! client "tweet-time:" tweet-hash))
+             (redis-hash-get client tweet-hash)))
+         tweet-scores)))
+
 (define (store-tweet client tweet-hash)
   "Store tweets to REDIS. The tweets expire after 1 month"
   (let* [(vote-score 432)
@@ -20,6 +35,10 @@
                 "tweet:"
                 (number->string
                  (equal-hash-code tweet))))]
+
+    ;; Remove any tweets that had expired from the zsets
+    (remove-expired-tweets-from-zsets client)
+
     (if (not (redis-has-key? client redis-tweet-key))
         (begin
           (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
@@ -83,11 +102,25 @@
                        #:stop stop
                        #:reverse? reverse?))]
     (map (lambda (tweet-hash)
-           (if (not (redis-has-key? client tweet-hash))
-               ;;; Remove expired tweets from the relevant zsets
-               (begin
-                 (redis-zset-remove! client "tweet-score:" tweet-hash)
-                 (redis-zset-remove! client "tweet-time:" tweet-hash))
-               (redis-hash-get client tweet-hash)))
+           (redis-hash-get client tweet-hash))
          tweet-scores)))
 
+(define (vote-tweet client tweet #:upvote? [upvote #t])
+  (let* [(tweet/string
+          (if (byte? tweet)
+              (bytes->string/utf-8 tweet)
+              tweet))
+         (redis-tweet-key
+          (string-append
+           "tweet:"
+           (number->string
+            (equal-hash-code tweet/string))))
+         (n (if upvote 1 -1) )]
+    (redis-zset-incr! client "tweet-score:" redis-tweet-key n)))
+
+
+(define (store-all-tweets name)
+  (define c (make-redis))
+  (for-each (lambda (tweet)
+              (store-tweet c tweet))
+            (get-tweets/twitter name)))
