@@ -55,7 +55,7 @@
            redis-tweet-key
            timeposted-in-seconds)
           ;; Expire tweets after 1 week
-          (redis-expire-in! client redis-tweet-key (* 7 24 60 60 100)))
+          (redis-expire-in! client redis-tweet-key (* 30 7 24 60 60 100)))
         #f)))
 
 (define (get-raw-tweets name #:number [number 10])
