@@ -7,4 +7,5 @@
 
 (reprovide
  "private/twitter.rkt"
- "private/github.rkt")
+ "private/github.rkt"
+ "private/server.rkt")
