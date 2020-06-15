@@ -83,14 +83,14 @@
                 @list{
                 <li data-tweet-hash='@(hash-ref t #"hash")'>
                     <div class="wrap">
-                        <div class="vote up">
+                        <div class="vote up" data-tweet-vote="upvote">
                             <i class="fa fa-angle-up"></i>
                         </div>
                         <div class="stat">
                             <span class="score">@(hash-ref t #"score")
                             </span>
                         </div>
-                        <div class="vote down">
+                        <div class="vote down" data-tweet-vote="downvote">
                             <i class="fa fa-angle-down"></i>
                         </div>
                     </div>
@@ -104,5 +104,37 @@
             </ul>
 
         </div>
+
+        <script type="text/javascript">
+         document.addEventListener("DOMContentLoaded", function () {
+             function vote(e) {
+                 let tweetHash = this.parentElement.parentElement.parentElement.dataset.tweetHash;
+                 let tweetVote = this.parentElement.dataset.tweetVote;
+                 console.log(tweetVote);
+                 fetch("/vote", {
+                     method: "POST",
+                     body: JSON.stringify({
+                         "tweet-hash": tweetHash,
+                         "upvote": tweetVote
+                     }),
+                     headers: {"content-type": "application/json"},
+                 })
+                     .then(function(res) {
+                         console.log(res);
+                         if (res.ok) { // ok if status is 2xx
+                             window.location.reload(true);
+                         } else {
+                             console.log('Request failed');
+                         }
+                     })
+                     .catch(function(err) {
+                         console.log(err);
+                     });
+             }
+             for (let button of document.getElementsByClassName('fa')) {
+                 button.addEventListener('click', vote)
+             }
+         });
+        </script>
     </body>
 </html>
