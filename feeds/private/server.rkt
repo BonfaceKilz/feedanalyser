@@ -23,9 +23,7 @@
                [tweet-hash (hash-ref json/vals 'tweet-hash)]
                [upvote (hash-ref json/vals 'upvote)])
           (vote-tweet c tweet-hash #:upvote? (string=? upvote "upvote"))
-          "OK"
-          )
-        ))
+          "OK")))
 
 (define start-server
   (lambda()
