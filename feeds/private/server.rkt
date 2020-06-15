@@ -2,6 +2,7 @@
 
 (require (planet dmac/spin)
          web-server/templates
+         web-server/http
          redis
          "twitter.rkt")
 
@@ -12,18 +13,19 @@
 
 (get "/"
      (lambda (req)
-       (let ([name (params req 'name)]
-             [google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
+       (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
              [tweets (get-tweets/redis c)])
          (include-template "templates/polling.html"))))
 
 (post "/vote"
       (lambda (req)
-        (let* ([votetype (params req 'votetype)]
-               [tweet-hash (params req 'tweet-hash)]
-               [upvote? (string=? votetype "upvote")])
-          (vote-tweet c tweet-hash #:upvote? upvote?)
-          (include-template "templates/polling.html"))))
+        (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+               [tweet-hash (hash-ref json/vals 'tweet-hash)]
+               [upvote (hash-ref json/vals 'upvote)])
+          (vote-tweet c tweet-hash #:upvote? (string=? upvote "upvote"))
+          "OK"
+          )
+        ))
 
 (define start-server
   (lambda()
