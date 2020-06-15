@@ -3,6 +3,7 @@
 (require (planet dmac/spin)
          web-server/templates
          web-server/http
+         json
          redis
          "twitter.rkt")
 
