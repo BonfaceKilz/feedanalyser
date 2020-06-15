@@ -8,3 +8,8 @@
 
 /output
 /build
+
+*log
+
+/compiled
+/private/compile
