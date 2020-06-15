@@ -27,7 +27,7 @@
 
 (define (store-tweet client tweet-hash)
   "Store tweets to REDIS. The tweets expire after 1 month"
-  (let* [(vote-score 432)
+  (let* [(vote-score 0)
          (tweet (car (hash-ref tweet-hash 'tweet)))
          (author (car (hash-ref tweet-hash 'author)))
          (timeposted (car (hash-ref tweet-hash 'timeposted)))
