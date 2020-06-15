@@ -1,22 +1,27 @@
 ### What is Feed Analyser?
 
-This aggregates content from different channels and displays them in one place.
-In most hackathons, organisations and sometimes events, content is spread over
-different places e.g. Discord, slack, IRC, mailing list, issue trackers etc.
-This project aims to aggregate news from different places and display them in
-one place.
+This aggregates content from different channels(for now only twitter is properly
+supported) and displays them in one place. In most hackathons, organisations and
+sometimes events, content is spread over different places e.g. Discord, slack,
+IRC, mailing list, issue trackers etc. This project aims to aggregate news from
+different places and display them in one place.
 
-For now, the project supports twitter and github.
+For now, the project supports twitter with partial support for GitHub.
+
+It also allows you to vote on the feeds.
 
 You can view a demo [here](https://feed.bonfacemunyoki.com/).
 
 ### How does it work?
 
 The program scrapes content from twitter and github with optional filters(at
-least for now) and stores the data into redis queues after which it generates a
-simple HTML page- our feed- which you can then serve using any server of your
-choice. This page is re-generated every 15 minutes. Alternatively, you can use
-another client to read from the redis queue!
+least for now) and stores the data into redis queues with a score. You can then
+read from the redis queue.
+
+There's also an in-built provision for voting on queues, whereby each vote
+updates the zscore of an individual tweet thereby increasing or decreasing the
+likelihood of it being displayed on a page.
+
 
 _Why are you storing things to Redis? Why not just generate pages straight from them?__
 
@@ -28,28 +33,27 @@ data store, and for this, Redis was chosen.
 
 First ensure you have [twint](https://github.com/twintproject/twint/tree/master/twint) installed- this is used to fetch data from twitter without using twitter's restrictive API.
 
-- Generate the html feed:
+- Start the twitter fetching daemon:
 
 ```
-racket feed.rkt
+racket bin/add-tweets.rkt
 ```
 
-- To run the "daemon" in the background:
+- To run the server
 ```
-bash livefeed &
+racket bin/polling-server.rkt
 ```
 
 #### TODO/ Suggestions/ Help Wanted
 
 - Fetch data from Slack
 - Come up with an algorithm to sieve out noise(Machine Learning)
-- Better UI
 - Expose content using an API
 - Come up with a sane deployment process
 
 #### RoadMap
 
-- [ ] Better Parsing from Twitter
+- [x] Better Parsing from Twitter
 - [ ] Add package and dependencies to Guix
 - [ ] Integrate to GN2
 - [ ] Fetch Pull Requests and merges from GitHub and display them
