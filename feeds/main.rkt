@@ -8,4 +8,5 @@
 (reprovide
  "private/twitter.rkt"
  "private/github.rkt"
- "private/server.rkt")
+ "private/server.rkt"
+ redis)
