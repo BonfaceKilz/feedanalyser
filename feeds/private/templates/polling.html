@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Feed Tweets</title>
+
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+        <link href="@google-font-link" type="text/css" rel="stylesheet" >
+        <style type="text/css">
+         h1, h2, h3, h4, h5, h6 {
+             font-family: 'Amatic SC', cursive;
+             text-align: center;
+             font-size: 3rem;
+         }
+
+         body {
+             font-family: 'Josefin Sans', sans-serif;
+             background: #eee;
+         }
+
+         .tweets {
+             padding: reset;
+         }
+
+         .tweet {
+             padding: 2em;
+         }
+
+         .tweets li {
+             display: flex;
+             flex-direction: row;
+             align-items: center;
+             background: #fff;
+             margin: 0.5rem;
+             padding: 1rem;
+             border-radius: 25px;
+             height: auto;
+         }
+         .wrap{
+             display: flex;
+             flex-direction: column;
+             margin: 0;
+             text-align:center;
+         }
+         .vote{
+             font-size:36px;
+         }
+         .up, .down {
+             cursor: pointer;
+         }
+         .up {
+             color:green;
+         }
+         .down{
+             color:red;
+         }
+         .inactive{
+             color:gray;
+         }
+         .score{
+             position: relative;
+             display: block;
+             padding: 5px 0;
+         }
+         .badge{
+             background: #eee;
+             padding:5px 10px;
+             border-radius: 30px;
+             position: absolute;
+             top:0;
+             margin-left:10px;
+         }
+        </style>
+    </head>
+    <body>
+
+        <h1>Vote on Tweets</h1>
+
+        <div class="tweets">
+            <ul>
+                @for/list[([t tweets])]{
+                @list{
+                <li data-tweet-hash='@(hash-ref t #"hash")'>
+                    <div class="wrap">
+                        <div class="vote up" data-tweet-vote="upvote">
+                            <i class="fa fa-angle-up"></i>
+                        </div>
+                        <div class="stat">
+                            <span class="score">@(hash-ref t #"score")
+                            </span>
+                        </div>
+                        <div class="vote down" data-tweet-vote="downvote">
+                            <i class="fa fa-angle-down"></i>
+                        </div>
+                    </div>
+                    <div class="tweet">@(hash-ref t #"tweet") <br/>
+                        <b>&#64;@(hash-ref t #"author")</b> <br/>
+                        <i>@(hash-ref t #"timeposted")</i>
+                    </div>
+                </li>
+                }}
+
+            </ul>
+
+        </div>
+
+        <script type="text/javascript">
+         document.addEventListener("DOMContentLoaded", function () {
+             function vote(e) {
+                 let tweetHash = this.parentElement.parentElement.parentElement.dataset.tweetHash;
+                 let tweetVote = this.parentElement.dataset.tweetVote;
+                 console.log(tweetVote);
+                 fetch("/vote", {
+                     method: "POST",
+                     body: JSON.stringify({
+                         "tweet-hash": tweetHash,
+                         "upvote": tweetVote
+                     }),
+                     headers: {"content-type": "application/json"},
+                 })
+                     .then(function(res) {
+                         console.log(res);
+                         if (res.ok) { // ok if status is 2xx
+                             window.location.reload(true);
+                         } else {
+                             console.log('Request failed');
+                         }
+                     })
+                     .catch(function(err) {
+                         console.log(err);
+                     });
+             }
+             for (let button of document.getElementsByClassName('fa')) {
+                 button.addEventListener('click', vote)
+             }
+         });
+        </script>
+    </body>
+</html>

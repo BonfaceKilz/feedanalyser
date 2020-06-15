@@ -3,11 +3,11 @@
 (provide ghcommits->hash
          store-gh-commits)
 
-(require simple-http)
-(require json)
-(require redis)
-(require lens/common)
-(require lens/data/hash)
+(require simple-http
+         json
+         redis
+         lens/common
+         lens/data/hash)
 
 (define (ghcommits->hash repo-name)
   """Get commits from a repo"""
@@ -16,27 +16,25 @@
     (json-response-body
      (get requester (string-append "/repos/graph-genome/" repo-name "/commits") #:params params))))
 
-(define (store-gh-commits repository)
+(define (store-gh-commits client repository)
   """Store commits to a list"
-  (let [(c (make-redis))
-        (commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
+  (let [(commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
                                    (hash-ref-lens 'commit)))]
-    (redis-remove! c "Github")
+    (redis-remove! client "Github")
     (for-each (lambda (commit)
                 (redis-list-append!
-                 c
+                 client
                  "Github"
                  (jsexpr->bytes (lens-view commit-lens commit))))
               (ghcommits->hash repository))))
 
-(define (read-gh-commits repository)
+(define (read-gh-commits client repository)
   """Store commits to a list"
-  (let [(c (make-redis))
-        (commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
+  (let [(commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
                                    (hash-ref-lens 'commit)))]
     (for-each (lambda (commit)
                 (redis-list-append!
-                 c
+                 client
                  "Github"
                  (jsexpr->bytes (lens-view commit-lens commit))))
               (ghcommits->hash repository))))
