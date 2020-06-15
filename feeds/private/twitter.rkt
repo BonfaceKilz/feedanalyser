@@ -46,6 +46,7 @@
           (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
           (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
           (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
+          (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
           (redis-zset-add!
            client
            "tweet-score:"
@@ -108,8 +109,13 @@
          tweet-scores)))
 
 (define (vote-tweet client tweet-hash #:upvote? [upvote #t])
-  (let [(n (if upvote 1 -1) )]
-    (redis-zset-incr! client "tweet-score:" tweet-hash n)))
+  (let* [(n (if upvote 1 -1))
+         (key "tweet-score:")
+         (score (string->number (redis-hash-ref client key "score")))]
+    (begin
+      (redis-hash-set! client tweet-hash "score"
+                       (string->number (+ (number->string score) n)))
+      (redis-zset-incr! client key tweet-hash (* n 1000)))))
 
 
 (define (store-multiple-tweets client name)
