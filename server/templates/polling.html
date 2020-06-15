@@ -69,13 +69,15 @@
 
         <div class="tweets">
             <ul>
-                <li>
+                @for/list[([t tweets])]{
+                @list{
+                <li data-tweet-hash="@(hash-ref t 'hash)">
                     <div class="wrap">
                         <div class="vote up">
                             <i class="fa fa-angle-up"></i>
                         </div>
                         <div class="stat">
-                            <span class="score">115
+                            <span class="score">@(hash-ref t 'score)
                                 <span class="badge">+1</span>
                             </span>
                         </div>
@@ -83,24 +85,10 @@
                             <i class="fa fa-angle-down"></i>
                         </div>
                     </div>
-                    <div class="tweet">This is a tweet</div>
+                    <div class="tweet">@(hash-ref t 'tweet) by @(hash-ref t 'author) on @(hash-ref t 'timeposted)</div>
                 </li>
-                <li>
-                    <div class="wrap">
-                        <div class="vote up">
-                            <i class="fa fa-angle-up"></i>
-                        </div>
-                        <div class="stat">
-                            <span class="score">115
-                                <span class="badge">+1</span>
-                            </span>
-                        </div>
-                        <div class="vote down">
-                            <i class="fa fa-angle-down"></i>
-                        </div>
-                    </div>
-                    <div class="tweet">This is another tweet</div>
-                </li>
+                }}
+
             </ul>
 
         </div>
