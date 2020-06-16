@@ -10,7 +10,7 @@ Run the worker after every 60 minutes vis-a-vis an infinite loop
 
 (define client (make-redis))
 
-(define hashtag/username "covid_19_bh20")
+(define hashtag/username "GeneNetwork2")
 
 (define (hours->seconds hours) (* hours 60 60))
 
