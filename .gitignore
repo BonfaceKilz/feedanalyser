@@ -9,6 +9,9 @@
 /output
 /build
 
+*dep
+*zo
+
 *log
 
 /compiled
