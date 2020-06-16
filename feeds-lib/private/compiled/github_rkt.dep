@@ -1,1 +1,0 @@
-("7.0" ("355da60ddd47de01ef04897c81eedac6374d8c8f" . "4f871a149f531a94e3efe1f9f24b53319eaae3dd") (collects #"json" #"main.rkt") (collects #"lens" #"common.rkt") (collects #"lens" #"data" #"hash.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redis" #"main.rkt") (collects #"simple-http" #"main.rkt"))

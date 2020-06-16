@@ -1,1 +1,0 @@
-("7.0" ("27616539554402428d7a616b9119af9087db9f0e" . "c2ceed88276aceef0d2b66fadeb267686b1672ea") (collects #"feeds" #"private" #"github.rkt") (collects #"feeds" #"private" #"server.rkt") (collects #"feeds" #"private" #"twitter.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redis" #"main.rkt"))
