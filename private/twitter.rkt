@@ -51,7 +51,7 @@
            client
            "tweet-score:"
            redis-tweet-key
-           (+ vote-score timeposted-in-seconds))
+           vote-score)
           (redis-zset-add!
            client
            "tweet-time:"
