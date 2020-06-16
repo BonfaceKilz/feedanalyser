@@ -1,6 +1,6 @@
 #lang setup/infotab
 
-(define name "feeds")
+(define name "feedanalyser")
 (define blurb
   (list '(p "Fetch feeds from different places in Racket")))
 (define primary-file "main.rkt")

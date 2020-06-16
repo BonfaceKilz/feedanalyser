@@ -6,7 +6,7 @@ Run the worker after every 60 minutes vis-a-vis an infinite loop
 
 |#
 
-(require feeds)
+(require feedanalyser)
 
 (define client (make-redis))
 
