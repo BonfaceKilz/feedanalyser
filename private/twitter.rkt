@@ -32,27 +32,24 @@
          tweet-scores)))
 
 
-(define (store-tweet client tweet-hash)
+(define (store-tweet client tweet)
   "Store tweets to REDIS. The tweets expire after 1 month"
-  (let* [(vote-score 0)
-         (tweet (car (hash-ref tweet-hash 'tweet)))
-         (author (car (hash-ref tweet-hash 'author)))
-         (timeposted (car (hash-ref tweet-hash 'timeposted)))
-         (timeposted-in-seconds (->posix (parse-datetime timeposted  "yyyy-MM-dd HH:mm:ss")))
-         (redis-tweet-key (string-append
-                "tweet:"
-                (number->string
-                 (equal-hash-code tweet))))]
+  (let* [(serialized-tweet (serialize-tweet tweet))
+         (vote-score 0)
+         (author (feed-tweet-author serialized-tweet))
+         (content (feed-tweet-content serialized-tweet))
+         (redis-tweet-key (feed-tweet-hash serialized-tweet))
+         (timeposted (feed-tweet-timeposted serialized-tweet))]
 
     ;; Remove any tweets that had expired from the zsets
     (remove-expired-tweets-from-zsets client)
 
     (cond
-     [(not (redis-has-key? client redis-tweet-key))
-      (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
-      (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
+     [(not (redis-has-key? client (feed-tweet-hash serialized-tweet)))
+      (redis-hash-set! client redis-tweet-key "author" author)
+      (redis-hash-set! client redis-tweet-key "tweet" content)
       (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
-      (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
+      (redis-hash-set! client redis-tweet-key "timeposted" timeposted)
       (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
       (redis-zset-add!
        client
