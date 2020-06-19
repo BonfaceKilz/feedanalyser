@@ -142,7 +142,7 @@
                 (store-tweet client tweet))
               (get-tweets/twitter name))
     #t]
-   [(not (null? tweets))
+   [(not (null? tweets)) ;; Only one tweet
     (store-tweet client tweets)
     #t]
    [else #f]))
