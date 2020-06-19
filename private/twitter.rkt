@@ -9,7 +9,12 @@
          get-tweets/twitter
          store-tweet
          store-multiple-tweets
-         vote-tweet)
+         vote-tweet
+         (struct-out tweet))
+
+
+; A simple (placeholder) tweet type, that contains metadata about a tweet
+(struct tweet (author content time-posted hash) #:transparent)
 
 (define (remove-expired-tweets-from-zsets client)
   (let ([tweet-scores (redis-subzset
