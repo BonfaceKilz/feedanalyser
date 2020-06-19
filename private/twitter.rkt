@@ -88,15 +88,24 @@
     (remove* (list "\n" '()) tweets)))
 
 
+;; Get tweets from twitter and return them as strings
 (define (get-tweets/twitter name #:number [number 10])
   "Get tweets from Twitter"
   (map
    (lambda (tweet)
      (let* [(ts (remove* (list "\n" '()) (string-split tweet "$@@$")))]
        (when (not (null? ts))
-         (make-hash `((author ,(string-normalize-spaces (first ts)))
-                      (tweet ,(string-normalize-spaces (second ts)))
-                      (timeposted ,(string-normalize-spaces (third ts))))))))
+         (define author (string-normalize-spaces (first ts)))
+         (define content (string-normalize-spaces (second ts)))
+         (define timeposted (->posix
+                             (parse-datetime
+                              (string-normalize-spaces (third ts))
+                              "yyyy-MM-dd HH:mm:ss")))
+         (define hash (string-append
+                       "tweet:"
+                       (number->string
+                        (equal-hash-code content))))
+         (feed-tweet author content timeposted hash))))
    (get-raw-tweets name #:number number)))
 
 
