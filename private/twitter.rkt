@@ -133,3 +133,11 @@
   (for-each (lambda (tweet)
               (store-tweet client tweet))
             (get-tweets/twitter name)))
+
+
+;; Serialize a tweet into a form that can be stored in REDIS
+(define (serialize-tweet tweet)
+  (feed-tweet (string->bytes/utf-8 (feed-tweet-author tweet))
+              (string->bytes/utf-8 (feed-tweet-content tweet))
+              (string->bytes/utf-8 (feed-tweet-timeposted tweet))
+              (string->bytes/utf-8 (feed-tweet-hash tweet))))
