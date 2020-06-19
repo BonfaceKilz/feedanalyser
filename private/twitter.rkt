@@ -1,8 +1,9 @@
 #lang racket
 
-(require racket/date
-         gregor
+(require gregor
+         racket/date
          redis)
+
 
 (provide get-tweets/redis
          get-tweets/twitter
@@ -11,11 +12,11 @@
          vote-tweet)
 
 (define (remove-expired-tweets-from-zsets client)
-  (let [(tweet-scores (redis-subzset
+  (let ([tweet-scores (redis-subzset
                        client
                        "tweet-score:"
                        #:start 0
-                       #:stop -1))]
+                       #:stop -1)])
     (map (lambda (tweet-hash)
            (unless (redis-has-key? client tweet-hash)
                ;;; Remove expired tweets from the relevant zsets
@@ -24,6 +25,7 @@
                (redis-zset-remove! client "tweet-time:" tweet-hash))
              (redis-hash-get client tweet-hash)))
          tweet-scores)))
+
 
 (define (store-tweet client tweet-hash)
   "Store tweets to REDIS. The tweets expire after 1 month"
@@ -40,26 +42,27 @@
     ;; Remove any tweets that had expired from the zsets
     (remove-expired-tweets-from-zsets client)
 
-    (if (not (redis-has-key? client redis-tweet-key))
-        (begin
-          (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
-          (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
-          (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
-          (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
-          (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
-          (redis-zset-add!
-           client
-           "tweet-score:"
-           redis-tweet-key
-           vote-score)
-          (redis-zset-add!
-           client
-           "tweet-time:"
-           redis-tweet-key
-           timeposted-in-seconds)
-          ;; Expire tweets after 1 week
-          (redis-expire-in! client redis-tweet-key (* 30 7 24 60 60 100)))
-        #f)))
+    (cond
+     [(not (redis-has-key? client redis-tweet-key))
+      (redis-hash-set! client redis-tweet-key "author" (string->bytes/utf-8 author))
+      (redis-hash-set! client redis-tweet-key "tweet" (string->bytes/utf-8 tweet))
+      (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
+      (redis-hash-set! client redis-tweet-key "timeposted" (string->bytes/utf-8 timeposted))
+      (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
+      (redis-zset-add!
+       client
+       "tweet-score:"
+       redis-tweet-key
+       vote-score)
+      (redis-zset-add!
+       client
+       "tweet-time:"
+       redis-tweet-key
+       timeposted-in-seconds)
+      ;; Expire tweets after 1 week
+      (redis-expire-in! client redis-tweet-key (* 30 7 24 60 60 100))]
+     [else #f])))
+
 
 (define (get-raw-tweets name #:number [number 10])
   (let* [(n (if (string? number)
@@ -77,8 +80,8 @@
                        " --link include"
                        " --format '{username} $@@$ {tweet} $@@$ {date} {time}||||||'"))))
                  "||||||"))]
-    (remove* (list "\n" '()) tweets)
-    ))
+    (remove* (list "\n" '()) tweets)))
+
 
 (define (get-tweets/twitter name #:number [number 10])
   "Get tweets from Twitter"
@@ -91,6 +94,7 @@
                       (timeposted ,(string-normalize-spaces (third ts))))))))
    (get-raw-tweets name #:number number)))
 
+
 (define (get-tweets/redis
          client
          #:key [key "tweet-score:"]
@@ -98,15 +102,16 @@
          #:stop [stop -1]
          #:reverse? [reverse? #t])
   "Get tweets from REDIS. Also removes expired tweets from the zsets"
-  (let [(tweet-scores (redis-subzset
+  (let ([tweet-scores (redis-subzset
                        client
                        key
                        #:start start
                        #:stop stop
-                       #:reverse? reverse?))]
+                       #:reverse? reverse?)])
     (map (lambda (tweet-hash)
            (redis-hash-get client tweet-hash))
          tweet-scores)))
+
 
 (define (vote-tweet client tweet-hash #:upvote? [upvote #t])
   (let* [(n (if upvote 1 -1))
