@@ -17,19 +17,19 @@
 (struct feed-tweet (author content timeposted hash) #:transparent)
 
 (define (remove-expired-tweets-from-zsets client)
-  (let ([tweet-scores (redis-subzset
+  (let ([keys (redis-subzset
                        client
                        "tweet-score:"
                        #:start 0
                        #:stop -1)])
-    (map (lambda (tweet-hash)
-           (unless (redis-has-key? client tweet-hash)
+    (map (lambda (key)
+           (unless (redis-has-key? client key)
                ;;; Remove expired tweets from the relevant zsets
              (begin
-               (redis-zset-remove! client "tweet-score:" tweet-hash)
-               (redis-zset-remove! client "tweet-time:" tweet-hash))
-             (redis-hash-get client tweet-hash)))
-         tweet-scores)))
+               (redis-zset-remove! client "tweet-score:" key)
+               (redis-zset-remove! client "tweet-time:" key))
+             (redis-hash-get client key)))
+         keys)))
 
 
 (define (store-tweet client tweet)
