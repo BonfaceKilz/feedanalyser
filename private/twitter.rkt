@@ -7,8 +7,7 @@
 
 (provide get-tweets/redis
          get-tweets/twitter
-         store-tweet
-         store-multiple-tweets
+         store-tweets
          vote-tweet
          (struct-out feed-tweet))
 
@@ -16,6 +15,8 @@
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
 (struct feed-tweet (author content timeposted hash) #:transparent)
 
+
+;; Check for tweets that have expired and remove them
 (define (remove-expired-tweets-from-zsets client)
   (let ([keys (redis-subzset
                        client
@@ -30,40 +31,6 @@
                (redis-zset-remove! client "tweet-time:" key))
              (redis-hash-get client key)))
          keys)))
-
-
-(define (store-tweet client tweet)
-  "Store tweets to REDIS. The tweets expire after 1 month"
-  (let* [(serialized-tweet (serialize-tweet tweet))
-         (vote-score 0)
-         (author (feed-tweet-author serialized-tweet))
-         (content (feed-tweet-content serialized-tweet))
-         (redis-tweet-key (feed-tweet-hash serialized-tweet))
-         (timeposted (feed-tweet-timeposted serialized-tweet))]
-
-    ;; Remove any tweets that had expired from the zsets
-    (remove-expired-tweets-from-zsets client)
-
-    (cond
-     [(not (redis-has-key? client (feed-tweet-hash serialized-tweet)))
-      (redis-hash-set! client redis-tweet-key "author" author)
-      (redis-hash-set! client redis-tweet-key "tweet" content)
-      (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
-      (redis-hash-set! client redis-tweet-key "timeposted" timeposted)
-      (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
-      (redis-zset-add!
-       client
-       "tweet-score:"
-       redis-tweet-key
-       vote-score)
-      (redis-zset-add!
-       client
-       "tweet-time:"
-       redis-tweet-key
-       timeposted-in-seconds)
-      ;; Expire tweets after 1 week
-      (redis-expire-in! client redis-tweet-key (* 30 7 24 60 60 100))]
-     [else #f])))
 
 
 (define (get-raw-tweets name #:number [number 10])
@@ -135,10 +102,50 @@
       (redis-zset-incr! client key tweet-hash (* n 1000)))))
 
 
-(define (store-multiple-tweets client name)
-  (for-each (lambda (tweet)
-              (store-tweet client tweet))
-            (get-tweets/twitter name)))
+;; Given a list of feed-tweets, store them in REDIS
+(define (store-tweets client tweets)
+  (define (store-tweet client tweet)
+    "Store tweets to REDIS. The tweets expire after 1 month"
+    (let* [(serialized-tweet (serialize-tweet tweet))
+           (vote-score 0)
+           (author (feed-tweet-author serialized-tweet))
+           (content (feed-tweet-content serialized-tweet))
+           (redis-tweet-key (feed-tweet-hash serialized-tweet))
+           (timeposted (feed-tweet-timeposted serialized-tweet))]
+
+      ;; Remove any tweets that had expired from the zsets
+      (remove-expired-tweets-from-zsets client)
+
+      (cond
+       [(not (redis-has-key? client (feed-tweet-hash serialized-tweet)))
+        (redis-hash-set! client redis-tweet-key "author" author)
+        (redis-hash-set! client redis-tweet-key "tweet" content)
+        (redis-hash-set! client redis-tweet-key "hash" redis-tweet-key)
+        (redis-hash-set! client redis-tweet-key "timeposted" timeposted)
+        (redis-hash-set! client redis-tweet-key "score" (number->string vote-score))
+        (redis-zset-add!
+         client
+         "tweet-score:"
+         redis-tweet-key
+         vote-score)
+        (redis-zset-add!
+         client
+         "tweet-time:"
+         redis-tweet-key
+         timeposted-in-seconds)
+        ;; Expire tweets after 1 week
+        (redis-expire-in! client redis-tweet-key (* 30 7 24 60 60 100))]
+       [else #f])))
+  (cond
+   [(and (list? tweets) (not (null? tweets)))
+    (for-each (lambda (tweet)
+                (store-tweet client tweet))
+              (get-tweets/twitter name))
+    #t]
+   [(not (null? tweets))
+    (store-tweet client tweets)
+    #t]
+   [else #f]))
 
 
 ;; Serialize a tweet into a form that can be stored in REDIS
