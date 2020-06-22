@@ -143,13 +143,12 @@
         (redis-expire-in! c redis-tweet-key (* 30 7 24 60 60 100))]
        [else #f])))
   (cond
-   [(and (list? tweets) (not (null? tweets)))
+   [(not (null? tweets))
     (for-each (lambda (tweet)
-                (store-tweet client tweet))
-              (get-tweets/twitter name))
-    #t]
-   [(not (null? tweets)) ;; Only one tweet
-    (store-tweet! client tweets)
+                (store-tweet! client tweet))
+              (if (list? tweets)
+                  tweets
+                  `(,tweets)))
     #t]
    [else #f]))
 
