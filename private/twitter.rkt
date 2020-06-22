@@ -58,8 +58,10 @@
     (remove* (list "\n" '()) tweets)))
 
 
-;; Get tweets from twitter and return them as strings
-(define (get-tweets/twitter name #:number [number 10])
+;; Get tweets from twitter and return them as strings. Search terms are search
+;; words that can used within twitter's own advanced search. `userlist' is a
+;; comma-separated list of users. It can be a single user though. Valid
+;; examples: "bonfacekilz"  "bonfacekilz,genenetwork2"
 (define (get-tweets/twitter userlist #:search-terms [search-terms #f] #:number [number 10])
   "Get tweets from Twitter"
   (map
