@@ -10,6 +10,7 @@
          store-tweets!
          vote-tweet!
          remove-expired-tweets!
+         remove-all-tweets!
          (struct-out feed-tweet))
 
 
@@ -159,3 +160,17 @@
               (string->bytes/utf-8 (feed-tweet-content tweet))
               (string->bytes/utf-8 (feed-tweet-timeposted tweet))
               (string->bytes/utf-8 (feed-tweet-hash tweet))))
+
+;; Remove all tweets
+(define (remove-all-tweets! client)
+  (let ([keys (redis-subzset
+               client
+               "tweet-score:"
+               #:start 0
+               #:stop -1)])
+    (map (lambda (key)
+           (redis-zset-remove! client "tweet-score:" key)
+           (redis-zset-remove! client "tweet-time:" key)
+           (redis-remove! client key)
+           #t)
+         keys)))
