@@ -34,7 +34,7 @@
          keys)))
 
 
-(define (get-raw-tweets name #:number [number 10])
+(define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
   (let* [(n (if (string? number)
                number
                (number->string number)))
@@ -43,8 +43,13 @@
                    (lambda ()
                      (system
                       (string-append
-                       "twint -s "
-                       name
+                       "twint --userlist "
+                       userlist
+                       (cond
+                        [search-terms
+                         (string-append " -s"
+                                        search-terms)]
+                        [else ""])
                        " --limit "
                        n
                        " --link include"
@@ -55,6 +60,7 @@
 
 ;; Get tweets from twitter and return them as strings
 (define (get-tweets/twitter name #:number [number 10])
+(define (get-tweets/twitter userlist #:search-terms [search-terms #f] #:number [number 10])
   "Get tweets from Twitter"
   (map
    (lambda (tweet)
@@ -71,7 +77,7 @@
                        (number->string
                         (equal-hash-code content))))
          (feed-tweet author content timeposted hash))))
-   (get-raw-tweets name #:number number)))
+   (get-raw-tweets userlist search-terms #:number number)))
 
 
 (define (get-tweets/redis
