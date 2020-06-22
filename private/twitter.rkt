@@ -7,9 +7,9 @@
 
 (provide get-tweets/redis
          get-tweets/twitter
-         store-tweets
-         vote-tweet
-         remove-expired-tweets
+         store-tweets!
+         vote-tweet!
+         remove-expired-tweets!
          (struct-out feed-tweet))
 
 
@@ -18,7 +18,7 @@
 
 
 ;; Check for tweets that have expired and remove them
-(define (remove-expired-tweets client)
+(define (remove-expired-tweets! client)
   (let ([keys (redis-subzset
                client
                "tweet-score:"
@@ -100,7 +100,7 @@
          tweet-scores)))
 
 
-(define (vote-tweet client tweet-hash #:upvote? [upvote #t])
+(define (vote-tweet! client tweet-hash #:upvote? [upvote #t])
   (let* [(n (if upvote 1 -1))
          (key "tweet-score:")
          (score (string->number (bytes->string/utf-8
@@ -112,8 +112,8 @@
 
 
 ;; Given a list of feed-tweets, store them in REDIS
-(define (store-tweets client tweets)
-  (define (store-tweet c tweet)
+(define (store-tweets! client tweets)
+  (define (store-tweet! c tweet)
     "Store tweets to REDIS. The tweets expire after 1 month"
     (let* [(serialized-tweet (serialize-tweet tweet))
            (vote-score 0)
@@ -148,7 +148,7 @@
               (get-tweets/twitter name))
     #t]
    [(not (null? tweets)) ;; Only one tweet
-    (store-tweet client tweets)
+    (store-tweet! client tweets)
     #t]
    [else #f]))
 
