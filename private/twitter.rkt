@@ -9,6 +9,7 @@
          get-tweets/twitter
          store-tweets
          vote-tweet
+         remove-expired-tweets
          (struct-out feed-tweet))
 
 
@@ -17,12 +18,12 @@
 
 
 ;; Check for tweets that have expired and remove them
-(define (remove-expired-tweets-from-zsets client)
+(define (remove-expired-tweets client)
   (let ([keys (redis-subzset
-                       client
-                       "tweet-score:"
-                       #:start 0
-                       #:stop -1)])
+               client
+               "tweet-score:"
+               #:start 0
+               #:stop -1)])
     (map (lambda (key)
            (unless (redis-has-key? client key)
                ;;; Remove expired tweets from the relevant zsets
@@ -112,10 +113,6 @@
            (content (feed-tweet-content serialized-tweet))
            (redis-tweet-key (feed-tweet-hash serialized-tweet))
            (timeposted (feed-tweet-timeposted serialized-tweet))]
-
-      ;; Remove any tweets that had expired from the zsets
-      (remove-expired-tweets-from-zsets client)
-
       (cond
        [(not (redis-has-key? client (feed-tweet-hash serialized-tweet)))
         (redis-hash-set! client redis-tweet-key "author" author)
