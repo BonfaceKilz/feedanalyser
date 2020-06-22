@@ -138,7 +138,7 @@
          c
          "tweet-time:"
          redis-tweet-key
-         timeposted-in-seconds)
+         timeposted)
         ;; Expire tweets after 1 week
         (redis-expire-in! c redis-tweet-key (* 30 7 24 60 60 100))]
        [else #f])))
