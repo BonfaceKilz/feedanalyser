@@ -44,12 +44,14 @@
                    (lambda ()
                      (system
                       (string-append
-                       "twint --userlist "
+                       "twint --userlist '"
                        userlist
+                       "'"
                        (cond
                         [search-terms
-                         (string-append " -s"
-                                        search-terms)]
+                         (string-append " -s '"
+                                        search-terms
+                                        "'")]
                         [else ""])
                        " --limit "
                        n
