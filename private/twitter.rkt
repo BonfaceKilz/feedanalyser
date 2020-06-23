@@ -80,7 +80,7 @@
                        (number->string
                         (equal-hash-code content))))
          (feed-tweet author content timeposted hash))))
-   (get-raw-tweets userlist search-terms #:number number)))
+   (get-raw-tweets userlist #:search-terms search-terms #:number number)))
 
 
 (define (get-tweets/redis
