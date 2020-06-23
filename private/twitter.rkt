@@ -36,7 +36,7 @@
 
 
 (define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
-  (let* [(n (if (string? number)
+  (let* [(limit-n (if (string? number)
                number
                (number->string number)))
         (tweets (string-split
@@ -54,7 +54,7 @@
                                         "'")]
                         [else ""])
                        " --limit "
-                       n
+                       limit-n
                        " --link include"
                        " --format '{username} $@@$ {tweet} $@@$ {date} {time}||||||'"))))
                  "||||||"))]
