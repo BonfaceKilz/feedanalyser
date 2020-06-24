@@ -10,11 +10,11 @@
 (provide get-commits/github
          store-gh-commits
          read-gh-commits
-         (struct-out commit))
+         (struct-out feed-commit))
 
 
 ; A struct type to store details about commits from various places
-(struct commit (author content timeposted hash url verified?) #:transparent)
+(struct feed-commit (author content timeposted hash url) #:transparent)
 
 
 ;; Get tweets from github, storing them in a struct
@@ -22,15 +22,13 @@
   (define (->struct commit)
     (let* [(commit-dict (hash-ref commit 'commit))
            (author-dict (hash-ref commit-dict 'committer))
-           (tree-dict (hash-ref commit-dict 'tree))
-           (verified-dict (hash-ref commit-dict 'verification))
            (author (hash-ref author-dict 'name))
            (content (hash-ref commit-dict 'message))
            (timeposted (hash-ref author-dict 'date))
            (url (hash-ref commit 'html_url))
            (hash (hash-ref commit 'sha))
-           (verified? (hash-ref verified-dict 'verified))]
-      (commit author content timeposted hash url verified?)))
+           (hash (hash-ref commit 'sha))]
+      (feed-commit author content timeposted hash url)))
 
   (let* ([requester (update-ssl (update-host json-requester "api.github.com") #t)]
          [params `((page . ,(number->string page)) (per_page . ,(number->string per-page)))]
