@@ -129,7 +129,8 @@
         (redis-hash-set! c key "author" author)
         (redis-hash-set! c key "tweet" content)
         (redis-hash-set! c key "hash" key)
-        (redis-hash-set! c key "timeposted" (number->string timeposted))
+        (redis-hash-set! c key "timeposted" (date->string
+                                             (seconds->date timeposted)))
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
