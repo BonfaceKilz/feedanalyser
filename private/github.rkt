@@ -10,11 +10,24 @@
 
 (provide get-commits/github
          store-commits!
+         remove-expired-commits!
          (struct-out feed-commit))
 
 
 ; A struct type to store details about commits from various places
 (struct feed-commit (author content timeposted hash url) #:transparent)
+
+;; Check for tweets that have expired and remove them
+(define (remove-expired-commits! client)
+  (define keys (redis-subzset
+                client
+                "commit-time:"
+                #:start 0
+                #:stop -1))
+  (map (lambda (key)
+         (unless (redis-has-key? client key)
+           (redis-zset-remove! client "commit-time:" key)))
+       keys))
 
 
 ;; Get tweets from github, storing them in a struct
@@ -70,3 +83,4 @@
               (if (list? commits)
                   commits
                   `(,commits)))]))
+
