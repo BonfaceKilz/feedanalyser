@@ -3,12 +3,13 @@
 (require json
          lens/common
          lens/data/hash
+         gregor
          redis
          simple-http)
 
 
 (provide get-commits/github
-         store-gh-commits
+         store-commits!
          (struct-out feed-commit))
 
 
@@ -25,7 +26,6 @@
            (content (hash-ref commit-dict 'message))
            (timeposted (hash-ref author-dict 'date))
            (url (hash-ref commit 'html_url))
-           (hash (hash-ref commit 'sha))
            (hash (hash-ref commit 'sha))]
       (feed-commit author content timeposted hash url)))
 
@@ -46,16 +46,26 @@
      commits)))
 
 
-(define (store-gh-commits client repository)
-  """Store commits to a list"
-  (let ([commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
-                                   (hash-ref-lens 'commit))])
-    (redis-remove! client "Github")
-    (for-each (lambda (commit)
-                (redis-list-append!
-                 client
-                 "Github"
-                 (jsexpr->bytes (lens-view commit-lens commit))))
-              (ghcommits->hash repository))))
-
-
+(define (store-commits! client commits)
+  (define (store-commit! c commit*)
+    (let [(key (string-append
+                "commit:"
+                (feed-commit-hash commit*)))
+          (timeposted/seconds (->posix
+                               (iso8601->datetime
+                                (feed-commit-timeposted commit*))))]
+      (cond
+       [(not (redis-has-key? c key))
+        (redis-hash-set! c key "author" (feed-commit-author commit*))
+        (redis-hash-set! c key "content" (feed-commit-content commit*))
+        (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
+        (redis-hash-set! c key "url" (feed-commit-url commit*))
+        (redis-hash-set! c key "hash" (feed-commit-hash commit*))
+        (redis-zset-add! c "commit-time:" key timeposted/seconds)])))
+  (cond
+   [(not (null? commits))
+    (for-each (lambda (commit*)
+                (store-commit! client commit*))
+              (if (list? commits)
+                  commits
+                  `(,commits)))]))
