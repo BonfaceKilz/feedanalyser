@@ -7,17 +7,46 @@
          simple-http)
 
 
-(provide ghcommits->hash
+(provide get-commits/github
          store-gh-commits
-         read-gh-commits)
+         read-gh-commits
+         (struct-out github-commit))
 
 
-(define (ghcommits->hash repo-name)
-  """Get commits from a repo"""
+; A struct type to store details about commits from various places
+(struct github-commit (author content timeposted hash url verified?) #:transparent)
+
+
+;; Get tweets from github, storing them in a struct
+(define (get-commits/github username reponame #:page [page 1] #:per-page [per-page 10])
+  (define (->struct commit)
+    (let* [(commit-dict (hash-ref commit 'commit))
+           (author-dict (hash-ref commit-dict 'committer))
+           (tree-dict (hash-ref commit-dict 'tree))
+           (verified-dict (hash-ref commit-dict 'verification))
+           (author (hash-ref author-dict 'name))
+           (content (hash-ref commit-dict 'message))
+           (timeposted (hash-ref author-dict 'date))
+           (url (hash-ref commit 'html_url))
+           (hash (hash-ref commit 'sha))
+           (verified? (hash-ref verified-dict 'verified))]
+      (github-commit author content timeposted hash url verified?)))
+
   (let* ([requester (update-ssl (update-host json-requester "api.github.com") #t)]
-         [params '((page . "1") (per_page . "10"))])
-    (json-response-body
-     (get requester (string-append "/repos/graph-genome/" repo-name "/commits") #:params params))))
+         [params `((page . ,(number->string page)) (per_page . ,(number->string per-page)))]
+         [commits (json-response-body
+                   (get requester
+                        (string-append
+                         "/repos/"
+                         username
+                         "/"
+                         reponame
+                         "/commits")
+                        #:params params))])
+    (map
+     (lambda (commit)
+       (->struct commit))
+     commits)))
 
 
 (define (store-gh-commits client repository)
