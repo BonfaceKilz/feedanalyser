@@ -77,10 +77,8 @@
                              (parse-datetime
                               (string-normalize-spaces (third ts))
                               "yyyy-MM-dd HH:mm:ss")))
-         (define hash (string-append
-                       "tweet:"
-                       (number->string
-                        (equal-hash-code content))))
+         (define hash (number->string
+                       (equal-hash-code content)))
          (feed-tweet author content timeposted hash))))
    (get-raw-tweets userlist #:search-terms search-terms #:number number)))
 
@@ -121,27 +119,29 @@
     (let* [(serialized-tweet (serialize-tweet tweet))
            (author (feed-tweet-author serialized-tweet))
            (content (feed-tweet-content serialized-tweet))
-           (redis-tweet-key (feed-tweet-hash serialized-tweet))
            (timeposted (feed-tweet-timeposted serialized-tweet))]
+           (hash (feed-tweet-hash tweet))
+           (key (string-append
+                 "tweet:"
+                 hash))
       (cond
-       [(not (redis-has-key? c (feed-tweet-hash serialized-tweet)))
-        (redis-hash-set! c redis-tweet-key "author" author)
-        (redis-hash-set! c redis-tweet-key "tweet" content)
-        (redis-hash-set! c redis-tweet-key "hash" redis-tweet-key)
-        (redis-hash-set! c redis-tweet-key "timeposted" timeposted)
+       [(not (redis-has-key? c key))
+        (redis-hash-set! c key "author" author)
+        (redis-hash-set! c key "tweet" content)
+        (redis-hash-set! c key "hash" key)
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
          "tweet-score:"
-         redis-tweet-key
+         key
          0)
         (redis-zset-add!
          c
          "tweet-time:"
-         redis-tweet-key
+         key
          timeposted)
         ;; Expire tweets after 1 week
-        (redis-expire-in! c redis-tweet-key (* 30 7 24 60 60 100))]
+        (redis-expire-in! c key (* 30 7 24 60 60 100))]
        [else #f])))
   (cond
    [(not (null? tweets))
