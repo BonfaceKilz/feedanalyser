@@ -119,7 +119,6 @@
   (define (store-tweet! c tweet)
     "Store tweets to REDIS. The tweets expire after 1 month"
     (let* [(serialized-tweet (serialize-tweet tweet))
-           (vote-score 0)
            (author (feed-tweet-author serialized-tweet))
            (content (feed-tweet-content serialized-tweet))
            (redis-tweet-key (feed-tweet-hash serialized-tweet))
@@ -130,12 +129,12 @@
         (redis-hash-set! c redis-tweet-key "tweet" content)
         (redis-hash-set! c redis-tweet-key "hash" redis-tweet-key)
         (redis-hash-set! c redis-tweet-key "timeposted" timeposted)
-        (redis-hash-set! c redis-tweet-key "score" (number->string vote-score))
+        (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
          "tweet-score:"
          redis-tweet-key
-         vote-score)
+         0)
         (redis-zset-add!
          c
          "tweet-time:"
