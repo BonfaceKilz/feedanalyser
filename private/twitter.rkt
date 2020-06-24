@@ -87,7 +87,6 @@
          #:start [start 0]
          #:stop [stop -1]
          #:reverse? [reverse? #t])
-  "Get tweets from REDIS. Also removes expired tweets from the zsets"
   (let ([tweet-scores (redis-subzset
                        client
                        key
