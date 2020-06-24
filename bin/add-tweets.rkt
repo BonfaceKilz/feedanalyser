@@ -2,7 +2,9 @@
 
 #| Worker for fetching posts from twitter
 
-Run the worker after every 60 minutes vis-a-vis an infinite loop
+Run the worker after every N hours vis-a-vis an infinite loop
+
+This is a demo. Update as required!
 
 |#
 
@@ -10,7 +12,10 @@ Run the worker after every 60 minutes vis-a-vis an infinite loop
 
 (define client (make-redis))
 
-(define hashtag/username "GeneNetwork2")
+(define users "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund")
+
+(define search-query
+  "genenetwork OR genenetwork2 OR rat OR science")
 
 (define (hours->seconds hours) (* hours 60 60))
 
@@ -23,6 +28,9 @@ Run the worker after every 60 minutes vis-a-vis an infinite loop
 
 (let loop ()
   (displayln "Adding tweets:")
-  (store-multiple-tweets client hashtag/username)
-  (sleep (hours->seconds 3))
+  (remove-expired-tweets! client)
+  (store-tweets!
+   client
+   (get-tweets/twitter users))
+  (sleep (hours->seconds 12))
   (loop))
