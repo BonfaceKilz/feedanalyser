@@ -9,7 +9,6 @@
 
 (provide get-commits/github
          store-gh-commits
-         read-gh-commits
          (struct-out feed-commit))
 
 
@@ -60,13 +59,3 @@
               (ghcommits->hash repository))))
 
 
-(define (read-gh-commits client repository)
-  """Store commits to a list"
-  (let ([commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
-                                   (hash-ref-lens 'commit))])
-    (for-each (lambda (commit)
-                (redis-list-append!
-                 client
-                 "Github"
-                 (jsexpr->bytes (lens-view commit-lens commit))))
-              (ghcommits->hash repository))))
