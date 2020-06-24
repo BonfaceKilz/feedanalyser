@@ -170,9 +170,14 @@
                "tweet-score:"
                #:start 0
                #:stop -1)])
+    ;; Remove all hashes referenced is "tweet-score:" zset
     (map (lambda (key)
            (redis-zset-remove! client "tweet-score:" key)
            (redis-zset-remove! client "tweet-time:" key)
-           (redis-remove! client key)
-           #t)
-         keys)))
+           (redis-remove! client key))
+         keys)
+    ;; Remove any stale tweets
+    (map (lambda (key)
+           (redis-remove! client key))
+         (redis-keys client "tweet*"))
+    #t))
