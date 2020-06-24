@@ -14,6 +14,8 @@ This is a demo. Update as required!
 
 (define users "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund")
 
+(define search-terms "genenetwork OR genenetwork2 OR rat OR science")
+
 (define search-query
   "genenetwork OR genenetwork2 OR rat OR science")
 
@@ -31,6 +33,7 @@ This is a demo. Update as required!
   (remove-expired-tweets! client)
   (store-tweets!
    client
-   (get-tweets/twitter users))
+   (get-tweets/twitter users
+                       #:search-terms search-terms))
   (sleep (hours->seconds 12))
   (loop))
