@@ -119,16 +119,17 @@
     (let* [(serialized-tweet (serialize-tweet tweet))
            (author (feed-tweet-author serialized-tweet))
            (content (feed-tweet-content serialized-tweet))
-           (timeposted (feed-tweet-timeposted serialized-tweet))]
            (hash (feed-tweet-hash tweet))
            (key (string-append
                  "tweet:"
                  hash))
+           (timeposted (feed-tweet-timeposted tweet))]
       (cond
        [(not (redis-has-key? c key))
         (redis-hash-set! c key "author" author)
         (redis-hash-set! c key "tweet" content)
         (redis-hash-set! c key "hash" key)
+        (redis-hash-set! c key "timeposted" (number->string timeposted))
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
@@ -158,7 +159,8 @@
 (define (serialize-tweet tweet)
   (feed-tweet (string->bytes/utf-8 (feed-tweet-author tweet))
               (string->bytes/utf-8 (feed-tweet-content tweet))
-              (string->bytes/utf-8 (feed-tweet-timeposted tweet))
+              (string->bytes/utf-8 (number->string
+                                    (feed-tweet-timeposted tweet)))
               (string->bytes/utf-8 (feed-tweet-hash tweet))))
 
 ;; Remove all tweets
