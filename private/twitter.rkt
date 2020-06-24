@@ -123,14 +123,18 @@
            (key (string-append
                  "tweet:"
                  hash))
-           (timeposted (feed-tweet-timeposted tweet))]
+           (timeposted (feed-tweet-timeposted tweet))
+           (tweet-date* (seconds->date timeposted))
+           (tz-name (date*-time-zone-name tweet-date*))]
       (cond
        [(not (redis-has-key? c key))
         (redis-hash-set! c key "author" author)
         (redis-hash-set! c key "tweet" content)
         (redis-hash-set! c key "hash" key)
-        (redis-hash-set! c key "timeposted" (date->string
-                                             (seconds->date timeposted)))
+        (redis-hash-set! c key "timeposted"
+                         (string-append
+                          (date->string tweet-date* #t) ;; set #t to show the time too
+                          " " tz-name))
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
