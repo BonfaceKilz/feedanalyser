@@ -75,9 +75,6 @@
              overflow-wrap: anywhere;
          }
 
-         .tweets a:visited {
-             color: #0000ee;
-         }
          .wrap{
              display: flex;
              flex-direction: column;
@@ -129,22 +126,31 @@
                     @for/list[([t tweets/time])]{
                     @list{
                     <li data-tweet-hash='@(hash-ref t #"hash")'>
+                        <div class="wrap">
+                            <div class="vote up" data-tweet-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">@(hash-ref t #"score")
+                                </span>
+                            </div>
+                            <div class="vote down" data-tweet-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
                         <div class="tweet">@(hash-ref t #"tweet") <br/>
                             <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
                             <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
-                            <a href='#@(hash-ref t #"hash")'>Jump to vote</a>
                         </div>
 
                     </li>
                     }}
-
                 </ul>
-
             </div>
 
 
             <div class="tweets column">
-                <h1>Vote on Tweets(By Score)</h1>
+                <h1>Tweets(By Score)</h1>
                 <ul>
                     @for/list[([t tweets/score])]{
                     @list{
