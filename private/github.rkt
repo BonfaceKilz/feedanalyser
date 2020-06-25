@@ -9,6 +9,7 @@
 
 
 (provide get-commits/github
+         get-commits/redis
          store-commits!
          remove-expired-commits!
          remove-all-commits!
@@ -75,6 +76,22 @@
      (lambda (commit)
        (->struct commit))
      commits)))
+
+
+(define (get-commits/redis
+         client
+         #:key [key "commit-time:"]
+         #:start [start 0]
+         #:stop [stop -1]
+         #:reverse? [reverse? #t])
+  (map (lambda (commit/key)
+         (redis-hash-get client commit/key))
+       (redis-subzset
+        client
+        key
+        #:start start
+        #:stop stop
+        #:reverse? reverse?)))
 
 
 (define (store-commits! client commits)
