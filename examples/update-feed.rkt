@@ -12,14 +12,19 @@ This is a demo. Update as required!
 
 (define client (make-redis))
 
+
+;;; Config params for the tweets
 (define users "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund")
-
 (define search-terms "genenetwork OR genenetwork2 OR rat OR science")
-
 (define search-query
   "genenetwork OR genenetwork2 OR rat OR science")
-
 (define (hours->seconds hours) (* hours 60 60))
+
+
+;;; Config params for the repos to fetch from
+(define repos '(("BonfaceKilz" . "feedanalyser")
+                ("genenetwork" . "genenetwork2")
+                ("arvados" . "bh20-seq-resource")))
 
 (void
  (thread
@@ -29,11 +34,30 @@ This is a demo. Update as required!
       (loop)))))
 
 (let loop ()
+  ;; Adding tweets
   (displayln "Adding tweets:")
+
   (remove-expired-tweets! client)
+
   (store-tweets!
    client
    (get-tweets/twitter users
                        #:search-terms search-terms))
+
+
+  ;; Adding commits
+  (displayln "Adding commits:")
+
+  (remove-expired-commits! client)
+
+  (for-each
+   (lambda (repo)
+     (store-commits!
+      client
+      (get-commits/github (car repo)
+                          (cdr repo))))
+   repos)
+
+
   (sleep (hours->seconds 12))
   (loop))
