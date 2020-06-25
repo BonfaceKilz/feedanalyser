@@ -122,6 +122,27 @@
     <body>
 
         <section class="row">
+
+            <div class="tweets column">
+                <h1>Tweets(By Most Recent)</h1>
+                <ul>
+                    @for/list[([t tweets/time])]{
+                    @list{
+                    <li data-tweet-hash='@(hash-ref t #"hash")'>
+                        <div class="tweet">@(hash-ref t #"tweet") <br/>
+                            <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
+                            <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
+                            <a href='#@(hash-ref t #"hash")'>Jump to vote</a>
+                        </div>
+
+                    </li>
+                    }}
+
+                </ul>
+
+            </div>
+
+
             <div class="tweets column">
                 <h1>Vote on Tweets(By Score)</h1>
                 <ul>
@@ -151,24 +172,6 @@
 
             </div>
 
-            <div class="tweets column">
-                <h1>Tweets(By Most Recent)</h1>
-                <ul>
-                    @for/list[([t tweets/time])]{
-                    @list{
-                    <li data-tweet-hash='@(hash-ref t #"hash")'>
-                        <div class="tweet">@(hash-ref t #"tweet") <br/>
-                            <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
-                            <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
-                            <a href='#@(hash-ref t #"hash")'>Jump to vote</a>
-                        </div>
-
-                    </li>
-                    }}
-
-                </ul>
-
-            </div>
 
             <div class="commits column">
                 <h1>Commits(By Most Recent)</h1>
