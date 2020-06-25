@@ -1,40 +1,121 @@
 #lang racket
 
-(provide ghcommits->hash
-         store-gh-commits)
-
-(require simple-http
-         json
-         redis
+(require json
          lens/common
-         lens/data/hash)
+         lens/data/hash
+         gregor
+         redis
+         simple-http)
 
-(define (ghcommits->hash repo-name)
-  """Get commits from a repo"""
-  (let* [(requester (update-ssl (update-host json-requester "api.github.com") #t))
-         (params '((page . "1") (per_page . "10")))]
-    (json-response-body
-     (get requester (string-append "/repos/graph-genome/" repo-name "/commits") #:params params))))
 
-(define (store-gh-commits client repository)
-  """Store commits to a list"
-  (let [(commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
-                                   (hash-ref-lens 'commit)))]
-    (redis-remove! client "Github")
-    (for-each (lambda (commit)
-                (redis-list-append!
-                 client
-                 "Github"
-                 (jsexpr->bytes (lens-view commit-lens commit))))
-              (ghcommits->hash repository))))
+(provide get-commits/github
+         get-commits/redis
+         store-commits!
+         remove-expired-commits!
+         remove-all-commits!
+         (struct-out feed-commit))
 
-(define (read-gh-commits client repository)
-  """Store commits to a list"
-  (let [(commit-lens (lens-compose (hash-pick-lens 'author 'message 'url)
-                                   (hash-ref-lens 'commit)))]
-    (for-each (lambda (commit)
-                (redis-list-append!
-                 client
-                 "Github"
-                 (jsexpr->bytes (lens-view commit-lens commit))))
-              (ghcommits->hash repository))))
+
+; A struct type to store details about commits from various places
+(struct feed-commit (author content timeposted hash url) #:transparent)
+
+;; Check for tweets that have expired and remove them
+(define (remove-expired-commits! client)
+  (define keys (redis-subzset
+                client
+                "commit-time:"
+                #:start 0
+                #:stop -1))
+  (map (lambda (key)
+         (unless (redis-has-key? client key)
+           (redis-zset-remove! client "commit-time:" key)))
+       keys))
+
+(define (remove-all-commits! client)
+  (let ([keys (redis-subzset
+               client
+               "commit-time:"
+               #:start 0
+               #:stop -1)])
+    ;; Remove all hashes referenced is "tweet-score:" zset
+    (map (lambda (key)
+           (redis-zset-remove! client "commit-time:" key)
+           (redis-remove! client key))
+         keys)
+    ;; Remove any stale tweets
+    (map (lambda (key)
+           (redis-remove! client key))
+         (redis-keys client "commit:*"))
+    #t))
+
+
+;; Get tweets from github, storing them in a struct
+(define (get-commits/github username reponame #:page [page 1] #:per-page [per-page 10])
+  (define (->struct commit)
+    (let* [(commit-dict (hash-ref commit 'commit))
+           (author-dict (hash-ref commit-dict 'committer))
+           (author (hash-ref author-dict 'name))
+           (content (hash-ref commit-dict 'message))
+           (timeposted (hash-ref author-dict 'date))
+           (url (hash-ref commit 'html_url))
+           (hash (hash-ref commit 'sha))]
+      (feed-commit author content timeposted hash url)))
+
+  (let* ([requester (update-ssl (update-host json-requester "api.github.com") #t)]
+         [params `((page . ,(number->string page)) (per_page . ,(number->string per-page)))]
+         [commits (json-response-body
+                   (get requester
+                        (string-append
+                         "/repos/"
+                         username
+                         "/"
+                         reponame
+                         "/commits")
+                        #:params params))])
+    (map
+     (lambda (commit)
+       (->struct commit))
+     commits)))
+
+
+(define (get-commits/redis
+         client
+         #:key [key "commit-time:"]
+         #:start [start 0]
+         #:stop [stop -1]
+         #:reverse? [reverse? #t])
+  (map (lambda (commit/key)
+         (redis-hash-get client commit/key))
+       (redis-subzset
+        client
+        key
+        #:start start
+        #:stop stop
+        #:reverse? reverse?)))
+
+
+(define (store-commits! client commits)
+  (define (store-commit! c commit*)
+    (let [(key (string-append
+                "commit:"
+                (feed-commit-hash commit*)))
+          (timeposted/seconds (->posix
+                               (iso8601->datetime
+                                (feed-commit-timeposted commit*))))]
+      (cond
+       [(not (redis-has-key? c key))
+        (redis-hash-set! c key "author" (feed-commit-author commit*))
+        (redis-hash-set! c key "content" (feed-commit-content commit*))
+        (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
+        (redis-hash-set! c key "url" (feed-commit-url commit*))
+        (redis-hash-set! c key "hash" (feed-commit-hash commit*))
+        (redis-zset-add! c "commit-time:" key timeposted/seconds)
+        (redis-expire-in! c key (* 7 24 60 60 100))])))
+  (cond
+   [(not (null? commits))
+    (for-each (lambda (commit*)
+                (store-commit! client commit*))
+              (if (list? commits)
+                  commits
+                  `(,commits)))]))
+

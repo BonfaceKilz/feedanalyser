@@ -28,10 +28,8 @@
     (map (lambda (key)
            (unless (redis-has-key? client key)
                ;;; Remove expired tweets from the relevant zsets
-             (begin
-               (redis-zset-remove! client "tweet-score:" key)
-               (redis-zset-remove! client "tweet-time:" key))
-             (redis-hash-get client key)))
+             (redis-zset-remove! client "tweet-score:" key)
+             (redis-zset-remove! client "tweet-time:" key)))
          keys)))
 
 
@@ -89,7 +87,6 @@
          #:start [start 0]
          #:stop [stop -1]
          #:reverse? [reverse? #t])
-  "Get tweets from REDIS. Also removes expired tweets from the zsets"
   (let ([tweet-scores (redis-subzset
                        client
                        key
