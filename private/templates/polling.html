@@ -178,7 +178,7 @@
                     <li class="commit">
                         <div>
                             <span class="hash">@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7):</span> <a href='@(hash-ref c #"url")' target="_blank">@(hash-ref c #"content")</a><br/>
-                            <span class="author">@(hash-ref c #"author")</span><br/>
+                            <span class="author">@(hash-ref c #"author")/@(hash-ref c #"repository")</span><br/>
                             <span class="timeposted">@(hash-ref c #"timeposted")</span>
                         </div>
 
