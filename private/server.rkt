@@ -5,7 +5,8 @@
          web-server/http
          json
          redis
-         "twitter.rkt")
+         "twitter.rkt"
+         "github.rkt")
 
 (provide start-server)
 
@@ -14,7 +15,9 @@
   (get "/"
        (lambda (req)
          (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
-               [tweets (get-tweets/redis client)])
+               [tweets/time (get-tweets/redis client #:key "tweet-time:")]
+               [commits (get-commits/redis client)]
+               [tweets/score (get-tweets/redis client)])
            (include-template "templates/polling.html"))))
 
   (post "/vote"
