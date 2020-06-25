@@ -15,7 +15,7 @@ This is a demo. Update as required!
 
 ;;; Config params for the tweets
 (define users "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund")
-(define search-terms "genenetwork OR genenetwork2 OR rat OR science")
+(define search-terms "genenetwork OR genenetwork2 OR rat OR mouse OR biology")
 
 (define (hours->seconds hours) (* hours 60 60))
 
