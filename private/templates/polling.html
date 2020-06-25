@@ -8,6 +8,10 @@
 
         <link href="@google-font-link" type="text/css" rel="stylesheet" >
         <style type="text/css">
+         * {
+             box-sizing: border-box;
+         }
+
          h1, h2, h3, h4, h5, h6 {
              font-family: 'Amatic SC', cursive;
              text-align: center;
@@ -18,24 +22,61 @@
              font-family: 'Josefin Sans', sans-serif;
              background: #eee;
          }
-
-         .tweets {
-             padding: reset;
+         .row:after {
+             content: "";
+             display: table;
+             clear: both
          }
 
-         .tweet {
-             padding: 2em;
+         .column {
+             float: left;
+             width: 33.33%;
+             padding: 10px;
+         }
+         .commit .hash {
+             color: #5ebd73;
+             font-weight: bolder;
          }
 
-         .tweets li {
+         .commit a, .commit a:visited {
+             color: #24292e;
+             text-decoration: none;
+             font-weight: bold;
+         }
+
+         .commit a:hover {
+             color: #2d7fdd;
+             text-decoration: underline;
+         }
+
+         .commit .author, .timeposted {
+             color: #586069;
+         }
+         .author {
+             font-size: 14px;
+         }
+
+         .timeposted {
+             font-size: 12px;
+         }
+         .tweet, .commit {
+             padding: 15px;
+         }
+
+         .tweets li, .commits li {
              display: flex;
              flex-direction: row;
              align-items: center;
              background: #fff;
              margin: 0.5rem;
-             padding: 1rem;
-             border-radius: 25px;
+             padding-left: 10px;
+             border-radius: 10px;
              height: auto;
+             overflow-wrap: anywhere;
+         }
+
+         .tweets a:visited {
+             color: #0000ee;
          }
          .wrap{
              display: flex;
@@ -71,39 +112,83 @@
              top:0;
              margin-left:10px;
          }
+         @"@"media screen and (max-width: 600px) {
+             .column {
+                 width: 100%;
+             }
+         }
         </style>
     </head>
     <body>
 
-        <h1>Vote on Tweets</h1>
-
-        <div class="tweets">
-            <ul>
-                @for/list[([t tweets])]{
-                @list{
-                <li data-tweet-hash='@(hash-ref t #"hash")'>
-                    <div class="wrap">
-                        <div class="vote up" data-tweet-vote="upvote">
-                            <i class="fa fa-angle-up"></i>
+        <section class="row">
+            <div class="tweets column">
+                <h1>Vote on Tweets</h1>
+                <ul>
+                    @for/list[([t tweets/score])]{
+                    @list{
+                    <li data-tweet-hash='@(hash-ref t #"hash")' id='@(hash-ref t #"hash")'>
+                        <div class="wrap">
+                            <div class="vote up" data-tweet-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">@(hash-ref t #"score")
+                                </span>
+                            </div>
+                            <div class="vote down" data-tweet-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
                         </div>
-                        <div class="stat">
-                            <span class="score">@(hash-ref t #"score")
-                            </span>
+                        <div class="tweet">@(hash-ref t #"tweet") <br/>
+                            <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
+                            <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b>
                         </div>
-                        <div class="vote down" data-tweet-vote="downvote">
-                            <i class="fa fa-angle-down"></i>
+                    </li>
+                    }}
+
+                </ul>
+
+            </div>
+
+            <div class="tweets column">
+                <h1>Tweets(By Most Recent)</h1>
+                <ul>
+                    @for/list[([t tweets/time])]{
+                    @list{
+                    <li data-tweet-hash='@(hash-ref t #"hash")'>
+                        <div class="tweet">@(hash-ref t #"tweet") <br/>
+                            <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
+                            <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
+                            <a href='#@(hash-ref t #"hash")'>Jump to vote</a>
                         </div>
-                    </div>
-                    <div class="tweet">@(hash-ref t #"tweet") <br/>
-                        <b>&#64;@(hash-ref t #"author")</b> <br/>
-                        <i>@(hash-ref t #"timeposted")</i>
-                    </div>
-                </li>
-                }}
 
-            </ul>
+                    </li>
+                    }}
 
-        </div>
+                </ul>
+
+            </div>
+
+            <div class="commits column">
+                <h1>Commits(By Most Recent)</h1>
+                <ul>
+                    @for/list[([c commits])]{
+                    @list{
+                    <li class="commit">
+                        <div>
+                            <span class="hash">@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7):</span> <a href='@(hash-ref c #"url")' target="_blank">@(hash-ref c #"content")</a><br/>
+                            <span class="author">@(hash-ref c #"author")</span><br/>
+                            <span class="timeposted">@(hash-ref c #"timeposted")</span>
+                        </div>
+
+                    </li>
+                    }}
+
+                </ul>
+
+            </div>
+        </section>
 
         <script type="text/javascript">
          document.addEventListener("DOMContentLoaded", function () {
