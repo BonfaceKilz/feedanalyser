@@ -17,7 +17,7 @@
 
 
 ; A struct type to store details about commits from various places
-(struct feed-commit (author content timeposted hash url) #:transparent)
+(struct feed-commit (author repository content timeposted hash url) #:transparent)
 
 ;; Check for tweets that have expired and remove them
 (define (remove-expired-commits! client)
@@ -59,7 +59,7 @@
            (timeposted (hash-ref author-dict 'date))
            (url (hash-ref commit 'html_url))
            (hash (hash-ref commit 'sha))]
-      (feed-commit author content timeposted hash url)))
+      (feed-commit author reponame content timeposted hash url)))
 
   (let* ([requester (update-ssl (update-host json-requester "api.github.com") #t)]
          [params `((page . ,(number->string page)) (per_page . ,(number->string per-page)))]
@@ -106,6 +106,7 @@
        [(not (redis-has-key? c key))
         (redis-hash-set! c key "author" (feed-commit-author commit*))
         (redis-hash-set! c key "content" (feed-commit-content commit*))
+        (redis-hash-set! c key "repository" (feed-commit-repository commit*))
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
         (redis-hash-set! c key "url" (feed-commit-url commit*))
         (redis-hash-set! c key "hash" (feed-commit-hash commit*))
