@@ -94,15 +94,8 @@
          tweet-scores)))
 
 
-(define (vote-tweet! client tweet-hash #:upvote? [upvote #t])
-  (let* [(n (if upvote 1 -1))
-         (key "tweet-score:")
-         (score (string->number (bytes->string/utf-8
-                                 (redis-hash-ref client tweet-hash "score"))))]
-    (begin
-      (redis-hash-set! client tweet-hash "score"
-                       (number->string (+ score n)))
-      (redis-zset-incr! client key tweet-hash (* n 1000)))))
+(define (vote-tweet! client key #:upvote? [upvote #t])
+  (vote! client "tweet-score" key #:upvote upvote))
 
 
 ;; Given a list of feed-tweets, store them in REDIS

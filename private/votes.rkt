@@ -4,7 +4,8 @@
 
 
 (provide remove-expired-keys!
-         remove-all-keys!)
+         remove-all-keys!
+         vote!)
 
 
 (define (remove-expired-keys! client zset-keys/list)
@@ -22,9 +23,20 @@
          keys)
     #t))
 
+
 (define (remove-all-keys! client key/regexp)
   ;; Remove any stale tweets
   (map (lambda (key)
          (redis-remove! client key))
        (redis-keys client key/regexp))
   #t)
+
+
+(define (vote! client zset-key hash #:upvote? [upvote #t])
+  (let* [(n (if upvote 1 -1))
+         (score (string->number (bytes->string/utf-8
+                                 (redis-hash-ref client hash "score"))))]
+    (begin
+      (redis-hash-set! client hash "score"
+                       (number->string (+ score n)))
+      (redis-zset-incr! client zset-key hash (* n 1000)))))

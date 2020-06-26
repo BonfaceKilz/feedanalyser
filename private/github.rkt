@@ -111,11 +111,4 @@
                   `(,commits)))]))
 
 (define (vote-commit! client key #:upvote? [upvote #t])
-  (let* [(n (if upvote 1 -1))
-         (zset-name "commit-score:")
-         (score (string->number (bytes->string/utf-8
-                                 (redis-hash-ref client key "score"))))]
-    (begin
-      (redis-hash-set! client key "score"
-                       (number->string (+ score n)))
-      (redis-zset-incr! client zset-name key (* n 1000)))))
+  (vote! client "commit-score:" key #:upvote upvote))
