@@ -123,6 +123,8 @@
             <div class="tweets column">
                 <h1>Tweets(By Most Recent)</h1>
                 <ul>
+                    @[if @empty?[tweets/time]
+                    "Sorry :("
                     @for/list[([t tweets/time])]{
                     @list{
                     <li data-tweet-hash='@(hash-ref t #"hash")'>
@@ -145,6 +147,7 @@
 
                     </li>
                     }}
+                    ]
                 </ul>
             </div>
 
@@ -152,6 +155,8 @@
             <div class="tweets column">
                 <h1>Tweets(By Score)</h1>
                 <ul>
+                    @[if @empty?[tweets/score]
+                    "No tweets fetched"
                     @for/list[([t tweets/score])]{
                     @list{
                     <li data-tweet-hash='@(hash-ref t #"hash")' id='@(hash-ref t #"hash")'>
@@ -172,7 +177,7 @@
                             <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b>
                         </div>
                     </li>
-                    }}
+                    }}]
 
                 </ul>
 
@@ -182,6 +187,8 @@
             <div class="commits column">
                 <h1>Commits(By Most Recent)</h1>
                 <ul>
+                    @[if @empty?[commits]
+                    "No commits stored :("
                     @for/list[([c commits])]{
                     @list{
                     <li class="commit">
@@ -193,6 +200,7 @@
 
                     </li>
                     }}
+]
 
                 </ul>
 
