@@ -28,6 +28,14 @@
             (vote-tweet! client tweet-hash #:upvote? (string=? upvote "upvote"))
             "OK")))
 
+  (post "/vote/commits"
+        (lambda (req)
+          (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+                 [commit-hash (hash-ref hash)]
+                 [upvote (hash-ref json/vals 'upvote)])
+            (vote-commit! #:upvote? (string=? upvote "upvote"))
+            "OK")))
+
   (displayln (string-append "Running the server on port " (number->string port)))
 
   (run #:port port #:log-file log-file))
