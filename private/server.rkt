@@ -17,15 +17,23 @@
          (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
                [tweets/time (get-tweets/redis client #:key "tweet-time:")]
                [commits (get-commits/redis client)]
-               [tweets/score (get-tweets/redis client)])
+               [tweets/score (get-tweets/redis client #:key "tweet-score:")])
            (include-template "templates/polling.html"))))
 
-  (post "/vote"
+  (post "/vote/tweets"
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
-                 [tweet-hash (hash-ref json/vals 'tweet-hash)]
-                 [upvote (hash-ref json/vals 'upvote)])
-            (vote-tweet! client tweet-hash #:upvote? (string=? upvote "upvote"))
+                 [tweet-hash (hash-ref json/vals 'hash)]
+                 [vote (hash-ref json/vals 'vote)])
+            (vote-tweet! client tweet-hash #:upvote? (string=? vote "upvote"))
+            "OK")))
+
+  (post "/vote/commits"
+        (lambda (req)
+          (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+                 [commit-hash (hash-ref json/vals 'hash)]
+                 [vote (hash-ref json/vals 'vote)])
+            (vote-commit! client commit-hash #:upvote? (string=? vote "upvote"))
             "OK")))
 
   (displayln (string-append "Running the server on port " (number->string port)))

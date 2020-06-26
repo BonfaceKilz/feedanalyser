@@ -2,7 +2,8 @@
 
 (require gregor
          racket/date
-         redis)
+         redis
+         "votes.rkt")
 
 
 (provide get-tweets/redis
@@ -20,17 +21,12 @@
 
 ;; Check for tweets that have expired and remove them
 (define (remove-expired-tweets! client)
-  (let ([keys (redis-subzset
-               client
-               "tweet-score:"
-               #:start 0
-               #:stop -1)])
-    (map (lambda (key)
-           (unless (redis-has-key? client key)
-               ;;; Remove expired tweets from the relevant zsets
-             (redis-zset-remove! client "tweet-score:" key)
-             (redis-zset-remove! client "tweet-time:" key)))
-         keys)))
+  (remove-expired-keys! client (list "tweet-score:" "tweet-time:")))
+
+
+;; Remove all tweets from Redis
+(define (remove-all-tweets! client)
+  (remove-all-keys! client "tweet*"))
 
 
 (define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
@@ -98,15 +94,8 @@
          tweet-scores)))
 
 
-(define (vote-tweet! client tweet-hash #:upvote? [upvote #t])
-  (let* [(n (if upvote 1 -1))
-         (key "tweet-score:")
-         (score (string->number (bytes->string/utf-8
-                                 (redis-hash-ref client tweet-hash "score"))))]
-    (begin
-      (redis-hash-set! client tweet-hash "score"
-                       (number->string (+ score n)))
-      (redis-zset-incr! client key tweet-hash (* n 1000)))))
+(define (vote-tweet! client key #:upvote? [upvote #t])
+  (vote! client "tweet-score:" key #:upvote? upvote))
 
 
 ;; Given a list of feed-tweets, store them in REDIS
@@ -164,22 +153,3 @@
               (string->bytes/utf-8 (number->string
                                     (feed-tweet-timeposted tweet)))
               (string->bytes/utf-8 (feed-tweet-hash tweet))))
-
-;; Remove all tweets
-(define (remove-all-tweets! client)
-  (let ([keys (redis-subzset
-               client
-               "tweet-score:"
-               #:start 0
-               #:stop -1)])
-    ;; Remove all hashes referenced is "tweet-score:" zset
-    (map (lambda (key)
-           (redis-zset-remove! client "tweet-score:" key)
-           (redis-zset-remove! client "tweet-time:" key)
-           (redis-remove! client key))
-         keys)
-    ;; Remove any stale tweets
-    (map (lambda (key)
-           (redis-remove! client key))
-         (redis-keys client "tweet*"))
-    #t))

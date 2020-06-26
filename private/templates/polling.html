@@ -59,7 +59,7 @@
          .timeposted {
              font-size: 12px;
          }
-         .tweet, .commit {
+         .tweet, .commit .content {
              padding: 15px;
          }
 
@@ -123,18 +123,20 @@
             <div class="tweets column">
                 <h1>Tweets(By Most Recent)</h1>
                 <ul>
+                    @[if @empty?[tweets/time]
+                    "Sorry :("
                     @for/list[([t tweets/time])]{
                     @list{
-                    <li data-tweet-hash='@(hash-ref t #"hash")'>
+                    <li data-hash='@(hash-ref t #"hash")'>
                         <div class="wrap">
-                            <div class="vote up" data-tweet-vote="upvote">
+                            <div class="vote up" data-vote="upvote">
                                 <i class="fa fa-angle-up"></i>
                             </div>
                             <div class="stat">
                                 <span class="score">@(hash-ref t #"score")
                                 </span>
                             </div>
-                            <div class="vote down" data-tweet-vote="downvote">
+                            <div class="vote down" data-vote="downvote">
                                 <i class="fa fa-angle-down"></i>
                             </div>
                         </div>
@@ -145,6 +147,7 @@
 
                     </li>
                     }}
+                    ]
                 </ul>
             </div>
 
@@ -152,18 +155,20 @@
             <div class="tweets column">
                 <h1>Tweets(By Score)</h1>
                 <ul>
+                    @[if @empty?[tweets/score]
+                    "No tweets fetched"
                     @for/list[([t tweets/score])]{
                     @list{
-                    <li data-tweet-hash='@(hash-ref t #"hash")' id='@(hash-ref t #"hash")'>
+                    <li data-hash='@(hash-ref t #"hash")' id='@(hash-ref t #"hash")'>
                         <div class="wrap">
-                            <div class="vote up" data-tweet-vote="upvote">
+                            <div class="vote up" data-vote="upvote">
                                 <i class="fa fa-angle-up"></i>
                             </div>
                             <div class="stat">
                                 <span class="score">@(hash-ref t #"score")
                                 </span>
                             </div>
-                            <div class="vote down" data-tweet-vote="downvote">
+                            <div class="vote down" data-vote="downvote">
                                 <i class="fa fa-angle-down"></i>
                             </div>
                         </div>
@@ -172,7 +177,7 @@
                             <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b>
                         </div>
                     </li>
-                    }}
+                    }}]
 
                 </ul>
 
@@ -182,10 +187,24 @@
             <div class="commits column">
                 <h1>Commits(By Most Recent)</h1>
                 <ul>
+                    @[if @empty?[commits]
+                    "No commits stored :("
                     @for/list[([c commits])]{
                     @list{
-                    <li class="commit">
-                        <div>
+                    <li class="commit" data-hash='commit:@(hash-ref c #"hash")'>
+                        <div class="wrap">
+                            <div class="vote up" data-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">@(hash-ref c #"score")
+                                </span>
+                            </div>
+                            <div class="vote down" data-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="content">
                             <span class="hash">@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7):</span> <a href='@(hash-ref c #"url")' target="_blank">@(hash-ref c #"content")</a><br/>
                             <a target="_blank" href='@(hash-ref c #"repository-url")'><span class="author">@(hash-ref c #"author")/@(hash-ref c #"repository")</span></a><br/>
                             <span class="timeposted">@(hash-ref c #"timeposted")</span>
@@ -193,6 +212,7 @@
 
                     </li>
                     }}
+]
 
                 </ul>
 
@@ -202,14 +222,17 @@
         <script type="text/javascript">
          document.addEventListener("DOMContentLoaded", function () {
              function vote(e) {
-                 let tweetHash = this.parentElement.parentElement.parentElement.dataset.tweetHash;
-                 let tweetVote = this.parentElement.dataset.tweetVote;
-                 console.log(tweetVote);
-                 fetch("/vote", {
+                 let hash = this.parentElement.parentElement.parentElement.dataset.hash;
+                 let vote = this.parentElement.dataset.vote;
+                 let voteURL = "/vote/tweets"
+                 console.log(vote, hash);
+                 if (!(hash.includes("tweet:")))
+                     voteURL = "/vote/commits"
+                 fetch(voteURL, {
                      method: "POST",
                      body: JSON.stringify({
-                         "tweet-hash": tweetHash,
-                         "upvote": tweetVote
+                         "hash": hash,
+                         "vote": vote
                      }),
                      headers: {"content-type": "application/json"},
                  })

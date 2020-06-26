@@ -5,7 +5,8 @@
          lens/data/hash
          gregor
          redis
-         simple-http)
+         simple-http
+         "votes.rkt")
 
 
 (provide get-commits/github
@@ -13,6 +14,7 @@
          store-commits!
          remove-expired-commits!
          remove-all-commits!
+         vote-commit!
          (struct-out feed-commit))
 
 
@@ -21,32 +23,12 @@
 
 ;; Check for tweets that have expired and remove them
 (define (remove-expired-commits! client)
-  (define keys (redis-subzset
-                client
-                "commit-time:"
-                #:start 0
-                #:stop -1))
-  (map (lambda (key)
-         (unless (redis-has-key? client key)
-           (redis-zset-remove! client "commit-time:" key)))
-       keys))
+  (remove-expired-keys! client (list "commit-score:" "commit-time:")))
 
+
+;; Remove all commits
 (define (remove-all-commits! client)
-  (let ([keys (redis-subzset
-               client
-               "commit-time:"
-               #:start 0
-               #:stop -1)])
-    ;; Remove all hashes referenced is "tweet-score:" zset
-    (map (lambda (key)
-           (redis-zset-remove! client "commit-time:" key)
-           (redis-remove! client key))
-         keys)
-    ;; Remove any stale tweets
-    (map (lambda (key)
-           (redis-remove! client key))
-         (redis-keys client "commit:*"))
-    #t))
+  (remove-all-keys! client "commit*"))
 
 
 ;; Get tweets from github, storing them in a struct
@@ -117,8 +99,10 @@
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
         (redis-hash-set! c key "url" (feed-commit-url commit*))
         (redis-hash-set! c key "hash" (feed-commit-hash commit*))
+        (redis-hash-set! c key "score" "0")
         (redis-zset-add! c "commit-time:" key timeposted/seconds)
-        (redis-expire-in! c key (* 7 24 60 60 100))])))
+        (redis-expire-in! c key (* 7 24 60 60 100))
+        (redis-zset-add! c "score:" key 0)])))
   (cond
    [(not (null? commits))
     (for-each (lambda (commit*)
@@ -127,3 +111,5 @@
                   commits
                   `(,commits)))]))
 
+(define (vote-commit! client key #:upvote? [upvote #t])
+  (vote! client "commit-score:" key #:upvote? upvote))
