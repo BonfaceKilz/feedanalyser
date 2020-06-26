@@ -13,6 +13,7 @@
          store-commits!
          remove-expired-commits!
          remove-all-commits!
+         vote-commit!
          (struct-out feed-commit))
 
 
@@ -128,3 +129,12 @@
                   commits
                   `(,commits)))]))
 
+(define (vote-commit! client key #:upvote? [upvote #t])
+  (let* [(n (if upvote 1 -1))
+         (zset-name "commit-score:")
+         (score (string->number (bytes->string/utf-8
+                                 (redis-hash-ref client key "score"))))]
+    (begin
+      (redis-hash-set! client key "score"
+                       (number->string (+ score n)))
+      (redis-zset-incr! client zset-name tweet-hash (* n 1000)))))
