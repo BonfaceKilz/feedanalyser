@@ -191,7 +191,19 @@
                     "No commits stored :("
                     @for/list[([c commits])]{
                     @list{
-                    <li class="commit">
+                    <li class="commit" data-hash='@(hash-ref c #"hash")'>
+                        <div class="wrap">
+                            <div class="vote up" data-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">@(hash-ref c #"score")
+                                </span>
+                            </div>
+                            <div class="vote down" data-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
                         <div>
                             <span class="hash">@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7):</span> <a href='@(hash-ref c #"url")' target="_blank">@(hash-ref c #"content")</a><br/>
                             <a target="_blank" href='@(hash-ref c #"repository-url")'><span class="author">@(hash-ref c #"author")/@(hash-ref c #"repository")</span></a><br/>
