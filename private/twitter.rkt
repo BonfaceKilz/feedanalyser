@@ -95,7 +95,7 @@
 
 
 (define (vote-tweet! client key #:upvote? [upvote #t])
-  (vote! client "tweet-score" key #:upvote upvote))
+  (vote! client "tweet-score:" key #:upvote? upvote))
 
 
 ;; Given a list of feed-tweets, store them in REDIS

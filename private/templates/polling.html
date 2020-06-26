@@ -191,7 +191,7 @@
                     "No commits stored :("
                     @for/list[([c commits])]{
                     @list{
-                    <li class="commit" data-hash='@(hash-ref c #"hash")'>
+                    <li class="commit" data-hash='commit:@(hash-ref c #"hash")'>
                         <div class="wrap">
                             <div class="vote up" data-vote="upvote">
                                 <i class="fa fa-angle-up"></i>
@@ -225,13 +225,14 @@
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
                  let voteURL = "/vote/tweets"
-                 if (!hash.includes("tweet:"))
+                 console.log(vote, hash);
+                 if (!(hash.includes("tweet:")))
                      voteURL = "/vote/commits"
                  fetch(voteURL, {
                      method: "POST",
                      body: JSON.stringify({
                          "hash": hash,
-                         "upvote": vote
+                         "vote": vote
                      }),
                      headers: {"content-type": "application/json"},
                  })

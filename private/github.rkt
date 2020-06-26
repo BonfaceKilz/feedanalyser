@@ -112,4 +112,4 @@
                   `(,commits)))]))
 
 (define (vote-commit! client key #:upvote? [upvote #t])
-  (vote! client "commit-score:" key #:upvote upvote))
+  (vote! client "commit-score:" key #:upvote? upvote))
