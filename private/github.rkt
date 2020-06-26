@@ -139,4 +139,4 @@
     (begin
       (redis-hash-set! client key "score"
                        (number->string (+ score n)))
-      (redis-zset-incr! client zset-name tweet-hash (* n 1000)))))
+      (redis-zset-incr! client zset-name key (* n 1000)))))
