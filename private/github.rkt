@@ -29,6 +29,7 @@
                 #:stop -1))
   (map (lambda (key)
          (unless (redis-has-key? client key)
+           (redis-zset-remove! client "commit-score:" key)
            (redis-zset-remove! client "commit-time:" key)))
        keys))
 
@@ -40,6 +41,7 @@
                #:stop -1)])
     ;; Remove all hashes referenced is "tweet-score:" zset
     (map (lambda (key)
+           (redis-zset-remove! client "commit-score:" key)
            (redis-zset-remove! client "commit-time:" key)
            (redis-remove! client key))
          keys)
