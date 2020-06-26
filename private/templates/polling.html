@@ -59,7 +59,7 @@
          .timeposted {
              font-size: 12px;
          }
-         .tweet, .commit {
+         .tweet, .commit .content {
              padding: 15px;
          }
 
@@ -204,7 +204,7 @@
                                 <i class="fa fa-angle-down"></i>
                             </div>
                         </div>
-                        <div>
+                        <div class="content">
                             <span class="hash">@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7):</span> <a href='@(hash-ref c #"url")' target="_blank">@(hash-ref c #"content")</a><br/>
                             <a target="_blank" href='@(hash-ref c #"repository-url")'><span class="author">@(hash-ref c #"author")/@(hash-ref c #"repository")</span></a><br/>
                             <span class="timeposted">@(hash-ref c #"timeposted")</span>
