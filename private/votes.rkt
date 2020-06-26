@@ -6,10 +6,10 @@
 (provide remove-expired-keys!)
 
 
-(define (remove-expired-keys! client zset-key-list)
+(define (remove-expired-keys! client zset-keys/list)
   (let ([keys (redis-subzset
                client
-               (car zset-key-list) ;; All elems in zset-key-list should have the same keys
+               (car zset-keys/list) ;; All elems in zset-keys/list should have the same keys
                #:start 0
                #:stop -1)])
     (map (lambda (key)
@@ -17,6 +17,6 @@
                ;;; Remove expired tweets from the relevant zsets
              (for-each (lambda (zset-key)
                          (redis-zset-remove! client zset-key key))
-                       zset-key-list)))
+                       zset-keys/list)))
          keys)
     #t))
