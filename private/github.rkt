@@ -99,6 +99,7 @@
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
         (redis-hash-set! c key "url" (feed-commit-url commit*))
         (redis-hash-set! c key "hash" (feed-commit-hash commit*))
+        (redis-hash-set! c key "score" "0")
         (redis-zset-add! c "commit-time:" key timeposted/seconds)
         (redis-expire-in! c key (* 7 24 60 60 100))
         (redis-zset-add! c "score:" key 0)])))
