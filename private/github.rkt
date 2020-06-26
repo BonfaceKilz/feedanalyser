@@ -26,23 +26,9 @@
   (remove-expired-keys! client (list "commit-score:" "commit-time:")))
 
 
+;; Remove all commits
 (define (remove-all-commits! client)
-  (let ([keys (redis-subzset
-               client
-               "commit-time:"
-               #:start 0
-               #:stop -1)])
-    ;; Remove all hashes referenced is "tweet-score:" zset
-    (map (lambda (key)
-           (redis-zset-remove! client "commit-score:" key)
-           (redis-zset-remove! client "commit-time:" key)
-           (redis-remove! client key))
-         keys)
-    ;; Remove any stale tweets
-    (map (lambda (key)
-           (redis-remove! client key))
-         (redis-keys client "commit:*"))
-    #t))
+  (remove-all-keys! client "commit*"))
 
 
 ;; Get tweets from github, storing them in a struct

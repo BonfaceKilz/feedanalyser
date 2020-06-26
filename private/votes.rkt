@@ -3,7 +3,8 @@
 (require redis)
 
 
-(provide remove-expired-keys!)
+(provide remove-expired-keys!
+         remove-all-keys!)
 
 
 (define (remove-expired-keys! client zset-keys/list)
@@ -20,3 +21,10 @@
                        zset-keys/list)))
          keys)
     #t))
+
+(define (remove-all-keys! client key/regexp)
+  ;; Remove any stale tweets
+  (map (lambda (key)
+         (redis-remove! client key))
+       (redis-keys client key/regexp))
+  #t)

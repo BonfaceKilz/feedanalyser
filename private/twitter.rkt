@@ -24,6 +24,11 @@
   (remove-expired-keys! client (list "tweet-score:" "tweet-time:")))
 
 
+;; Remove all tweets from Redis
+(define (remove-all-tweets! client)
+  (remove-all-keys! client "tweet*"))
+
+
 (define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
   (let* [(limit-n (if (string? number)
                number
@@ -155,22 +160,3 @@
               (string->bytes/utf-8 (number->string
                                     (feed-tweet-timeposted tweet)))
               (string->bytes/utf-8 (feed-tweet-hash tweet))))
-
-;; Remove all tweets
-(define (remove-all-tweets! client)
-  (let ([keys (redis-subzset
-               client
-               "tweet-score:"
-               #:start 0
-               #:stop -1)])
-    ;; Remove all hashes referenced is "tweet-score:" zset
-    (map (lambda (key)
-           (redis-zset-remove! client "tweet-score:" key)
-           (redis-zset-remove! client "tweet-time:" key)
-           (redis-remove! client key))
-         keys)
-    ;; Remove any stale tweets
-    (map (lambda (key)
-           (redis-remove! client key))
-         (redis-keys client "tweet*"))
-    #t))
