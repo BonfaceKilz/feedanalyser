@@ -101,7 +101,7 @@
         (redis-hash-set! c key "hash" (feed-commit-hash commit*))
         (redis-zset-add! c "commit-time:" key timeposted/seconds)
         (redis-expire-in! c key (* 7 24 60 60 100))
-        (redis-zset-add! c "commit-score:" key 0)])))
+        (redis-zset-add! c "score:" key 0)])))
   (cond
    [(not (null? commits))
     (for-each (lambda (commit*)
