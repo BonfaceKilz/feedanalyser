@@ -16,7 +16,7 @@
            (unless (redis-has-key? client key)
                ;;; Remove expired tweets from the relevant zsets
              (for-each (lambda (zset-key)
-                         (redis-zset-remove! client zset-key key))))
-           zset-key-list)
+                         (redis-zset-remove! client zset-key key))
+                       zset-key-list)))
          keys)
     #t))
