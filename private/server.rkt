@@ -23,7 +23,7 @@
   (post "/vote/tweets"
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
-                 [tweet-hash (hash-ref json/vals 'tweet-hash)]
+                 [tweet-hash (hash-ref json/vals 'hash)]
                  [upvote (hash-ref json/vals 'upvote)])
             (vote-tweet! client tweet-hash #:upvote? (string=? upvote "upvote"))
             "OK")))
