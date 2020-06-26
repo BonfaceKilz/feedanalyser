@@ -2,7 +2,8 @@
 
 (require gregor
          racket/date
-         redis)
+         redis
+         "votes.rkt")
 
 
 (provide get-tweets/redis
@@ -20,17 +21,7 @@
 
 ;; Check for tweets that have expired and remove them
 (define (remove-expired-tweets! client)
-  (let ([keys (redis-subzset
-               client
-               "tweet-score:"
-               #:start 0
-               #:stop -1)])
-    (map (lambda (key)
-           (unless (redis-has-key? client key)
-               ;;; Remove expired tweets from the relevant zsets
-             (redis-zset-remove! client "tweet-score:" key)
-             (redis-zset-remove! client "tweet-time:" key)))
-         keys)))
+  (remove-expired-keys! client (list "tweet-score:" "tweet-time:")))
 
 
 (define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])

@@ -5,7 +5,8 @@
          lens/data/hash
          gregor
          redis
-         simple-http)
+         simple-http
+         "votes.rkt")
 
 
 (provide get-commits/github
@@ -22,16 +23,8 @@
 
 ;; Check for tweets that have expired and remove them
 (define (remove-expired-commits! client)
-  (define keys (redis-subzset
-                client
-                "commit-time:"
-                #:start 0
-                #:stop -1))
-  (map (lambda (key)
-         (unless (redis-has-key? client key)
-           (redis-zset-remove! client "commit-score:" key)
-           (redis-zset-remove! client "commit-time:" key)))
-       keys))
+  (remove-expired-keys! client (list "commit-score:" "commit-time:")))
+
 
 (define (remove-all-commits! client)
   (let ([keys (redis-subzset
