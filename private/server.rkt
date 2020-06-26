@@ -20,7 +20,7 @@
                [tweets/score (get-tweets/redis client)])
            (include-template "templates/polling.html"))))
 
-  (post "/vote"
+  (post "/vote/tweets"
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
                  [tweet-hash (hash-ref json/vals 'tweet-hash)]
