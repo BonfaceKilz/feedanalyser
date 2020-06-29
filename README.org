@@ -1,23 +1,22 @@
 *** What is Feed Analyser?
 
-This aggregates content from different channels(for now only twitter is properly
-supported) and displays them in one place. In most hackathons, organisations and
-sometimes events, content is spread over different places e.g. Discord, slack,
-IRC, mailing list, issue trackers etc. This project aims to aggregate news from
-different places and display them in one place.
+This aggregates content from different channels(for now only twitter and github
+commits are properly supported) and displays them in one place. In most
+hackathons, organisations and sometimes events, content spans different places
+e.g. Discord, slack, IRC, mailing list, issue trackers etc. This project aims to
+aggregate news from different places and display them in one place.
 
-For now, the project supports twitter with partial support for GitHub.
+For now, the project supports twitter and github.
 
 It also allows you to vote on the feeds. You can view a demo [[https://feed.bonfacemunyoki.com/][here]]
 
 *** How does it work?
 
-The program scrapes content from twitter and github with optional filters(at
-least for now) and stores the data into redis queues with a score. You can then
-read from the redis queue.
+The program scrapes content from twitter and github and stores the data into
+redis queues with a score. You can then read from the redis queue.
 
 There's also an in-built provision for voting on queues, whereby each vote
-updates the zscore of an individual tweet thereby increasing or decreasing the
+updates the zscore of an individual item thereby increasing or decreasing the
 likelihood of it being displayed on a page.
 
 /Why are you storing things to Redis? Why not just generate pages straight from
@@ -33,11 +32,17 @@ First ensure you have [[https://github.com/twintproject/twint/tree/master/twint]
 
 - Start the twitter fetching daemon:
 
-=racket bin/add-tweets.rkt=
+#+begin_src sh
+# Replace example.conf.rkt with your own conf file with the correct settings
+racket examples/polling-server.rkt -c etc/example.conf.rkt
+#+end_src
 
 - To run the server
 
-=racket bin/polling-server.rkt=
+#+begin_src 
+# Replace example.conf.rkt with your own conf file with the correct settings
+racket examples/update-feed.rkt -c etc/example.conf.rkt
+#+end_src
 
 *** Suggestions/ Help Wanted
 
@@ -49,8 +54,9 @@ First ensure you have [[https://github.com/twintproject/twint/tree/master/twint]
 *** RoadMap
 
 - [x] Better Parsing from Twitter
+- [X] Fetch commits
 - [ ] Add package and dependencies to Guix
-- [ ] Integrate to GN2
+- [X] Integrate to GN2
 - [ ] Fetch Pull Requests and merges from GitHub and display them
 - [ ] Fetch Data from Slack
 - [ ] Make a lib layer and add project to upstream to racket-lang.org
