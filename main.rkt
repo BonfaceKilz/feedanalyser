@@ -15,8 +15,12 @@
  redis)
 
 
-(provide load-config)
+(provide load-config
+         assoc-val)
 
+
+(define (assoc-val key assoc-list)
+  (cdr (assoc key assoc-list)))
 
 ;; Example (load-config "/tmp/conf.rkt")
 (define (load-config config-path)

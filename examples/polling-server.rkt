@@ -6,7 +6,7 @@
          feedanalyser)
 
 
-;; Conf parameters
+o;; Conf parameters
 (define conf-filepath (make-parameter #f))
 (define redis-conf (make-parameter '((host . "127.0.0.1")
                                      (port . 6379)
@@ -27,8 +27,6 @@
    #:args () (void)))
 
 
-(define (assoc-val key assoc-list)
-  (cdr (assoc key assoc-list)))
 (cond
  [(conf-filepath)
   (let [(server/settings
