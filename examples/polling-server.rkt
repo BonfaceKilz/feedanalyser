@@ -6,7 +6,7 @@
          feedanalyser)
 
 
-o;; Conf parameters
+;; Conf parameters
 (define conf-filepath (make-parameter #f))
 (define redis-conf (make-parameter '((host . "127.0.0.1")
                                      (port . 6379)
