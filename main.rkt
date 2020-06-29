@@ -1,5 +1,7 @@
 #lang racket
 
+(require racket/exn)
+
 (define-syntax-rule (reprovide e0 e ...)
   (begin
     (require e0 e ...)
@@ -9,4 +11,25 @@
  "private/twitter.rkt"
  "private/github.rkt"
  "private/server.rkt"
+ "private/server.rkt"
  redis)
+
+
+(provide load-config)
+
+
+;; Example (load-config "/tmp/conf.rkt")
+(define (load-config config-path)
+  (with-handlers ([exn:fail:filesystem:errno?
+                   (lambda (exn)
+                     (error (exn->string exn)))])
+    (let [(eval-ns (make-base-namespace))
+          (params (make-hash))]
+      (let [(settings (file->list config-path))]
+        (for [(name:value settings)]
+          (let* [(n (car name:value)); evaluate the 'value' expression
+                 (v (cdr name:value))
+                 (v (eval (quasiquote (,@v)) eval-ns))]
+            (hash-set! params n v)
+            )))
+      params)))
