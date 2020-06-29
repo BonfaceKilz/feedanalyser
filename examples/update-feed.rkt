@@ -1,4 +1,5 @@
-#lang racket/base
+#! /usr/bin/env racket
+#lang racket
 
 #| Worker for fetching posts from twitter
 
