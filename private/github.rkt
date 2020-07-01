@@ -1,8 +1,6 @@
 #lang racket
 
 (require json
-         lens/common
-         lens/data/hash
          gregor
          redis
          simple-http
