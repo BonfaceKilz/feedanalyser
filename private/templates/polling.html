@@ -63,6 +63,18 @@
              padding: 15px;
          }
 
+         .tweet-stats, .tweet-stats small {
+             display: flex;
+         }
+
+         .tweet-stats {
+             flex-direction: row;
+         }
+         .tweet-stats small {
+             flex-direction: column;
+             max-width: 30px;
+             margin: 10px 10px 0 0;
+         }
          .tweets li, .commits li {
              display: flex;
              flex-direction: row;
@@ -143,6 +155,17 @@
                         <div class="tweet">@(hash-ref t #"tweet") <br/>
                             <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
                             <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
+                            <div class="tweet-stats">
+                                <small>
+                                    <i class="fa fa-reply" aria-hidden="true"></i>@(hash-ref t #"replies")
+                                </small>
+                                <small>
+                                    <i class="fa fa-retweet" aria-hidden="true"></i> @(hash-ref t #"retweets")
+                                </small>
+                                <small>
+                                    <i class="fa fa-heart" aria-hidden="true"></i> @(hash-ref t #"likes")
+                                </small>
+                            </div>
                         </div>
 
                     </li>
@@ -175,6 +198,17 @@
                         <div class="tweet">@(hash-ref t #"tweet") <br/>
                             <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
                             <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b>
+                            <div class="tweet-stats">
+                                <small>
+                                    <i class="fa fa-reply" aria-hidden="true"></i>@(hash-ref t #"replies")
+                                </small>
+                                <small>
+                                    <i class="fa fa-retweet" aria-hidden="true"></i> @(hash-ref t #"retweets")
+                                </small>
+                                <small>
+                                    <i class="fa fa-heart" aria-hidden="true"></i> @(hash-ref t #"likes")
+                                </small>
+                            </div>
                         </div>
                     </li>
                     }}]
