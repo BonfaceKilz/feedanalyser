@@ -30,18 +30,18 @@ data store, and for this, Redis was chosen.
 
 First ensure you have [[https://github.com/twintproject/twint/tree/master/twint][twint]] installed- this is used to fetch data from twitter without using twitter's restrictive API.
 
-- Start the twitter fetching daemon:
+- Start the twitter/ gh fetching daemon:
 
 #+begin_src sh
 # Replace example.conf.rkt with your own conf file with the correct settings
-racket examples/polling-server.rkt -c etc/example.conf.rkt
+racket examples/update-feed.rkt -c etc/example.conf.rkt
 #+end_src
 
 - To run the server
 
 #+begin_src 
 # Replace example.conf.rkt with your own conf file with the correct settings
-racket examples/update-feed.rkt -c etc/example.conf.rkt
+racket examples/polling-server.rkt -c etc/example.conf.rkt
 #+end_src
 
 *** Suggestions/ Help Wanted
