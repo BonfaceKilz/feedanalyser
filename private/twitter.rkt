@@ -126,7 +126,7 @@
          c
          "tweet-score:"
          key
-         0)
+         (/ timeposted 1000000000.0))
         (redis-zset-add!
          c
          "tweet-time:"
