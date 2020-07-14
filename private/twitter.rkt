@@ -16,7 +16,7 @@
 
 
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
-(struct feed-tweet (author content timeposted hash) #:transparent)
+(struct feed-tweet (author content timeposted hash replies retweets likes) #:transparent)
 
 
 ;; Check for tweets that have expired and remove them
@@ -38,7 +38,7 @@
                    (lambda ()
                      (system
                       (string-append
-                       "twint --userlist '"
+                       "twint --stats --userlist '"
                        userlist
                        "'"
                        (cond
@@ -50,7 +50,7 @@
                        " --limit "
                        limit-n
                        " --link include"
-                       " --format '{username} $@@$ {tweet} $@@$ {date} {time}||||||'"))))
+                       " --format '{username} $@@$ {tweet} $@@$ {date} {time} $@@$ {replies} $@@$ {retweets} $@@$ {likes}||||||'"))))
                  "||||||"))]
     (remove* (list "\n" '()) tweets)))
 
@@ -71,9 +71,12 @@
                              (parse-datetime
                               (string-normalize-spaces (third ts))
                               "yyyy-MM-dd HH:mm:ss")))
+         (define replies (fourth ts))
+         (define retweets (fifth ts))
+         (define likes (sixth ts))
          (define hash (number->string
                        (equal-hash-code content)))
-         (feed-tweet author content timeposted hash))))
+         (feed-tweet author content timeposted hash replies retweets likes))))
    (get-raw-tweets userlist #:search-terms search-terms #:number number)))
 
 
@@ -110,6 +113,9 @@
                  "tweet:"
                  hash))
            (timeposted (feed-tweet-timeposted tweet))
+           (replies (feed-tweet-replies tweet))
+           (retweets (feed-tweet-retweets tweet))
+           (likes (feed-tweet-likes tweet))
            (tweet-date* (seconds->date timeposted))
            (tz-name (date*-time-zone-name tweet-date*))]
       (cond
@@ -117,6 +123,9 @@
         (redis-hash-set! c key "author" author)
         (redis-hash-set! c key "tweet" content)
         (redis-hash-set! c key "hash" key)
+        (redis-hash-set! c key "replies" replies)
+        (redis-hash-set! c key "retweets" retweets)
+        (redis-hash-set! c key "likes" likes)
         (redis-hash-set! c key "timeposted"
                          (string-append
                           (date->string tweet-date* #t) ;; set #t to show the time too
@@ -134,7 +143,10 @@
          timeposted)
         ;; Expire tweets after 1 week
         (redis-expire-in! c key (* 30 7 24 60 60 100))]
-       [else #f])))
+       [else  ;; Update the tweet metrics
+        (redis-hash-set! c key "replies" key)
+        (redis-hash-set! c key "retweets" key)
+        (redis-hash-set! c key "likes" key)])))
   (cond
    [(not (null? tweets))
     (for-each (lambda (tweet)
@@ -152,4 +164,7 @@
               (string->bytes/utf-8 (feed-tweet-content tweet))
               (string->bytes/utf-8 (number->string
                                     (feed-tweet-timeposted tweet)))
-              (string->bytes/utf-8 (feed-tweet-hash tweet))))
+              (string->bytes/utf-8 (feed-tweet-hash tweet))
+              (string->bytes/utf-8 (feed-tweet-replies tweet))
+              (string->bytes/utf-8 (feed-tweet-retweets tweet))
+              (string->bytes/utf-8 (feed-tweet-likes tweet))))
