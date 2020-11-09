@@ -20,13 +20,16 @@
 
 
 ;; Check for tweets that have expired and remove them
-(define (remove-expired-tweets! client)
-  (remove-expired-keys! client (list "tweet-score:" "tweet-time:")))
+(define (remove-expired-tweets! client #:feed-prefix [feed-prefix ""])
+  (remove-expired-keys! client (list
+                                (string-append feed-prefix "tweet-score:")
+                                "tweet-time:")))
 
 
 ;; Remove all tweets from Redis
-(define (remove-all-tweets! client)
-  (remove-all-keys! client "tweet*"))
+(define (remove-all-tweets! client #:feed-prefix [feed-prefix ""])
+  (remove-all-keys! client
+                    (string-append feed-prefix "tweet*")))
 
 
 (define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
@@ -85,10 +88,11 @@
          #:key [key "tweet-score:"]
          #:start [start 0]
          #:stop [stop -1]
-         #:reverse? [reverse? #t])
+         #:reverse? [reverse? #t]
+         #:feed-prefix [feed-prefix ""])
   (let ([tweet-scores (redis-subzset
                        client
-                       key
+                       (string-append feed-prefix key)
                        #:start start
                        #:stop stop
                        #:reverse? reverse?)])
@@ -97,12 +101,15 @@
          tweet-scores)))
 
 
-(define (vote-tweet! client key #:upvote? [upvote #t])
-  (vote! client "tweet-score:" key #:upvote? upvote))
+(define (vote-tweet! client key
+                     #:upvote? [upvote #t]
+                     #:feed-prefix [feed-prefix ""])
+  (vote! client (string-append feed-prefix "tweet-score:")
+         key #:upvote? upvote))
 
 
 ;; Given a list of feed-tweets, store them in REDIS
-(define (store-tweets! client tweets)
+(define (store-tweets! client tweets #:feed-prefix [feed-prefix ""])
   (define (store-tweet! c tweet)
     "Store tweets to REDIS. The tweets expire after 1 month"
     (let* [(serialized-tweet (serialize-tweet tweet))
@@ -110,6 +117,7 @@
            (content (feed-tweet-content serialized-tweet))
            (hash (feed-tweet-hash tweet))
            (key (string-append
+                 feed-prefix
                  "tweet:"
                  hash))
            (timeposted (feed-tweet-timeposted tweet))

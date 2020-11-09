@@ -25,6 +25,8 @@ This is a demo. Update as required!
 (define repos (make-parameter '(("genenetwork" . "genenetwork2")
                                 ("arvados" . "bh20-seq-resource"))))
 
+(define feed-prefix (make-parameter ""))
+
 ;;; Default params for twitter
 (define search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
@@ -48,6 +50,7 @@ This is a demo. Update as required!
     (redis-conf (hash-ref server/settings 'redis-conf))
     (refresh-time/hrs  (hash-ref server/settings 'refresh-time/hrs))
     (repos (hash-ref server/settings 'repos))
+    (feed-prefix (hash-ref server/settings 'feed-prefix))
     (search-terms (hash-ref server/settings 'search-terms))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
 
@@ -71,23 +74,25 @@ This is a demo. Update as required!
 (let loop ()
   ;; Adding tweets
   (displayln "Adding tweets:")
-  (remove-expired-tweets! client)
+  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
   (store-tweets!
    client
    (get-tweets/twitter (twitter-users)
-                       #:search-terms (search-terms)))
+                       #:search-terms (search-terms))
+   #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
 
 
   ;; Adding commits
   (displayln "Adding commits:")
-  (remove-expired-commits! client)
+  (remove-expired-commits! client #:feed-prefix (feed-prefix))
   (for-each
    (lambda (repo)
      (store-commits!
       client
       (get-commits/github (car repo)
-                          (cdr repo))))
+                          (cdr repo))
+      #:feed-prefix (feed-prefix)))
    (repos))
   (displayln "Done Adding commits")
 

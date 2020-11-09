@@ -5,11 +5,14 @@
                 (username . #f)
                 (password . #f)))
 
+;; Prefix to the redis columns
+(feed-prefix . "gn2-")
+
 ;; The log file
 (log-file . "polling-server.log")
 
 ;; The port to run the polling html page from
-(server-port . 5011)
+(server-port . 6011)
 
 ;; Use any twitter's advanced search options here
 (search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump")

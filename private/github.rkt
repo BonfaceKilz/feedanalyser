@@ -20,13 +20,16 @@
 (struct feed-commit (author repository content timeposted hash url repository-url) #:transparent)
 
 ;; Check for tweets that have expired and remove them
-(define (remove-expired-commits! client)
-  (remove-expired-keys! client (list "commit-score:" "commit-time:")))
+(define (remove-expired-commits! client #:feed-prefix [feed-prefix ""])
+  (remove-expired-keys! client (list
+                                (string-append feed-prefix "commit-score:")
+                                (string-append feed-prefix "commit-time:"))))
 
 
 ;; Remove all commits
-(define (remove-all-commits! client)
-  (remove-all-keys! client "commit*"))
+(define (remove-all-commits! client #:feed-prefix [feed-prefix ""])
+  (remove-all-keys! client
+                    (string-append feed-prefix "commit*")))
 
 
 ;; Get tweets from github, storing them in a struct
@@ -69,20 +72,22 @@
          #:key [key "commit-time:"]
          #:start [start 0]
          #:stop [stop -1]
-         #:reverse? [reverse? #t])
+         #:reverse? [reverse? #t]
+         #:feed-prefix [feed-prefix ""])
   (map (lambda (commit/key)
          (redis-hash-get client commit/key))
        (redis-subzset
         client
-        key
+        (string-append feed-prefix key)
         #:start start
         #:stop stop
         #:reverse? reverse?)))
 
 
-(define (store-commits! client commits)
+(define (store-commits! client commits #:feed-prefix [feed-prefix ""])
   (define (store-commit! c commit*)
     (let [(key (string-append
+                feed-prefix
                 "commit:"
                 (feed-commit-hash commit*)))
           (timeposted/seconds (->posix
@@ -112,5 +117,6 @@
                   commits
                   `(,commits)))]))
 
-(define (vote-commit! client key #:upvote? [upvote #t])
-  (vote! client "commit-score:" key #:upvote? upvote))
+(define (vote-commit! client key
+                      #:upvote? [upvote #t] #:feed-prefix [feed-prefix ""])
+  (vote! client (feed-prefix "commit-score:") key #:upvote? upvote))
