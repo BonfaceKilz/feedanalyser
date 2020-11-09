@@ -1,5 +1,6 @@
 #lang setup/infotab
 
+(define collection "feedanalyser")
 (define name "feedanalyser")
 (define blurb
   (list '(p "Fetch feeds from different places in Racket")))
