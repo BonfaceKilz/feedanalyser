@@ -141,12 +141,12 @@
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
-         "tweet-score:"
+         (string-append feed-prefix "tweet-score:")
          key
          (/ timeposted 1000000000.0))
         (redis-zset-add!
          c
-         "tweet-time:"
+         (string-append feed-prefix "tweet-time:")
          key
          timeposted)
         ;; Expire tweets after 1 week

@@ -11,13 +11,15 @@
 (provide start-server)
 
 ;; When starting the server, inject, the REDIS client
-(define (start-server client #:port [port 8000] #:log-file [log-file "feed.log"])
+(define (start-server client #:port [port 8000] #:log-file [log-file "feed.log"] #:feed-prefix (feed-prefix ""))
   (get "/"
        (lambda (req)
          (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
                [tweets/time (get-tweets/redis client #:key "tweet-time:")]
-               [commits (get-commits/redis client)]
-               [tweets/score (get-tweets/redis client #:key "tweet-score:")])
+               [commits (get-commits/redis client #:feed-prefix feed-prefix)]
+               [tweets/score
+                (get-tweets/redis
+                 client #:key "tweet-score:" #:feed-prefix feed-prefix)])
            (include-template "templates/polling.html"))))
 
   (post "/vote/tweets"
@@ -38,4 +40,4 @@
 
   (displayln (string-append "Running the server on port " (number->string port)))
 
-  (run #:port port #:log-file log-file))
+  (run #:port port #:feed-prefix feed-prefix #:log-file log-file))

@@ -14,7 +14,7 @@
                                      (password . #f))))
 (define server-port (make-parameter 6379))
 (define log-file/path (make-parameter "feed.log"))
-
+(define feed-prefix (make-parameter ""))
 
 (define parser
   (command-line
@@ -32,6 +32,7 @@
   (let [(server/settings
          (load-config (conf-filepath)))]
     (redis-conf (hash-ref server/settings 'redis-conf))
+    (feed-prefix (hash-ref server/settings 'feed-prefix))
     (server-port (hash-ref server/settings 'server-port))
     (log-file/path (hash-ref server/settings 'log-file)))])
 
