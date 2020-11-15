@@ -28,7 +28,10 @@ data store, and for this, Redis was chosen.
 
 *** How do I run this?
 
-First ensure you have [[https://github.com/twintproject/twint/tree/master/twint][twint]] installed- this is used to fetch data from twitter without using twitter's restrictive API.
+If you are fetching data from twitter, ensure you have Python3 and
+[[https://github.com/twintproject/twint/tree/master/twint][twint]] installed as this is used to fetch data from twitter without
+using twitter's restrictive API. And abide by the Twitter terms of
+service and usage policies when using that data!
 
 - Start the twitter/ gh fetching daemon:
 
@@ -39,7 +42,7 @@ racket examples/update-feed.rkt -c etc/example.conf.rkt
 
 - To run the server
 
-#+begin_src 
+#+begin_src
 # Replace example.conf.rkt with your own conf file with the correct settings
 racket examples/polling-server.rkt -c etc/example.conf.rkt
 #+end_src
@@ -62,3 +65,7 @@ racket examples/polling-server.rkt -c etc/example.conf.rkt
 - [ ] Make a lib layer and add project to upstream to racket-lang.org
 - [ ] Fetch Data from IRC
 - [ ] Add NLP to make more meaningful data
+
+* LICENSE
+
+This tool is published under the GPLv3. See [[./LICENSE][LICENSE]].
