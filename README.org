@@ -33,6 +33,10 @@ If you are fetching data from twitter, ensure you have Python3 and
 using twitter's restrictive API. And abide by the Twitter terms of
 service and usage policies when using that data!
 
+- Configure the feed reader
+
+See configuration [[./etc][examples]].
+
 - Start the twitter/ gh fetching daemon:
 
 #+begin_src sh
@@ -40,7 +44,15 @@ service and usage policies when using that data!
 racket examples/update-feed.rkt -c etc/example.conf.rkt
 #+end_src
 
-- To run the server
+The worker daemon will fetch data from twitter and github on a set
+time frame as set in the configuration - typically every 6 hours or
+so - and feed the results to redis. Note the feed-prefix that
+distinguishes the actual feeds.
+
+- Run the poll 'server'
+
+The polling-server responds to requests from a web service. It serves
+
 
 #+begin_src
 # Replace example.conf.rkt with your own conf file with the correct settings
