@@ -18,6 +18,9 @@
 
 (twitter-users . "BonfaceKilz,wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2")
 
-
 ;; All the repos you want to fetch commits from
 (repos . '(("arvados" . "bh20-seq-resource")))
+
+;; In the update-feed script example, sleep for 'X' amount of hours
+;; after which resume updating
+(refresh-time/hrs . 24)
