@@ -41,7 +41,7 @@ See configuration [[./etc][examples]].
 
 #+begin_src sh
 # Replace example.conf.rkt with your own conf file with the correct settings
-racket examples/update-feed.rkt -c etc/example.conf.rkt
+racket newsfeed/update-feed.rkt -c etc/biohackathon.conf.rkt
 #+end_src
 
 The worker daemon will fetch data from twitter and github on a set
@@ -49,14 +49,14 @@ time frame as set in the configuration - typically every 6 hours or
 so - and feed the results to redis. Note the feed-prefix that
 distinguishes the actual feeds.
 
-- Run the poll 'server'
+- Run the voting 'server'
 
-The polling-server responds to requests from a web service. It serves
+The voting server responds to requests from a web service. It serves
 
 
 #+begin_src
-# Replace example.conf.rkt with your own conf file with the correct settings
-racket examples/polling-server.rkt -c etc/example.conf.rkt
+# Replace the conf with your own conf file with the correct settings
+racket newsfeed/voting-server.rkt -c etc/biohackathon.conf.rkt
 #+end_src
 
 *** Suggestions/ Help Wanted
