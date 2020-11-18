@@ -8,10 +8,10 @@
     (provide (all-from-out e0 e ...))))
 
 (reprovide
- "private/twitter.rkt"
- "private/github.rkt"
- "private/server.rkt"
- "private/server.rkt"
+ "web/twitter.rkt"
+ "web/github.rkt"
+ "web/server.rkt"
+ "web/server.rkt"
  redis)
 
 
