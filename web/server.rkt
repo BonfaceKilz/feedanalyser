@@ -20,7 +20,7 @@
                [tweets/score
                 (get-tweets/redis
                  client #:key "tweet-score:" #:feed-prefix feed-prefix)])
-           (include-template "templates/polling.html"))))
+           (include-template "templates/voting.html"))))
 
   (post "/vote/tweets"
         (lambda (req)

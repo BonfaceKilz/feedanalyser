@@ -10,7 +10,7 @@
 ;; The log file
 (log-file . "bh20-voting-server.log")
 
-;; The port to run the polling html page from
+;; The port to run the voting.html page from
 (server-port . 8022)
 
 ;; Use any twitter's advanced search options here

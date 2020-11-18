@@ -11,7 +11,7 @@
 ;; The log file
 (log-file . "voting-server.log")
 
-;; The port to run the polling html page from
+;; The port to run the voting.html page from
 (server-port . 6011)
 
 ;; Use any twitter's advanced search options here
