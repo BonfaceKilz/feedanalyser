@@ -40,4 +40,4 @@
 
   (displayln (string-append "Running the server on port " (number->string port)))
 
-  (run #:port port #:feed-prefix feed-prefix #:log-file log-file))
+  (run #:port port #:log-file log-file))
