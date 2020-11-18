@@ -15,7 +15,7 @@
   (get "/"
        (lambda (req)
          (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]
-               [tweets/time (get-tweets/redis client #:key "tweet-time:")]
+               [tweets/time (get-tweets/redis client #:key "tweet-time:" #:feed-prefix feed-prefix)]
                [commits (get-commits/redis client #:feed-prefix feed-prefix)]
                [tweets/score
                 (get-tweets/redis
