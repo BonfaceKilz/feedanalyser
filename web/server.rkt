@@ -11,7 +11,11 @@
 (provide start-server)
 
 ;; When starting the server, inject, the REDIS client
-(define (start-server client #:port [port 8000] #:log-file [log-file "feed.log"] #:feed-prefix (feed-prefix ""))
+(define (start-server
+         client
+         #:port [port 8000]
+         #:log-file [log-file "feed.log"]
+         #:feed-prefix [feed-prefix ""])
   (get "/"
        (lambda (req)
          (let ([google-font-link "https://fonts.googleapis.com/css2?family=Amatic+SC&family=Josefin+Sans:ital,wght@1,300&display=swap"]

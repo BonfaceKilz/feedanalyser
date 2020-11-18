@@ -41,4 +41,7 @@
                            #:username (assoc-val 'username (redis-conf))
                            #:password (assoc-val 'password (redis-conf))))
 
-(start-server client #:port (server-port) #:log-file (log-file/path) )
+(start-server client
+              #:port (server-port)
+              #:log-file (log-file/path)
+              #:feed-prefix (feed-prefix))
