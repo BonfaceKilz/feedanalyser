@@ -1,4 +1,4 @@
-;;;; Example configuration file
+;;;; Genenetwork2 configuration file
 
 (redis-conf . '((host . "127.0.0.1")
                 (port . 6379)
@@ -9,7 +9,7 @@
 (feed-prefix . "gn2-")
 
 ;; The log file
-(log-file . "polling-server.log")
+(log-file . "voting-server.log")
 
 ;; The port to run the polling html page from
 (server-port . 6011)
