@@ -19,7 +19,7 @@
 (define parser
   (command-line
    #:usage-help
-   "Start the polling server"
+   "Start the voting server"
    #:once-each
    [("-c" "--conf") filepath "Configuration file path"
     (conf-filepath filepath)]
@@ -35,7 +35,6 @@
     (feed-prefix (hash-ref server/settings 'feed-prefix))
     (server-port (hash-ref server/settings 'server-port))
     (log-file/path (hash-ref server/settings 'log-file)))])
-
 
 (define client (make-redis #:host (assoc-val 'host (redis-conf))
                            #:port (assoc-val 'port (redis-conf))
