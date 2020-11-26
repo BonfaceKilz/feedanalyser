@@ -152,9 +152,9 @@
         ;; Expire tweets after 1 week
         (redis-expire-in! c key (* 30 7 24 60 60 100))]
        [else  ;; Update the tweet metrics
-        (redis-hash-set! c key "replies" key)
-        (redis-hash-set! c key "retweets" key)
-        (redis-hash-set! c key "likes" key)])))
+        (redis-hash-set! c key "replies" replies)
+        (redis-hash-set! c key "retweets" retweets)
+        (redis-hash-set! c key "likes" likes)])))
   (cond
    [(not (null? tweets))
     (for-each (lambda (tweet)
