@@ -32,11 +32,14 @@
   #t)
 
 
-(define (vote! client zset-key hash #:upvote? [upvote #t])
-  (let* [(n (if upvote 1 -1))
-         (score (string->number (bytes->string/utf-8
+(define (vote! client zset-key hash #:upvote? [upvote? #t])
+  (let* [(score (string->number (bytes->string/utf-8
                                  (redis-hash-ref client hash "score"))))]
     (begin
       (redis-hash-set! client hash "score"
-                       (number->string (+ score n)))
-      (redis-zset-incr! client zset-key hash (* n 1000)))))
+                       (number->string (+ score
+                                          (if upvote? 1 -1))))
+      (redis-zset-incr! client zset-key hash
+                        (if upvote?
+                            1000
+                            -1000)))))
