@@ -119,5 +119,5 @@
                   `(,commits)))]))
 
 (define (vote-commit! client key
-                      #:upvote? [upvote #t] #:feed-prefix [feed-prefix ""])
-  (vote! client (feed-prefix "commit-score:") key #:upvote? upvote))
+                      #:upvote? [upvote? #t] #:feed-prefix [feed-prefix ""])
+  (vote! client (feed-prefix "commit-score:") key #:upvote? upvote?))

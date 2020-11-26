@@ -102,10 +102,10 @@
 
 
 (define (vote-tweet! client key
-                     #:upvote? [upvote #t]
+                     #:upvote? [upvote? #t]
                      #:feed-prefix [feed-prefix ""])
   (vote! client (string-append feed-prefix "tweet-score:")
-         key #:upvote? upvote))
+         key #:upvote? upvote?))
 
 
 ;; Given a list of feed-tweets, store them in REDIS

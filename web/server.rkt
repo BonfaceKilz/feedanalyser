@@ -30,7 +30,9 @@
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
                  [tweet-hash (hash-ref json/vals 'hash)]
                  [vote (hash-ref json/vals 'vote)])
-            (vote-tweet! client tweet-hash #:upvote? (string=? vote "upvote"))
+            (vote-tweet! client tweet-hash
+                         #:upvote? (string=? vote "upvote")
+                         #:feed-prefix feed-prefix)
             "OK")))
 
   (post "/vote/commits"
@@ -38,7 +40,9 @@
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
                  [commit-hash (hash-ref json/vals 'hash)]
                  [vote (hash-ref json/vals 'vote)])
-            (vote-commit! client commit-hash #:upvote? (string=? vote "upvote"))
+            (vote-commit! client commit-hash
+                          #:upvote? (string=? vote "upvote")
+                          #:feed-prefix feed-prefix)
             "OK")))
 
   (displayln (string-append "Running the server on port " (number->string port)))
