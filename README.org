@@ -59,6 +59,62 @@ The voting server responds to requests from a web service. It serves
 racket newsfeed/voting-server.rkt -c etc/biohackathon.conf.rkt
 #+end_src
 
+*** Running with a GNU Guix container
+Right now, since the feedanalyser uses redis-racket-- which throws
+errors in Racket v7.9, you could use guix time-machine with a channels
+file to set things up!
+
+First, the channels files looks(tried and tested so it works)
+something like:
+
+#+begin_src scheme :tangle ~/channels.scm
+(list
+ (channel
+  (name 'guix-bioinformatics)
+  (url "https://github.com/BonfaceKilz/guix-bioinformatics")
+  (branch "master")
+  (commit "ad741c19d6a7bfc16610fa25689398243deaa7a5"))
+ (channel
+  (name 'guix)
+  (url "https://git.savannah.gnu.org/git/guix.git")
+  (branch "master")
+  (commit "1f39175d1a030877b034a0ba85ef94b987b50b3e")))
+#+end_src
+
+The above channel definitions contains the working versions of racket
+and python-twint prior the v7.9 bump in upstream Guix.
+
+After setting up the channels file, create a guix container with
+racket and other useful tools ("expose" =/usr/share/zoneinfo= bacause
+it's required by one of the Racket packages. The *-N* flag allows you
+to connect to the internet, and to also connect to redis which runs
+outside your container):
+
+: ./pre-inst-env guix time-machine -C channels.scm -- environment -N -C --expose=/usr/share/zoneinfo --ad-hoc racket-minimal python-twint nss-certs coreutils
+
+Now export the SSL_CERTS so that you can use Racket over the internet:
+
+: export SSL_CERT_DIR="$GUIX_ENVIRONMENT/etc/ssl/certs" && export SSL_CERT_FILE="$GUIX_ENVIRONMENT/etc/ssl/certs/ca-certificates.crt"
+
+Finally, the usual(inside the env):
+
+: raco pkg install
+
+Now you can run the feed and associated voting server using the
+commands:
+
+#+begin_src sh
+# Start the feed daemon in the background
+racket newsfeed/update-feed.rkt -c etc/biohackathon.conf.rkt &
+
+# Start the voting server. Be sure to configure things properly!
+racket newsfeed/voting-server.rkt -c etc/biohackathon.conf.rkt
+#+end_src
+
+PS: You could set racket up in it's own profile by running something
+like:
+
+: ./pre-inst-env guix time-machine -C channels.scm -- install racket-minimal python-twint -p ~/opt/racket
 *** Suggestions/ Help Wanted
 
 - Fetch data from Slack
