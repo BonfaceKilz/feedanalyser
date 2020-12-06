@@ -219,13 +219,13 @@
 
 
             <div class="commits column">
-                <h1>Commits(By Most Recent)</h1>
+                <h1>Commits(By Score)</h1>
                 <ul>
                     @[if @empty?[commits]
                     "No commits stored :("
                     @for/list[([c commits])]{
                     @list{
-                    <li class="commit" data-hash='commit:@(hash-ref c #"hash")'>
+                    <li class="commit" data-hash='@(hash-ref c #"hash")'>
                         <div class="wrap">
                             <div class="vote up" data-vote="upvote">
                                 <i class="fa fa-angle-up"></i>

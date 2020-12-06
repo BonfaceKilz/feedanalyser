@@ -101,7 +101,7 @@
         (redis-hash-set! c key "repository-url" (feed-commit-repository-url commit*))
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
         (redis-hash-set! c key "url" (feed-commit-url commit*))
-        (redis-hash-set! c key "hash" (feed-commit-hash commit*))
+        (redis-hash-set! c key "hash" key)
         (redis-hash-set! c key "score" "0")
         (redis-zset-add! c (string-append feed-prefix "commit-score:")
                          key
@@ -120,4 +120,5 @@
 
 (define (vote-commit! client key
                       #:upvote? [upvote? #t] #:feed-prefix [feed-prefix ""])
-  (vote! client (feed-prefix "commit-score:") key #:upvote? upvote?))
+  (vote! client (string-append feed-prefix "commit-score:")
+         key #:upvote? upvote?))
