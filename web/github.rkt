@@ -108,7 +108,7 @@
                          (/ timeposted/seconds 1000000000.0))
         (redis-zset-add! c (string-append feed-prefix "commit-time:")
                          key timeposted/seconds)
-        (redis-expire-in! c key (* 7 24 60 60 100))
+        (redis-expire-in! c key (* 14 24 60 60 100))
         (redis-zset-add! c "score:" key 0)])))
   (cond
    [(not (null? commits))

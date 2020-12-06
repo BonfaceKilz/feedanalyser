@@ -149,8 +149,8 @@
          (string-append feed-prefix "tweet-time:")
          key
          timeposted)
-        ;; Expire tweets after 1 week
-        (redis-expire-in! c key (* 30 7 24 60 60 100))]
+        ;; Expire tweets after 2 weeks
+        (redis-expire-in! c key (* 14 24 60 60 100))]
        [else  ;; Update the tweet metrics
         (redis-hash-set! c key "replies" replies)
         (redis-hash-set! c key "retweets" retweets)
