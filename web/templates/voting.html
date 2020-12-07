@@ -277,7 +277,7 @@
                      this.parentElement.className === "order-by") {
                      document.querySelector(
                          "." + this.parentElement.className + " .selected")
-                            .classList.remove("selected");;
+                             .classList.remove("selected");;
                      this.classList.add("selected");
                  }
 
@@ -289,10 +289,13 @@
                      .getAttribute("data-tag");
 
                  let sortedTweets = sort(tweets, key, order)
-                 let tweetEl = document.getElementById("tweets")
-                 tweetEl.innerHTML = "";
-                 for(let i = 0, size = tweets.length; i < size ; i++){
-                     let content = `
+                 let tweetEl = document.getElementById("tweets");
+                 
+                 const promise = new Promise((resolve, reject) => {
+                     setTimeout(() => {
+                         tweetEl.innerHTML = "";
+                         for(let i = 0, size = tweets.length; i < size ; i++){
+                             let content = `
                     <li data-hash='${sortedTweets[i]['tweet-hash']}'>
                         <div class="wrap">
                             <div class="vote up" data-vote="upvote">
@@ -323,13 +326,20 @@
                         </div>
 
                     </li>
-                     `
-                     tweetEl.innerHTML += content;
-                     for (let button of document.getElementsByClassName('fa')) {
-                         button.addEventListener('click', vote)
-                     }
-                     e.preventDefault();
-                 }
+                             `
+                             tweetEl.innerHTML += content;
+                             for (let button of document.getElementsByClassName('fa')) {
+                                 button.addEventListener('click', vote)
+                             }
+                             e.preventDefault();
+                         }
+                         resolve("Done");
+                     }, 0)
+                 });
+                 promise.then(response => {
+                     console.log(response);
+                 });
+                 tweetEl.innerHTML = "Loading...";
              }
 
              function vote(e) {
