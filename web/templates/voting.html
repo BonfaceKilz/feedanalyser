@@ -268,6 +268,70 @@
                  return listClone;
              }
 
+             function sortElements(e) {
+                 // should do early return
+                 if (this.className.includes("selected"))
+                     return;
+
+                 if (this.parentElement.className === "select-by" ||
+                     this.parentElement.className === "order-by") {
+                     document.querySelector(
+                         "." + this.parentElement.className + " .selected")
+                            .classList.remove("selected");;
+                     this.classList.add("selected");
+                 }
+
+                 let key = document
+                     .querySelector(".select-by .selected")
+                     .getAttribute("data-tag");
+                 let order = document
+                     .querySelector(".order-by .selected")
+                     .getAttribute("data-tag");
+
+                 let sortedTweets = sort(tweets, key, order)
+                 let tweetEl = document.getElementById("tweets")
+                 tweetEl.innerHTML = "";
+                 for(let i = 0, size = tweets.length; i < size ; i++){
+                     let content = `
+                    <li data-hash='${sortedTweets[i]['tweet-hash']}'>
+                        <div class="wrap">
+                            <div class="vote up" data-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">${sortedTweets[i]['tweet-score']}
+                                </span>
+                            </div>
+                            <div class="vote down" data-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="tweet">${sortedTweets[i].tweet} <br/>
+                            <b class="author">&#64;${sortedTweets[i]['tweet-author']}</b> <br/>
+                            <b class="timeposted"><i>${sortedTweets[i]['tweet-time-posted']}</i></b><br/>
+                            <div class="tweet-stats">
+                                <small>
+                                    <i class="fa fa-reply" aria-hidden="true"></i>${sortedTweets[i]['tweet-replies']})
+                                </small>
+                                <small>
+                                    <i class="fa fa-retweet" aria-hidden="true"></i> ${sortedTweets[i]['tweet-retweets']}
+                                </small>
+                                <small>
+                                    <i class="fa fa-heart" aria-hidden="true"></i> ${sortedTweets[i]['tweet-likes']}
+                                </small>
+                            </div>
+                        </div>
+
+                    </li>
+                     `
+                     tweetEl.innerHTML += content;
+                     for (let button of document.getElementsByClassName('fa')) {
+                         button.addEventListener('click', vote)
+                     }
+                     e.preventDefault();
+                 }
+             }
+
              function vote(e) {
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
