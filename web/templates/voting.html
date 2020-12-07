@@ -258,7 +258,16 @@
                      }
                  }
              ]
+
+             function sort(list, key, order) {
+                 listClone = [...list]; //shallow copied
+                 if(order === "asc")
+                     listClone.sort((a, b) => (a[key] > b[key] ? 1 : -1))
+                 else
+                     listClone.sort((a, b) => (a[key] < b[key] ? 1 : -1))
+                 return listClone;
              }
+
              function vote(e) {
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
