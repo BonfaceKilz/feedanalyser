@@ -241,6 +241,22 @@
 
         <script type="text/javascript">
          document.addEventListener("DOMContentLoaded", function () {
+             let tweets = {
+                 @for/list[([t tweets/score])]{
+                     @list{
+                         {
+                             "tweet": '@(hash-ref t #"tweet")',
+                             "tweet-hash": '@(hash-ref t #"hash")',
+                             "tweet-author": '@(hash-ref t #"author")',
+                             "tweet-time-posted": @(hash-ref t #"timeposted"),
+                             "tweet-score": @(hash-ref t #"score"),
+                             "tweet-replies": @(hash-ref t #"replies"),
+                             "tweet-retweets": @(hash-ref t #"retweets"),
+                             "tweet-likes": @(hash-ref t #"likes")
+                         },
+                     }
+                 }
+             }
              function vote(e) {
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
