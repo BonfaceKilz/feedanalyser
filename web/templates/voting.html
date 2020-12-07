@@ -134,6 +134,17 @@
 
             <div class="tweets column">
                 <h1>Tweets</h1>
+                <div class="select-by">
+                    <div class="button selected">Most Recent</div>
+                    <div class="button">Likes</div>
+                    <div class="button">Replies</div>
+                    <div class="button">Vote Score</div>
+                </div>
+                <p>Order by:</p>
+                <div class="order-by">
+                    <div class="button">ascending</div>
+                    <div class="button selected">descending</div>
+                </div>
                 <ul>
                     @[if @empty?[tweets/time]
                     "Sorry :("
