@@ -359,8 +359,13 @@
                          console.log(err);
                      });
              }
+
              for (let button of document.getElementsByClassName('fa')) {
                  button.addEventListener('click', vote)
+             }
+
+             for (let button of document.getElementsByClassName('button')) {
+                 button.addEventListener('click', sortElements)
              }
          });
         </script>
