@@ -239,7 +239,15 @@
                      }
                  }
              ]
-
+             let tweetOrder = getCookie("tweet-order") || "desc";
+             let tweetSelectBy = getCookie("tweet-select-by") ||
+                                 "tweet-time-posted";
+             console.log(tweetOrder, tweetSelectBy);
+             console.log(document.cookie);
+             document.querySelector(`[data-tag='${tweetOrder}']`)
+                     .classList.add("selected");
+             document.querySelector(`[data-tag='${tweetSelectBy}']`)
+                     .classList.add("selected");
              addSortedTweets(sort(tweets, tweetSelectBy, tweetOrder));
              function sort(list, key, order) {
                  listClone = [...list]; //shallow copied
