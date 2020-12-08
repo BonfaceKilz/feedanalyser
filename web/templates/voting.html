@@ -223,6 +223,7 @@
                  }
              ]
 
+             addSortedTweets(sort(tweets, tweetSelectBy, tweetOrder));
              function sort(list, key, order) {
                  listClone = [...list]; //shallow copied
                  if(order === "asc")
@@ -232,29 +233,8 @@
                  return listClone;
              }
 
-             function sortElements(e) {
-                 // should do early return
-                 if (this.className.includes("selected"))
-                     return;
-
-                 if (this.parentElement.className === "select-by" ||
-                     this.parentElement.className === "order-by") {
-                     document.querySelector(
-                         "." + this.parentElement.className + " .selected")
-                             .classList.remove("selected");;
-                     this.classList.add("selected");
-                 }
-
-                 let key = document
-                     .querySelector(".select-by .selected")
-                     .getAttribute("data-tag");
-                 let order = document
-                     .querySelector(".order-by .selected")
-                     .getAttribute("data-tag");
-
-                 let sortedTweets = sort(tweets, key, order)
+             function addSortedTweets(sortedTweets) {
                  let tweetEl = document.getElementById("tweets");
-                 
                  const promise = new Promise((resolve, reject) => {
                      setTimeout(() => {
                          tweetEl.innerHTML = "";
@@ -295,7 +275,6 @@
                              for (let button of document.getElementsByClassName('fa')) {
                                  button.addEventListener('click', vote)
                              }
-                             e.preventDefault();
                          }
                          resolve("Done");
                      }, 0)
@@ -305,23 +284,44 @@
                  });
                  tweetEl.innerHTML = "Loading...";
              }
+             function sortElements(e) {
+                 // should do early return
+                 if (this.className.includes("selected"))
+                     return;
+
+                 if (this.parentElement.className === "select-by" ||
+                     this.parentElement.className === "order-by") {
+                     document.querySelector(
+                         "." + this.parentElement.className + " .selected")
+                             .classList.remove("selected");;
+                     this.classList.add("selected");
+                 }
+                 let key = document
+                     .querySelector(".select-by .selected")
+                     .getAttribute("data-tag");
+                 let order = document
+                     .querySelector(".order-by .selected")
+                     .getAttribute("data-tag");
+
+                 let sortedTweets = sort(tweets, key, order)
+                 addSortedTweets(sortedTweets)
+             }
 
              function vote(e) {
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
-                 let voteURL = "/vote/tweets"
-                 console.log(vote, hash);
+                 let voteURL = "/vote/tweets";
                  if (!(hash.includes("tweet:")))
                      voteURL = "/vote/commits"
                  fetch(voteURL, {
                      method: "POST",
                      body: JSON.stringify({
                          "hash": hash,
-                         "vote": vote
+                         "vote": vote,
                      }),
                      headers: {"content-type": "application/json"},
                  })
-                     .then(function(res) {
+                         .then(function(res) {
                          console.log(res);
                          if (res.ok) { // ok if status is 2xx
                              window.location.reload(true);
