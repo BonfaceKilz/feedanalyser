@@ -3,6 +3,7 @@
 (require (planet dmac/spin)
          web-server/templates
          web-server/http
+         web-server/http/cookie
          json
          redis
          "twitter.rkt"
@@ -24,6 +25,21 @@
                 (get-tweets/redis
                  client #:key "tweet-score:" #:feed-prefix feed-prefix)])
            (include-template "templates/voting.html"))))
+
+  (post "/update-cookies"
+        (lambda (req)
+          (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+                 [order (hash-ref json/vals 'tweet-order)]
+                 [select-by (hash-ref json/vals 'tweet-select-by)])
+            `(201 (,(cookie->header (make-cookie
+                                     (string->bytes/utf-8 "tweet-order")
+                                     order
+                                     #:path "/"))
+                   ,(cookie->header (make-cookie
+                                     (string->bytes/utf-8 "tweet-select-by")
+                                     select-by
+                                     #:path "/"))
+                   ) "OK"))))
 
   (post "/vote/tweets"
         (lambda (req)
