@@ -166,42 +166,6 @@
                     <div class="button selected" data-tag="desc">descending</div>
                 </div>
                 <ul id="tweets">
-                    @[if @empty?[tweets/time]
-                    "Sorry :("
-                    @for/list[([t tweets/time])]{
-                    @list{
-                    <li data-hash='@(hash-ref t #"hash")'>
-                        <div class="wrap">
-                            <div class="vote up" data-vote="upvote">
-                                <i class="fa fa-angle-up"></i>
-                            </div>
-                            <div class="stat">
-                                <span class="score">@(hash-ref t #"score")
-                                </span>
-                            </div>
-                            <div class="vote down" data-vote="downvote">
-                                <i class="fa fa-angle-down"></i>
-                            </div>
-                        </div>
-                        <div class="tweet">@(hash-ref t #"tweet") <br/>
-                            <b class="author">&#64;@(hash-ref t #"author")</b> <br/>
-                            <b class="timeposted"><i>@(hash-ref t #"timeposted")</i></b><br/>
-                            <div class="tweet-stats">
-                                <small>
-                                    <i class="fa fa-reply" aria-hidden="true"></i>@(hash-ref t #"replies")
-                                </small>
-                                <small>
-                                    <i class="fa fa-retweet" aria-hidden="true"></i> @(hash-ref t #"retweets")
-                                </small>
-                                <small>
-                                    <i class="fa fa-heart" aria-hidden="true"></i> @(hash-ref t #"likes")
-                                </small>
-                            </div>
-                        </div>
-
-                    </li>
-                    }}
-                    ]
                 </ul>
             </div>
 
