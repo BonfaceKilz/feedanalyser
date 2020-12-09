@@ -23,6 +23,13 @@
       cookie-find
       #f))
 
+(define (create-cookie key val #:path [path "/"])
+    (cookie->header (make-cookie
+                     key
+                     val
+                     #:secure? #t
+                     #:path path)))
+
 
 ;; When starting the server, inject, the REDIS client
 (define (start-server
@@ -31,12 +38,6 @@
          #:log-file [log-file "feed.log"]
          #:feed-prefix [feed-prefix ""])
 
-  (define (create-cookie key val #:path [path "/"])
-    (cookie->header (make-cookie
-                     key
-                     val
-                     #:secure? #t
-                     #:path path)))
   (get "/"
        (lambda (req)
          (let ([tweets/time (get-tweets/redis client #:key "tweet-time:" #:feed-prefix feed-prefix)]
