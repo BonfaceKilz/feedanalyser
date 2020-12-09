@@ -20,7 +20,7 @@
              (string=? cookie-key (client-cookie-name c)))
            cookies))
   (if cookie-find
-      (client-cookie-value cookie-find)
+      cookie-find
       #f))
 
 
