@@ -80,21 +80,25 @@
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
                  [tweet-hash (hash-ref json/vals 'hash)]
-                 [vote (hash-ref json/vals 'vote)])
-            (vote-tweet! client tweet-hash
-                         #:upvote? (string=? vote "upvote")
-                         #:feed-prefix feed-prefix)
-            "OK")))
+                 [vote (hash-ref json/vals 'vote)]
+                 [user-vote/cookie (track-per-user-vote req tweet-hash)])
+            (when (<= (cadr user-vote/cookie) 2)
+              (vote-tweet! client tweet-hash
+                           #:upvote? (string=? vote "upvote")
+                           #:feed-prefix feed-prefix))
+            `(201 (,(car user-vote/cookie)) "OK"))))
 
   (post "/vote/commits"
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
                  [commit-hash (hash-ref json/vals 'hash)]
-                 [vote (hash-ref json/vals 'vote)])
-            (vote-commit! client commit-hash
+                 [vote (hash-ref json/vals 'vote)]
+                 [user-vote/cookie (track-per-user-vote req commit-hash)])
+            (when (<= (cadr user-vote/cookie) 2)
+              (vote-commit! client commit-hash
                           #:upvote? (string=? vote "upvote")
-                          #:feed-prefix feed-prefix)
-            "OK")))
+                          #:feed-prefix feed-prefix))
+            `(201 (,(car user-vote/cookie)) "OK"))))
 
   (displayln (string-append "Running the server on port " (number->string port)))
 
