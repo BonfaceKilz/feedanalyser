@@ -17,6 +17,13 @@
          #:port [port 8000]
          #:log-file [log-file "feed.log"]
          #:feed-prefix [feed-prefix ""])
+
+  (define (create-cookie key val #:path [path "/"])
+    (cookie->header (make-cookie
+                     (string->bytes/utf-8 key)
+                     val
+                     #:secure? #t
+                     #:path path)))
   (get "/"
        (lambda (req)
          (let ([tweets/time (get-tweets/redis client #:key "tweet-time:" #:feed-prefix feed-prefix)]
@@ -29,17 +36,18 @@
   (post "/update-cookies"
         (lambda (req)
           (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
-                 [order (hash-ref json/vals 'tweet-order)]
-                 [select-by (hash-ref json/vals 'tweet-select-by)])
-            `(201 (,(cookie->header (make-cookie
-                                     (string->bytes/utf-8 "tweet-order")
-                                     order
-                                     #:path "/"))
-                   ,(cookie->header (make-cookie
-                                     (string->bytes/utf-8 "tweet-select-by")
-                                     select-by
-                                     #:path "/"))
-                   ) "OK"))))
+                 [tweet-order (hash-ref json/vals 'tweet-order)]
+                 [tweet-select-by (hash-ref json/vals 'tweet-select-by)]
+                 [commit-order (hash-ref json/vals 'commit-order)]
+                 [commit-select-by (hash-ref json/vals 'commit-select-by)]
+                 [cookies-list
+                  (map (lambda (el)
+                         (create-cookie (car el) (cadr el)))
+                       (list `("tweet-order" ,tweet-order)
+                             `("tweet-selected-by" ,tweet-select-by)
+                             `("commit-order" ,commit-order)
+                             `("commit-select-by" ,commit-select-by)))])
+            `(201 ,cookies-list "OK"))))
 
   (post "/vote/tweets"
         (lambda (req)
