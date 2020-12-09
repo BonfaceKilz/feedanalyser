@@ -33,7 +33,7 @@
 
   (define (create-cookie key val #:path [path "/"])
     (cookie->header (make-cookie
-                     (string->bytes/utf-8 key)
+                     key
                      val
                      #:secure? #t
                      #:path path)))
