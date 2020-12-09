@@ -30,6 +30,19 @@
                      #:secure? #t
                      #:path path)))
 
+(define (track-per-user-vote req hash)
+  (let* ([hash-cookie (string-replace
+                       hash ":" "--")]
+         [cookie (extract-cookie req hash-cookie)]
+         [cookie-hash-value
+                  (number->string
+                   (if
+                    cookie
+                    (+ (string->number
+                        (client-cookie-value cookie)) 1) 1))])
+    (cons
+     (create-cookie hash-cookie cookie-hash-value)
+     (string->number cookie-hash-value))))
 
 ;; When starting the server, inject, the REDIS client
 (define (start-server
