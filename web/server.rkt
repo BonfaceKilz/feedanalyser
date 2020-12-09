@@ -4,12 +4,25 @@
          web-server/templates
          web-server/http
          web-server/http/cookie
+         web-server/http/cookie-parse
          json
          redis
          "twitter.rkt"
          "github.rkt")
 
 (provide start-server)
+
+
+(define (extract-cookie req cookie-key)
+  (define cookies (request-cookies req))
+  (define cookie-find
+    (findf (lambda (c)
+             (string=? cookie-key (client-cookie-name c)))
+           cookies))
+  (if cookie-find
+      (client-cookie-value cookie-find)
+      #f))
+
 
 ;; When starting the server, inject, the REDIS client
 (define (start-server
