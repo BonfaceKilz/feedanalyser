@@ -170,7 +170,11 @@
             </div>
 
             <div class="commits column">
-                <h1>Commits(By Score)</h1>
+                <h1>Commits</h1>
+                <div class="commit-order" class="order-by">
+                    <div class="button" data-tag="asc">ascending</div>
+                    <div class="button" data-tag="desc">descending</div>
+                </div>
                 <ul>
                     @[if @empty?[commits]
                     "No commits stored :("
