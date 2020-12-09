@@ -321,6 +321,20 @@
                              .classList.remove("selected");;
                      this.classList.add("selected");
                  }
+
+                 fetch("/update-cookies", {
+                     method: "POST",
+                     body: JSON.stringify({
+                         "tweet-select-by": document
+                             .querySelector(".select-by .selected")
+                             .getAttribute("data-tag"),
+                         "tweet-order": document
+                             .querySelector(".order-by .selected")
+                             .getAttribute("data-tag")
+                     }),
+                     headers: {"content-type": "application/json"},
+                 });
+
                  let key = document
                      .querySelector(".select-by .selected")
                      .getAttribute("data-tag");
