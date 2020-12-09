@@ -269,21 +269,32 @@
                      setTimeout(() => {
                          el.innerHTML = "";
                          for(let i = 0, size = sortedEls.length; i < size ; i++) {
+                             let hash = "";
                              let content = "";
+                             let upvote = '<div class="vote up" data-vote="upvote">' +
+                                          '<i class="fa fa-angle-up">' +
+                                          '</i></div>';
+                             let downvote ='<div class="vote down" data-vote="downvote">' +
+                                           '<i class="fa fa-angle-down">' +'</i></div>';
+
                              if (id.includes("tweet")) {
+                                 hash = getCookie(
+                                     sortedEls[i]['tweet-hash']
+                                         .replace(":", "--"));
+                                 if (!(hash === null || hash < 2)) {
+                                     upvote = "";
+                                     downvote = "";
+                                 }
+
                                  content = `
                     <li data-hash='${sortedEls[i]['tweet-hash']}'>
                         <div class="wrap">
-                            <div class="vote up" data-vote="upvote">
-                                <i class="fa fa-angle-up"></i>
-                            </div>
+                             ${upvote}
                             <div class="stat">
                                 <span class="score">${sortedEls[i]['tweet-score']}
                                 </span>
                             </div>
-                            <div class="vote down" data-vote="downvote">
-                                <i class="fa fa-angle-down"></i>
-                            </div>
+                            ${downvote}
                         </div>
                         <div class="tweet">${sortedEls[i].tweet} <br/>
                             <b class="author">&#64;${sortedEls[i]['tweet-author']}</b> <br/>
@@ -303,21 +314,24 @@
 
                     </li>
                                  `;
-                    }
-                    else if (id.includes("commit")) {
-                        content = `
+                             }
+                             else if (id.includes("commit")) {
+                                 hash = getCookie(
+                                     sortedEls[i]['commit-hash']
+                                         .replace(":", "--"));
+                                 if (!(hash === null || hash < 2)) {
+                                     upvote = "";
+                                     downvote = "";
+                                 }
+                                 content = `
                     <li class="commit" data-hash='${sortedEls[i]['commit-hash']}'>
                         <div class="wrap">
-                            <div class="vote up" data-vote="upvote">
-                                <i class="fa fa-angle-up"></i>
-                            </div>
+                            ${upvote}
                             <div class="stat">
                                 <span class="score">${sortedEls[i]['commit-score']}
                                 </span>
                             </div>
-                            <div class="vote down" data-vote="downvote">
-                                <i class="fa fa-angle-down"></i>
-                            </div>
+                            ${downvote}
                         </div>
                         <div class="content">
                             <span class="hash">${sortedEls[i]['commit']}:</span>
@@ -327,8 +341,8 @@ ${sortedEls[i]['commit-repo-url']}' target="_blank">${sortedEls[i]['commit-conte
                         </div>
 
                     </li>
-                        `;
-                    }
+                                 `;
+                             }
                              
                     el.innerHTML += content;
                     for (let button of document.getElementsByClassName('fa')) {
@@ -376,10 +390,10 @@ ${sortedEls[i]['commit-repo-url']}' target="_blank">${sortedEls[i]['commit-conte
                  });
                  let container = this.parentElement.parentElement;
                  let key = container
-                     .querySelector(`#${id} .selected`)
+                     .querySelector(`.select-by .selected`)
                      .getAttribute("data-tag");
                  let order = container
-                     .querySelector(`#${id} .selected`)
+                     .querySelector(`.order-by .selected`)
                      .getAttribute("data-tag");
                  if (id.includes("tweet")) {
                      addSortedEls(sort(tweets, key, order), "tweets");
