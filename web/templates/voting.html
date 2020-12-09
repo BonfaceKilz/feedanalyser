@@ -240,11 +240,20 @@
              let tweetOrder = getCookie("tweet-order") || "desc";
              let tweetSelectBy = getCookie("tweet-select-by") ||
                                  "tweet-time-posted";
-             document.querySelector(`[data-tag='${tweetOrder}']`)
+             let commitOrder = getCookie("commit-order") || "desc";
+             let commitSelectBy = getCookie("commit-select-by") ||
+                                  "commit-time-posted";
+             document.querySelector(`#tweet-order [data-tag='${tweetOrder}']`)
+                        .classList.add("selected");
+             document.querySelector(`#tweet-select-by [data-tag='${tweetSelectBy}']`)
                      .classList.add("selected");
-             document.querySelector(`[data-tag='${tweetSelectBy}']`)
+             document.querySelector(`#commit-order [data-tag='${commitOrder}']`)
+                        .classList.add("selected");
+             document.querySelector(`#commit-select-by [data-tag='${commitSelectBy}']`)
                      .classList.add("selected");
-             addSortedTweets(sort(tweets, tweetSelectBy, tweetOrder));
+
+             addSortedEls(sort(tweets, tweetSelectBy, tweetOrder), "tweets");
+             addSortedEls(sort(commits, commitSelectBy, commitOrder), "commits");
              function sort(list, key, order) {
                  listClone = [...list]; //shallow copied
                  if(order === "asc")
@@ -259,46 +268,75 @@
                  const promise = new Promise((resolve, reject) => {
                      setTimeout(() => {
                          el.innerHTML = "";
-                         for(let i = 0, size = sortedEls.length; i < size ; i++){
-                             let content = `
-                    <li data-hash='${sortedTweets[i]['tweet-hash']}'>
+                         for(let i = 0, size = sortedEls.length; i < size ; i++) {
+                             let content = "";
+                             if (id.includes("tweet")) {
+                                 content = `
+                    <li data-hash='${sortedEls[i]['tweet-hash']}'>
                         <div class="wrap">
                             <div class="vote up" data-vote="upvote">
                                 <i class="fa fa-angle-up"></i>
                             </div>
                             <div class="stat">
-                                <span class="score">${sortedTweets[i]['tweet-score']}
+                                <span class="score">${sortedEls[i]['tweet-score']}
                                 </span>
                             </div>
                             <div class="vote down" data-vote="downvote">
                                 <i class="fa fa-angle-down"></i>
                             </div>
                         </div>
-                        <div class="tweet">${sortedTweets[i].tweet} <br/>
-                            <b class="author">&#64;${sortedTweets[i]['tweet-author']}</b> <br/>
-                            <b class="timeposted"><i>${sortedTweets[i]['tweet-time-posted']}</i></b><br/>
+                        <div class="tweet">${sortedEls[i].tweet} <br/>
+                            <b class="author">&#64;${sortedEls[i]['tweet-author']}</b> <br/>
+                            <b class="timeposted"><i>${sortedEls[i]['tweet-time-posted']}</i></b><br/>
                             <div class="tweet-stats">
                                 <small>
-                                    <i class="fa fa-reply" aria-hidden="true"></i>${sortedTweets[i]['tweet-replies']})
+                                    <i class="fa fa-reply" aria-hidden="true"></i>${sortedEls[i]['tweet-replies']})
                                 </small>
                                 <small>
-                                    <i class="fa fa-retweet" aria-hidden="true"></i> ${sortedTweets[i]['tweet-retweets']}
+                                    <i class="fa fa-retweet" aria-hidden="true"></i> ${sortedEls[i]['tweet-retweets']}
                                 </small>
                                 <small>
-                                    <i class="fa fa-heart" aria-hidden="true"></i> ${sortedTweets[i]['tweet-likes']}
+                                    <i class="fa fa-heart" aria-hidden="true"></i> ${sortedEls[i]['tweet-likes']}
                                 </small>
                             </div>
                         </div>
 
                     </li>
-                             `
-                             el.innerHTML += content;
-                             for (let button of document.getElementsByClassName('fa')) {
-                                 button.addEventListener('click', vote)
-                             }
+                                 `;
+                    }
+                    else if (id.includes("commit")) {
+                        content = `
+                    <li class="commit" data-hash='${sortedEls[i]['commit-hash']}'>
+                        <div class="wrap">
+                            <div class="vote up" data-vote="upvote">
+                                <i class="fa fa-angle-up"></i>
+                            </div>
+                            <div class="stat">
+                                <span class="score">${sortedEls[i]['commit-score']}
+                                </span>
+                            </div>
+                            <div class="vote down" data-vote="downvote">
+                                <i class="fa fa-angle-down"></i>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <span class="hash">${sortedEls[i]['commit']}:</span>
+${sortedEls[i]['commit-repo-url']}' target="_blank">${sortedEls[i]['commit-content']}</a><br/>
+                            <a target="_blank" href='${sortedEls[i]['commit-repo-url']}'><span class="author">${sortedEls[i]['commit-author']}/${sortedEls[i]['commit-repo']}</span></a><br/>
+                            <span class="timeposted">${sortedEls[i]['commit-time-posted']}</span>
+                        </div>
+
+                    </li>
+                        `;
+                    }
+                             
+                    el.innerHTML += content;
+                    for (let button of document.getElementsByClassName('fa')) {
+                    button.addEventListener('click', vote)
+                    }
                          }
-                         resolve("Done");
-                     }, 0)
+                    resolve("Done");
+                    }, 0)
                  });
                  promise.then(response => {
                      console.log(response);
@@ -309,11 +347,11 @@
                  // should do early return
                  if (this.className.includes("selected"))
                      return;
-
-                 if (this.parentElement.className === "select-by" ||
-                     this.parentElement.className === "order-by") {
+                 let id = this.parentElement.id;
+                 if (this.parentElement.className.includes("select-by") ||
+                     this.parentElement.className.includes("order-by")) {
                      document.querySelector(
-                         "." + this.parentElement.className + " .selected")
+                         "#" + id + " .selected")
                              .classList.remove("selected");;
                      this.classList.add("selected");
                  }
@@ -322,24 +360,32 @@
                      method: "POST",
                      body: JSON.stringify({
                          "tweet-select-by": document
-                             .querySelector(".select-by .selected")
+                             .querySelector("#tweet-select-by .selected")
                              .getAttribute("data-tag"),
                          "tweet-order": document
-                             .querySelector(".order-by .selected")
-                             .getAttribute("data-tag")
+                             .querySelector("#tweet-order .selected")
+                             .getAttribute("data-tag"),
+                         "commit-select-by": document
+                             .querySelector("#commit-select-by .selected")
+                             .getAttribute("data-tag"),
+                         "commit-order": document
+                             .querySelector("#commit-order .selected")
+                             .getAttribute("data-tag"),
                      }),
                      headers: {"content-type": "application/json"},
                  });
-                 let id = this.parentElement.parentElement.id;
-                 let key = document
-                     .querySelector(`#${id} .select-by .selected`)
+                 let container = this.parentElement.parentElement;
+                 let key = container
+                     .querySelector(`#${id} .selected`)
                      .getAttribute("data-tag");
-                 let order = document
-                     .querySelector(`#${id} .order-by .selected`)
+                 let order = container
+                     .querySelector(`#${id} .selected`)
                      .getAttribute("data-tag");
-
                  if (id.includes("tweet")) {
-                     addSortedElss(sort(tweets, key, order), id);
+                     addSortedEls(sort(tweets, key, order), "tweets");
+                 }
+                 else if (id.includes("commit")) {
+                     addSortedEls(sort(commits, key, order), "commits");
                  }
              }
 
