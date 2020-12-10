@@ -71,7 +71,7 @@
                   (map (lambda (el)
                          (create-cookie (car el) (cadr el)))
                        (list `("tweet-order" ,tweet-order)
-                             `("tweet-selected-by" ,tweet-select-by)
+                             `("tweet-select-by" ,tweet-select-by)
                              `("commit-order" ,commit-order)
                              `("commit-select-by" ,commit-select-by)))])
             `(201 ,cookies-list "OK"))))
