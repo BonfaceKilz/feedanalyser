@@ -23,12 +23,18 @@
       cookie-find
       #f))
 
-(define (create-cookie key val #:path [path "/"])
+(define (create-cookie key val
+                       #:path [path "/"]
+                       #:expires [expires
+                                  (seconds->date
+                                   (+ (* 48 3600)
+                                      (current-seconds)))])
     (cookie->header (make-cookie
                      key
                      val
                      #:secure? #t
-                     #:path path)))
+                     #:path path
+                     #:expires expires)))
 
 (define (track-per-user-vote req hash)
   (let* ([hash-cookie (string-replace
