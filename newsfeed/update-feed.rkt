@@ -27,6 +27,8 @@ This is a demo. Update as required!
 
 (define feed-prefix (make-parameter ""))
 
+(define tweets-per-user (make-parameter 2))
+
 ;;; Default params for twitter
 (define search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
@@ -52,6 +54,7 @@ This is a demo. Update as required!
     (repos (hash-ref server/settings 'repos))
     (feed-prefix (hash-ref server/settings 'feed-prefix))
     (search-terms (hash-ref server/settings 'search-terms))
+    (tweets-per-user (hash-ref server/settings 'tweets-per-user))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
 
 
@@ -78,7 +81,8 @@ This is a demo. Update as required!
   (store-tweets!
    client
    (get-tweets/twitter (twitter-users)
-                       #:search-terms (search-terms))
+                       #:search-terms (search-terms)
+                       #:number (tweets-per-user))
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
 

@@ -8,6 +8,8 @@
 ;; Prefix to the redis columns
 (feed-prefix . "gn2-")
 
+(tweets-per-user . 2)
+
 ;; The log file
 (log-file . "voting-server.log")
 

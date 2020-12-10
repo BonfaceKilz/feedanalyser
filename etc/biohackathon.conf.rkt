@@ -7,6 +7,8 @@
 ;; Prefix to the redis columns
 (feed-prefix . "bh20-")
 
+(tweets-per-user . 2)
+
 ;; The log file
 (log-file . "bh20-voting-server.log")
 
