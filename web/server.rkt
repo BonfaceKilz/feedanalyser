@@ -32,7 +32,6 @@
     (cookie->header (make-cookie
                      key
                      val
-                     #:secure? #t
                      #:path path
                      #:expires expires)))
 
