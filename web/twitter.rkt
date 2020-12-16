@@ -16,7 +16,7 @@
 
 
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
-(struct feed-tweet (author content timeposted hash replies retweets likes) #:transparent)
+(struct feed-tweet (author content timeposted hash replies retweets likes url) #:transparent)
 
 
 ;; Check for tweets that have expired and remove them
@@ -77,9 +77,10 @@
          (define replies (fourth ts))
          (define retweets (fifth ts))
          (define likes (sixth ts))
+         (define url (seventh ts))
          (define hash (number->string
                        (equal-hash-code content)))
-         (feed-tweet author content timeposted hash replies retweets likes))))
+         (feed-tweet author content timeposted hash replies retweets likes url))))
    (get-raw-tweets userlist #:search-terms search-terms #:number number)))
 
 
@@ -124,6 +125,7 @@
            (replies (feed-tweet-replies tweet))
            (retweets (feed-tweet-retweets tweet))
            (likes (feed-tweet-likes tweet))
+           (url (feed-tweet-url tweet))
            (tweet-date* (seconds->date timeposted))
            (tz-name (date*-time-zone-name tweet-date*))]
       (cond
@@ -134,6 +136,7 @@
         (redis-hash-set! c key "replies" replies)
         (redis-hash-set! c key "retweets" retweets)
         (redis-hash-set! c key "likes" likes)
+        (redis-hash-set! c key "url" url)
         (redis-hash-set! c key "timeposted"
                          (string-append
                           (date->string tweet-date* #t) ;; set #t to show the time too
@@ -175,4 +178,5 @@
               (string->bytes/utf-8 (feed-tweet-hash tweet))
               (string->bytes/utf-8 (feed-tweet-replies tweet))
               (string->bytes/utf-8 (feed-tweet-retweets tweet))
-              (string->bytes/utf-8 (feed-tweet-likes tweet))))
+              (string->bytes/utf-8 (feed-tweet-likes tweet))
+              (string->bytes/utf-8 (feed-tweet-url tweet))))
