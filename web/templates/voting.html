@@ -240,7 +240,7 @@
                      @for/list[([c commits])]{
                          @list{
                              {
-                                 "commit": '@(substring (bytes->string/utf-8 (hash-ref c #"hash")) 0 7)',
+                                 "commit": '@(substring (cadr (string-split (bytes->string/utf-8 (hash-ref c #"hash")) ":")) 0 7)',
                                  "commit-hash": '@(hash-ref c #"hash")',
                                  "commit-content": `@(hash-ref c #"content")`.split("\n")[0],
                                  "commit-author": '@(hash-ref c #"author")',
