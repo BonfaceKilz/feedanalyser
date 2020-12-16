@@ -170,7 +170,19 @@
             </div>
 
             <div class="commits column">
-                <h1>Commits</h1>
+                <h1>
+                    @[if @empty?[commits]
+                    "Commits"
+                    @(string-append
+                    "<a href=\""
+                        @(bytes->string/utf-8 (hash-ref @(car commits) #"repository-url"))
+                    "\" target=_blank>"
+                    @(bytes->string/utf-8 (hash-ref @(car commits) #"repository"))
+                    "</a>")
+                    ]
+                    
+                    
+                </h1>
                 <div id="commit-select-by" class="select-by">
                     <div class="button" data-tag="commit-time-posted">Most Recent</div>
                     <div class="button" data-tag="commit-score">Vote Score</div>
