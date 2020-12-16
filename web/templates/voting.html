@@ -245,7 +245,7 @@
                                  "commit-content": `@(hash-ref c #"content")`.split("\n")[0],
                                  "commit-author": '@(hash-ref c #"author")',
                                  "commit-repo": '@(hash-ref c #"repository")',
-                                 "commit-repo-url": '@(hash-ref c #"repository-url")',
+                                 "commit-url": '@(hash-ref c #"url")',
                                  "commit-time-posted": '@(hash-ref c #"timeposted")',
                                  "commit-score": '@(hash-ref c #"score")',
                              },
@@ -354,8 +354,7 @@
                             ${downvote}
                         </div>
                         <div class="content">
-                            <span class="hash">${sortedEls[i]['commit']}:</span>
-<a href='${sortedEls[i]['commit-repo-url']}' target="_blank">${sortedEls[i]['commit-content']}</a><br/>
+<a href='${sortedEls[i]['commit-url']}' target="_blank"><span class="hash">${sortedEls[i]['commit']}:</span> ${sortedEls[i]['commit-content']}</a><br/>
                             <a target="_blank" href='${sortedEls[i]['commit-repo-url']}'><span class="author">${sortedEls[i]['commit-author']}/${sortedEls[i]['commit-repo']}</span></a><br/>
                             <span class="timeposted">${sortedEls[i]['commit-time-posted']}</span>
                         </div>
