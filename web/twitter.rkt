@@ -85,24 +85,51 @@
                                      (format
                                       (~t (-weeks (today) 2) "y-M-d"))])
   "Get tweets from Twitter"
-  (map
-   (lambda (tweet)
-     (let* [(ts (remove* (list "\n" '()) (string-split tweet "$@@$")))]
-       (when (not (null? ts))
-         (define author (string-normalize-spaces (first ts)))
-         (define content (string-normalize-spaces (second ts)))
-         (define timeposted (->posix
-                             (parse-datetime
-                              (string-normalize-spaces (third ts))
-                              "yyyy-MM-dd HH:mm:ss")))
-         (define replies (fourth ts))
-         (define retweets (fifth ts))
-         (define likes (sixth ts))
-         (define url (seventh ts))
-         (define hash (number->string
-                       (equal-hash-code content)))
-         (feed-tweet author content timeposted hash replies retweets likes url))))
-   (get-raw-tweets userlist #:search-terms search-terms #:number number)))
+  (let [(users (string-split userlist ","))]
+    (if (< (length users) 20)
+        (unless (empty? users)
+          (map
+           (lambda (tweet)
+             (define ts
+               (if (string-contains? tweet "Scraping will stop now")
+                   '()
+                   (remove* (list "\n" '())
+                            (string-split tweet "$@@$"))))
+             (unless (null? ts)
+               (define author (string-normalize-spaces (first ts)))
+               (define content (string-normalize-spaces (second ts)))
+               (define timeposted (->posix
+                                   (parse-datetime
+                                    (string-normalize-spaces (third ts))
+                                    "yyyy-MM-dd HH:mm:ss")))
+               (define replies (fourth ts))
+               (define retweets (fifth ts))
+               (define likes (sixth ts))
+               (define hash (number->string
+                             (equal-hash-code content)))
+               (define url (string-normalize-spaces
+                            (seventh ts)))
+               (feed-tweet author content timeposted hash replies retweets likes url)))
+           (get-raw-tweets userlist
+                           #:search-terms search-terms
+                           #:number number
+                           #:min-retweets min-retweets
+                           #:since since)))
+        (let-values ([(users-a users-b)
+                      (split-at
+                       users
+                       (truncate (/ (length users) 2)))])
+          (append
+           (get-tweets/twitter (string-join users-a ",")
+                              #:search-terms search-terms
+                              #:number number
+                              #:min-retweets min-retweets
+                              #:since since)
+           (get-tweets/twitter (string-join users-b ",")
+                              #:search-terms search-terms
+                              #:number number
+                              #:min-retweets min-retweets
+                              #:since since))))))
 
 
 (define (get-tweets/redis
@@ -182,7 +209,8 @@
   (cond
    [(not (null? tweets))
     (for-each (lambda (tweet)
-                (store-tweet! client tweet))
+                (unless (void? tweet)
+                  (store-tweet! client tweet)))
               (if (list? tweets)
                   tweets
                   `(,tweets)))
