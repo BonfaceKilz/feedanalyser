@@ -32,7 +32,12 @@
                     (string-append feed-prefix "tweet*")))
 
 
-(define (get-raw-tweets userlist #:search-terms [search-terms #f] #:number [number 10])
+(define (get-raw-tweets userlist
+                        #:search-terms [search-terms #f]
+                        #:number [number 10]
+                        #:min-retweets [min-retweets 2]
+                        #:since [since
+                                 (format (~t (-weeks (today) 2) "y-M-d"))])
   (let* [(limit-n (if (string? number)
                number
                (number->string number)))
@@ -53,7 +58,18 @@
                        " --limit "
                        limit-n
                        " --link include"
-                       " --format '{username} $@@$ {tweet} $@@$ {date} {time} $@@$ {replies} $@@$ {retweets} $@@$ {likes}||||||'"))))
+                       (when since
+                         (string-append
+                          " --since '"
+                          since
+                          "'"))
+                       (when min-retweets
+                         (string-append
+                          " --min-retweets "
+                          (if (number? min-retweets)
+                              (number->string min-retweets)
+                              min-retweets)))
+                       " --format '{username} $@@$ {tweet} $@@$ {date} {time} $@@$ {replies} $@@$ {retweets} $@@$ {likes} $@@$ {link}||||||'"))))
                  "||||||"))]
     (remove* (list "\n" '()) tweets)))
 
@@ -62,7 +78,12 @@
 ;; words that can used within twitter's own advanced search. `userlist' is a
 ;; comma-separated list of users. It can be a single user though. Valid
 ;; examples: "bonfacekilz"  "bonfacekilz,genenetwork2"
-(define (get-tweets/twitter userlist #:search-terms [search-terms #f] #:number [number 10])
+(define (get-tweets/twitter userlist #:search-terms [search-terms #f]
+                            #:number [number 10]
+                            #:min-retweets [min-retweets 20]
+                            #:since [since
+                                     (format
+                                      (~t (-weeks (today) 2) "y-M-d"))])
   "Get tweets from Twitter"
   (map
    (lambda (tweet)
