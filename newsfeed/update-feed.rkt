@@ -28,6 +28,7 @@ This is a demo. Update as required!
 (define feed-prefix (make-parameter ""))
 
 (define tweets-per-user (make-parameter 2))
+(define min-retweets (make-parameter 20))
 
 ;;; Default params for twitter
 (define search-terms
@@ -55,6 +56,7 @@ This is a demo. Update as required!
     (feed-prefix (hash-ref server/settings 'feed-prefix))
     (search-terms (hash-ref server/settings 'search-terms))
     (tweets-per-user (hash-ref server/settings 'tweets-per-user))
+    (min-retweets (hash-ref server/settings 'min-retweets))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
 
 
