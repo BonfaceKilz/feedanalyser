@@ -11,6 +11,7 @@
                "redis-rkt"
                "gregor"
                "simple-http"
+               "threading"
                "https://github.com/dmac/spin.git"
                "web-server-lib"))
 (define build-deps '())
