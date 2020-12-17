@@ -1,6 +1,7 @@
 #lang racket
 
-(require redis)
+(require redis
+         threading)
 
 
 (provide remove-expired-keys!
@@ -9,19 +10,24 @@
 
 
 (define (remove-expired-keys! client zset-keys/list)
-  (let ([keys (redis-subzset
-               client
-               (car zset-keys/list) ;; All elems in zset-keys/list should have the same keys
-               #:start 0
-               #:stop -1)])
-    (map (lambda (key)
-           (unless (redis-has-key? client key)
-               ;;; Remove expired tweets from the relevant zsets
-             (for-each (lambda (zset-key)
-                         (redis-zset-remove! client zset-key key))
-                       zset-keys/list)))
-         keys)
-    #t))
+  (define keys
+    (~> (map (lambda (zset-key)
+                  (redis-subzset
+                   client
+                   zset-key
+                   #:start 0
+                   #:stop -1))
+             zset-keys/list)
+        flatten
+        remove-duplicates))
+  (map (lambda (key)
+         (unless (redis-has-key? client key)
+           ;; Remove expired tweets from the relevant zsets
+           (for-each (lambda (zset-key)
+                       (redis-zset-remove! client zset-key key))
+                     zset-keys/list)))
+       keys)
+  #t)
 
 
 (define (remove-all-keys! client key/regexp)
@@ -33,12 +39,16 @@
 
 
 (define (vote! client zset-key hash #:upvote? [upvote? #t])
-  (let* [(score (string->number (bytes->string/utf-8
-                                 (redis-hash-ref client hash "score"))))]
+  (let* [(score (~> (redis-hash-ref client hash "score")
+                    bytes->string/utf-8
+                    string->number))]
     (begin
+      ;; Set score
       (redis-hash-set! client hash "score"
-                       (number->string (+ score
-                                          (if upvote? 1 -1))))
+                       (~> score
+                           ((if upvote? + -) 1)
+                           number->string))
+      ;; Increase zscore by 1000
       (redis-zset-incr! client zset-key hash
                         (if upvote?
                             1000
