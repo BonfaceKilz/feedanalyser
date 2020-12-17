@@ -23,7 +23,7 @@
 (define (remove-expired-tweets! client #:feed-prefix [feed-prefix ""])
   (remove-expired-keys! client (list
                                 (string-append feed-prefix "tweet-score:")
-                                "tweet-time:")))
+                                (string-append feed-prefix "tweet-time:"))))
 
 
 ;; Remove all tweets from Redis
