@@ -230,6 +230,7 @@
                                  "tweet-replies": @(hash-ref t #"replies"),
                                  "tweet-retweets": @(hash-ref t #"retweets"),
                                  "tweet-likes": @(hash-ref t #"likes"),
+                                 "tweet-url": `@(hash-ref t #"url")`,
                              },
                          }
                  }]
@@ -316,7 +317,7 @@
                             </div>
                             ${downvote}
                         </div>
-                        <div class="tweet">${sortedEls[i].tweet} <br/>
+                        <div class="tweet"><a href="${sortedEls[i]['tweet-url']}" target="_blank">${sortedEls[i].tweet}</a><br/>
                             <b class="author">&#64;${sortedEls[i]['tweet-author']}</b> <br/>
                             <b class="timeposted"><i>${sortedEls[i]['tweet-time-posted']}</i></b><br/>
                             <div class="tweet-stats">
