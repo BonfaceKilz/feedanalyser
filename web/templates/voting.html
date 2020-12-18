@@ -216,10 +216,10 @@
              }
              let tweetOrder = getCookie("tweet-order") || "desc";
              let tweetSelectBy = getCookie("tweet-select-by") ||
-                                 "tweet-time-posted";
+                                 "timeposted";
              let commitOrder = getCookie("commit-order") || "desc";
              let commitSelectBy = getCookie("commit-select-by") ||
-                                  "commit-time-posted";
+                                  "timeposted";
              document.querySelector(`#tweet-order [data-tag='${tweetOrder}']`)
                         .classList.add("selected");
              document.querySelector(`#tweet-select-by [data-tag='${tweetSelectBy}']`)
