@@ -211,7 +211,9 @@
   (cond
    [(not (null? tweets))
     (for-each (lambda (tweet)
-                (unless (void? tweet)
+                (unless (or (null? tweet)
+                            (void? tweet)
+                            (not (feed-tweet? tweet)))
                   (store-tweet! client tweet)))
               (if (list? tweets)
                   tweets
