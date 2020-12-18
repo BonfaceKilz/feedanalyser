@@ -8,6 +8,7 @@
 (define categories '(net))
 (define version "0.0.0")
 (define deps '("base"
+               "algorithms"
                "redis-rkt"
                "gregor"
                "simple-http"
