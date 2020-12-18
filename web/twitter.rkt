@@ -201,7 +201,8 @@
          key
          timeposted)
         ;; Expire tweets after 2 weeks
-        (redis-expire-in! c key (* 14 24 60 60 100))]
+        (redis-expire-at! c key (+ (* (date->seconds tweet-date*) 1000)
+                                   (* 14 24 60 60 1000)))]
        [else  ;; Update the tweet metrics
         (redis-hash-set! c key "replies" replies)
         (redis-hash-set! c key "retweets" retweets)
