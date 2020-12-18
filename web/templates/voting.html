@@ -211,6 +211,9 @@
              
              let commits = @commits
 
+             if (commits.length > 0) {
+                 document.querySelector('.commits h1').innerHTML = commits[0]['repository'] + " Commits:"
+             }
              let tweetOrder = getCookie("tweet-order") || "desc";
              let tweetSelectBy = getCookie("tweet-select-by") ||
                                  "tweet-time-posted";
