@@ -1,17 +1,32 @@
 #lang racket
 
 (require (planet dmac/spin)
+         algorithms
          web-server/templates
          web-server/http
          web-server/http/cookie
          web-server/http/cookie-parse
          json
          redis
+         threading
          "twitter.rkt"
          "github.rkt")
 
 (provide start-server)
 
+(define (redis-output->json redis/output prefix)
+  (with-output-to-string
+    (lambda ()
+      (write-json (map (lambda (h)
+                   (make-hash
+                    (zip-with
+                     (lambda (x y) `(,x . ,y))
+                     (~>> (hash-keys h)
+                          (map bytes->string/utf-8)
+                          (map string->symbol))
+                     (~>> (hash-values h)
+                          (map bytes->string/utf-8)))))
+                 (filter-not hash-empty? redis/output))))))
 
 (define (extract-cookie req cookie-key)
   (define cookies (request-cookies req))
@@ -57,11 +72,19 @@
 
   (get "/"
        (lambda (req)
-         (let ([tweets/time (get-tweets/redis client #:key "tweet-time:" #:feed-prefix feed-prefix)]
-               [commits (get-commits/redis client #:feed-prefix feed-prefix)]
-               [tweets/score
-                (get-tweets/redis
-                 client #:key "tweet-score:" #:feed-prefix feed-prefix)])
+         (let ([tweets
+                (redis-output->json
+                 (get-tweets/redis
+                  client
+                  #:key "tweet-score:"
+                  #:feed-prefix feed-prefix)
+                 feed-prefix)]
+               [commits
+                (redis-output->json
+                 (get-commits/redis
+                  client
+                  #:feed-prefix feed-prefix)
+                 feed-prefix)])
            (include-template "templates/voting.html"))))
 
   (post "/update-cookies"

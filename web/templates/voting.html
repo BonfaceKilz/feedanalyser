@@ -171,17 +171,7 @@
 
             <div class="commits column">
                 <h1>
-                    @[if @empty?[commits]
-                    "Commits"
-                    @(string-append
-                    "<a href=\""
-                        @(bytes->string/utf-8 (hash-ref @(car commits) #"repository-url"))
-                    "\" target=_blank>"
-                    @(bytes->string/utf-8 (hash-ref @(car commits) #"repository"))
-                    "</a>")
-                    ]
-                    
-                    
+                    Commits
                 </h1>
                 <div id="commit-select-by" class="select-by">
                     <div class="button" data-tag="commit-time-posted">Most Recent</div>
@@ -217,43 +207,9 @@
                  return null;
              }
 
-             let tweets = [
-                 @[unless @empty?[tweets/score]
-                     @for/list[([t tweets/score])]{
-                         @list{
-                             {
-                                 "tweet": `@(hash-ref t #"tweet")`,
-                                 "tweet-hash": '@(hash-ref t #"hash")',
-                                 "tweet-author": "@(hash-ref t #"author")",
-                                 "tweet-time-posted": "@(hash-ref t #"timeposted")",
-                                 "tweet-score": @(hash-ref t #"score"),
-                                 "tweet-replies": @(hash-ref t #"replies"),
-                                 "tweet-retweets": @(hash-ref t #"retweets"),
-                                 "tweet-likes": @(hash-ref t #"likes"),
-                                 "tweet-url": `@(hash-ref t #"url")`,
-                             },
-                         }
-                 }]
-             ]
+             let tweets = @tweets
              
-             let commits = [
-                 @[unless @empty?[commits]
-                     @for/list[([c commits])]{
-                         @list{
-                             {
-                                 "commit": '@(substring (cadr (string-split (bytes->string/utf-8 (hash-ref c #"hash")) ":")) 0 7)',
-                                 "commit-hash": '@(hash-ref c #"hash")',
-                                 "commit-content": `@(hash-ref c #"content")`.split("\n")[0],
-                                 "commit-author": '@(hash-ref c #"author")',
-                                 "commit-repo": '@(hash-ref c #"repository")',
-                                 "commit-url": '@(hash-ref c #"url")',
-                                 "commit-time-posted": '@(hash-ref c #"timeposted")',
-                                 "commit-score": '@(hash-ref c #"score")',
-                             },
-                         }
-                 }]
-             ]
-
+             let commits = @commits
 
              let tweetOrder = getCookie("tweet-order") || "desc";
              let tweetSelectBy = getCookie("tweet-select-by") ||
@@ -300,7 +256,7 @@
 
                              if (id.includes("tweet")) {
                                  hash = getCookie(
-                                     sortedEls[i]['tweet-hash']
+                                     sortedEls[i]['hash']
                                          .replace(":", "--"));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
@@ -308,27 +264,27 @@
                                  }
 
                                  content = `
-                    <li data-hash='${sortedEls[i]['tweet-hash']}'>
+                    <li data-hash='${sortedEls[i]['hash']}'>
                         <div class="wrap">
                              ${upvote}
                             <div class="stat">
-                                <span class="score">${sortedEls[i]['tweet-score']}
+                                <span class="score">${sortedEls[i]['score']}
                                 </span>
                             </div>
                             ${downvote}
                         </div>
-                        <div class="tweet"><a href="${sortedEls[i]['tweet-url']}" target="_blank">${sortedEls[i].tweet}</a><br/>
-                            <b class="author">&#64;${sortedEls[i]['tweet-author']}</b> <br/>
-                            <b class="timeposted"><i>${sortedEls[i]['tweet-time-posted']}</i></b><br/>
+                        <div class="tweet"><a href="${sortedEls[i]['url']}" target="_blank">${sortedEls[i]['tweet']}</a><br/>
+                            <b class="author">&#64;${sortedEls[i]['author']}</b> <br/>
+                            <b class="timeposted"><i>${sortedEls[i]['timeposted']}</i></b><br/>
                             <div class="tweet-stats">
                                 <small>
-                                    <i class="fa fa-reply" aria-hidden="true"></i>${sortedEls[i]['tweet-replies']})
+                                    <i class="fa fa-reply" aria-hidden="true"></i>${sortedEls[i]['replies']})
                                 </small>
                                 <small>
-                                    <i class="fa fa-retweet" aria-hidden="true"></i> ${sortedEls[i]['tweet-retweets']}
+                                    <i class="fa fa-retweet" aria-hidden="true"></i> ${sortedEls[i]['retweets']}
                                 </small>
                                 <small>
-                                    <i class="fa fa-heart" aria-hidden="true"></i> ${sortedEls[i]['tweet-likes']}
+                                    <i class="fa fa-heart" aria-hidden="true"></i> ${sortedEls[i]['likes']}
                                 </small>
                             </div>
                         </div>
@@ -338,26 +294,26 @@
                              }
                              else if (id.includes("commit")) {
                                  hash = getCookie(
-                                     sortedEls[i]['commit-hash']
+                                     sortedEls[i]['hash']
                                          .replace(":", "--"));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
                                      downvote = "";
                                  }
                                  content = `
-                    <li class="commit" data-hash='${sortedEls[i]['commit-hash']}'>
+                    <li class="commit" data-hash='${sortedEls[i]['hash']}'>
                         <div class="wrap">
                             ${upvote}
                             <div class="stat">
-                                <span class="score">${sortedEls[i]['commit-score']}
+                                <span class="score">${sortedEls[i]['score']}
                                 </span>
                             </div>
                             ${downvote}
                         </div>
                         <div class="content">
-<a href='${sortedEls[i]['commit-url']}' target="_blank"><span class="hash">${sortedEls[i]['commit']}:</span> ${sortedEls[i]['commit-content']}</a><br/>
-                            <a target="_blank" href='${sortedEls[i]['commit-repo-url']}'><span class="author">${sortedEls[i]['commit-author']}/${sortedEls[i]['commit-repo']}</span></a><br/>
-                            <span class="timeposted">${sortedEls[i]['commit-time-posted']}</span>
+<a href='${sortedEls[i]['url']}' target="_blank"><span class="hash">${sortedEls[i]['hash'].substring(0, 7)}:</span> ${sortedEls[i]['content']}</a><br/>
+                            <a target="_blank" href='${sortedEls[i]['repository-url']}'><span class="author">${sortedEls[i]['commit-author']}/${sortedEls[i]['repository']}</span></a><br/>
+                            <span class="timeposted">${sortedEls[i]['timeposted']}</span>
                         </div>
 
                     </li>
