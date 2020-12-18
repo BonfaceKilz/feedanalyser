@@ -79,19 +79,18 @@ This is a demo. Update as required!
 (let loop ()
   ;; Adding tweets
   (displayln "Adding tweets:")
-  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
   (store-tweets!
    client
    (get-tweets/twitter (twitter-users)
                        #:search-terms (search-terms)
                        #:number (tweets-per-user))
    #:feed-prefix (feed-prefix))
+  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
 
 
   ;; Adding commits
   (displayln "Adding commits:")
-  (remove-expired-commits! client #:feed-prefix (feed-prefix))
   (for-each
    (lambda (repo)
      (store-commits!
@@ -100,6 +99,7 @@ This is a demo. Update as required!
                           (cdr repo))
       #:feed-prefix (feed-prefix)))
    (repos))
+  (remove-expired-commits! client #:feed-prefix (feed-prefix))
   (displayln "Done Adding commits")
 
   ;; Refresh after x hours
