@@ -174,40 +174,43 @@
            (likes (feed-tweet-likes tweet))
            (url (feed-tweet-url tweet))
            (tweet-date* (seconds->date timeposted))
+           (expiry/seconds (+ (* (date->seconds tweet-date*) 1000)
+                              (* 14 24 60 60 1000)))
            (tz-name (date*-time-zone-name tweet-date*))]
-      (cond
-       [(not (redis-has-key? c key))
-        (redis-hash-set! c key "author" author)
-        (redis-hash-set! c key "tweet" content)
-        (redis-hash-set! c key "hash" key)
-        (redis-hash-set! c key "replies" replies)
-        (redis-hash-set! c key "retweets" retweets)
-        (redis-hash-set! c key "likes" likes)
-        (redis-hash-set! c key "url" url)
-        (redis-hash-set! c key "timeposted"
-                         (parameterize ([date-display-format 'iso-8601])
-                           (string-append
-                            ;; set #t to show the time too
-                            (date->string tweet-date* #t)
-                            " " tz-name)))
-        (redis-hash-set! c key "score" "0")
-        (redis-zset-add!
-         c
-         (string-append feed-prefix "tweet-score:")
-         key
-         (/ timeposted 1000000000.0))
-        (redis-zset-add!
-         c
-         (string-append feed-prefix "tweet-time:")
-         key
-         timeposted)
-        ;; Expire tweets after 2 weeks
-        (redis-expire-at! c key (+ (* (date->seconds tweet-date*) 1000)
-                                   (* 14 24 60 60 1000)))]
-       [else  ;; Update the tweet metrics
-        (redis-hash-set! c key "replies" replies)
-        (redis-hash-set! c key "retweets" retweets)
-        (redis-hash-set! c key "likes" likes)])))
+      (unless (negative? (- expiry/seconds
+                          (current-milliseconds))) ;; Don't add expired tweets
+        (cond
+         [(not (redis-has-key? c key))
+          (redis-hash-set! c key "author" author)
+          (redis-hash-set! c key "tweet" content)
+          (redis-hash-set! c key "hash" key)
+          (redis-hash-set! c key "replies" replies)
+          (redis-hash-set! c key "retweets" retweets)
+          (redis-hash-set! c key "likes" likes)
+          (redis-hash-set! c key "url" url)
+          (redis-hash-set! c key "timeposted"
+                           (parameterize ([date-display-format 'iso-8601])
+                             (string-append
+                              ;; set #t to show the time too
+                              (date->string tweet-date* #t)
+                              " " tz-name)))
+          (redis-hash-set! c key "score" "0")
+          (redis-zset-add!
+           c
+           (string-append feed-prefix "tweet-score:")
+           key
+           (/ timeposted 1000000000.0))
+          (redis-zset-add!
+           c
+           (string-append feed-prefix "tweet-time:")
+           key
+           timeposted)
+          ;; Expire tweets after 2 weeks
+          (redis-expire-at! c key expiry/seconds)]
+         [else  ;; Update the tweet metrics
+          (redis-hash-set! c key "replies" replies)
+          (redis-hash-set! c key "retweets" retweets)
+          (redis-hash-set! c key "likes" likes)]))))
   (cond
    [(not (null? tweets))
     (for-each (lambda (tweet)
