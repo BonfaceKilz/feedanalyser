@@ -231,12 +231,27 @@
 
              addSortedEls(sort(tweets, tweetSelectBy, tweetOrder), "tweets");
              addSortedEls(sort(commits, commitSelectBy, commitOrder), "commits");
+
+             function isNumeric(str) {
+                 if (typeof str != "string") return false;
+                 return !isNaN(str) &&
+                        !isNaN(parseFloat(str))
+             }
+
              function sort(list, key, order) {
                  listClone = [...list]; //shallow copied
                  if(order === "asc")
-                     listClone.sort((a, b) => (a[key] > b[key] ? 1 : -1))
+                     listClone.sort((a, b) => {
+                         let m = isNumeric(a[key]) ? Number(a[key]) : a[key];
+                         let n = isNumeric(b[key]) ? Number(b[key]) : b[key];
+                         return m > n ? 1 : -1;
+                     })
                  else
-                     listClone.sort((a, b) => (a[key] < b[key] ? 1 : -1))
+                     listClone.sort((a, b) => {
+                         let m = isNumeric(a[key]) ? Number(a[key]) : a[key];
+                         let n = isNumeric(b[key]) ? Number(b[key]) : b[key];
+                         return m < n ? 1 : -1;
+                     })
                  return listClone;
              }
 
