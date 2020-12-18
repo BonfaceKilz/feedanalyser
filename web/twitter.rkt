@@ -3,6 +3,7 @@
 (require gregor
          racket/date
          redis
+         threading
          "votes.rkt")
 
 
@@ -96,19 +97,17 @@
                    (remove* (list "\n" '())
                             (string-split tweet "$@@$"))))
              (unless (null? ts)
-               (define author (string-normalize-spaces (first ts)))
-               (define content (string-normalize-spaces (second ts)))
+               (define author (~> ts first string-normalize-spaces))
+               (define content (~> ts second string-normalize-spaces))
                (define timeposted (->posix
                                    (parse-datetime
-                                    (string-normalize-spaces (third ts))
+                                    (~> ts third string-normalize-spaces)
                                     "yyyy-MM-dd HH:mm:ss")))
-               (define replies (fourth ts))
-               (define retweets (fifth ts))
-               (define likes (sixth ts))
-               (define hash (number->string
-                             (equal-hash-code content)))
-               (define url (string-normalize-spaces
-                            (seventh ts)))
+               (define replies (~> ts fourth string-normalize-spaces))
+               (define retweets (~> ts fifth string-normalize-spaces))
+               (define likes (~> ts sixth string-normalize-spaces))
+               (define hash (~> content equal-hash-code number->string))
+               (define url (~> ts seventh string-normalize-spaces))
                (feed-tweet author content timeposted hash replies retweets likes url)))
            (get-raw-tweets userlist
                            #:search-terms search-terms
