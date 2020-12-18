@@ -185,9 +185,11 @@
         (redis-hash-set! c key "likes" likes)
         (redis-hash-set! c key "url" url)
         (redis-hash-set! c key "timeposted"
-                         (string-append
-                          (date->string tweet-date* #t) ;; set #t to show the time too
-                          " " tz-name))
+                         (parameterize ([date-display-format 'iso-8601])
+                           (string-append
+                            ;; set #t to show the time too
+                            (date->string tweet-date* #t)
+                            " " tz-name)))
         (redis-hash-set! c key "score" "0")
         (redis-zset-add!
          c
