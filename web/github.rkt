@@ -101,11 +101,7 @@
         (redis-hash-set! c key "repository-url" (feed-commit-repository-url commit*))
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
         (redis-hash-set! c key "url" (feed-commit-url commit*))
-        (redis-hash-set! c key "hash"
-                         (string-replace
-                          key
-                          (string-append feed-prefix "commit:")
-                          ""))
+        (redis-hash-set! c key "hash" key)
         (redis-hash-set! c key "score" "0")
         (redis-zset-add! c (string-append feed-prefix "commit-score:")
                          key
