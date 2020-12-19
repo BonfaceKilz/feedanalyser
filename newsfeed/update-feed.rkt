@@ -91,7 +91,9 @@ This is a demo. Update as required!
                           (cdr repo))
       #:feed-prefix (feed-prefix)))
    (repos))
-  (displayln "Done Adding commits"))
+  (displayln "Done Adding commits")
+  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
+  (remove-expired-commits! client #:feed-prefix (feed-prefix)))
 
 ;; Initial addition of contents
 (add-content-to-redis)
