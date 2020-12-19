@@ -68,16 +68,11 @@ This is a demo. Update as required!
 
 (define (hours->seconds hours) (* hours 60 60))
 
+(define script/refresh-contents-seconds
+  (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
 
-(void
- (thread
-  (lambda _
-    (let loop ()
-      (sleep 10)
-      (loop)))))
 
-(let loop ()
-  ;; Adding tweets
+(define (add-content-to-redis)
   (displayln "Adding tweets:")
   (store-tweets!
    client
@@ -85,10 +80,7 @@ This is a demo. Update as required!
                        #:search-terms (search-terms)
                        #:number (tweets-per-user))
    #:feed-prefix (feed-prefix))
-  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
-
-
   ;; Adding commits
   (displayln "Adding commits:")
   (for-each
@@ -99,9 +91,23 @@ This is a demo. Update as required!
                           (cdr repo))
       #:feed-prefix (feed-prefix)))
    (repos))
-  (remove-expired-commits! client #:feed-prefix (feed-prefix))
-  (displayln "Done Adding commits")
+  (displayln "Done Adding commits"))
 
-  ;; Refresh after x hours
-  (sleep (hours->seconds (refresh-time/hrs)))
+;; Initial addition of contents
+(add-content-to-redis)
+
+(void
+ (thread
+  (lambda _
+    (let loop ()
+      (sleep 10)
+      (loop)))))
+
+(let loop ()
+  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
+  (remove-expired-commits! client #:feed-prefix (feed-prefix))
+  (when (> (current-seconds) script/refresh-contents-seconds)
+    (set! script/refresh-contents-seconds
+      (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
+    (add-content-to-redis))
   (loop))
