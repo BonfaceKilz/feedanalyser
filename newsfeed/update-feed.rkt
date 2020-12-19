@@ -102,7 +102,7 @@ This is a demo. Update as required!
  (thread
   (lambda _
     (let loop ()
-      (sleep 100)
+      (sleep 10)
       (loop)))))
 
 (let loop ()
@@ -112,4 +112,5 @@ This is a demo. Update as required!
     (set! script/refresh-contents-seconds
       (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
     (add-content-to-redis))
+  (sleep 10)
   (loop))
