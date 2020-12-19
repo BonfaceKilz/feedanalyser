@@ -100,7 +100,7 @@ This is a demo. Update as required!
  (thread
   (lambda _
     (let loop ()
-      (sleep 10)
+      (sleep 100)
       (loop)))))
 
 (let loop ()
