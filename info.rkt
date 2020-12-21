@@ -12,6 +12,8 @@
                "redis-rkt"
                "gregor"
                "simple-http"
+               "html-parsing"
+               "sxml"
                "threading"
                "https://github.com/dmac/spin.git"
                "web-server-lib"))
