@@ -5,8 +5,11 @@
          racket/string
          racket/struct
          redis
+         simple-http
          sxml
-         sxml/sxpath)
+         net/uri-codec
+         sxml/sxpath
+         "votes.rkt")
 
 (provide get-articles/pubmed
          get-pubmed-articles/redis
@@ -84,6 +87,19 @@
              ((sxpath '(// (div (@ (equal? (class "docsum-content"))))))))])
     (~>> articles/xml
          (map sxpath->feed-struct))))
+
+(define (get-articles/pubmed search-terms/string)
+  (let ([requester (update-ssl
+                    (update-host html-requester
+                                 "pubmed.ncbi.nlm.nih.gov") #t)]
+        [params `((term . ,(~> search-terms/string
+                               form-urlencoded-encode))
+                  (show_snippets . "off")
+                  (sort . "date")
+                  (size . "20"))])
+    (~> (get requester "/" #:params params)
+        html-response-body
+        xexp->list/pubmed-feed-struct)))
 
 (define (serialize-pubmed-feed article)
   (apply feed-pubmed (~>> (~> article struct->list)
