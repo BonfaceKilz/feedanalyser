@@ -10,7 +10,7 @@
 (reprovide
  "web/twitter.rkt"
  "web/github.rkt"
- "web/server.rkt"
+ "web/pubmed.rkt"
  "web/server.rkt"
  redis)
 
