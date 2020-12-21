@@ -1,14 +1,17 @@
 #lang racket/base
 
 (require threading
+         racket/function
          racket/string
          racket/struct
+         redis
          sxml
          html-parsing
          sxml/sxpath)
 
 (provide html->list/pubmed-feed-struct
          serialize-pubmed-feed
+         store-pubmed-articles!
          (struct-out feed-pubmed))
 
 
@@ -82,3 +85,36 @@
 (define (serialize-pubmed-feed article)
   (apply feed-pubmed (~>> (~> article struct->list)
                          (map string->bytes/utf-8))))
+
+(define (store-pubmed-articles! client articles
+                               #:feed-prefix [feed-prefix ""])
+  (define (store-article! c article)
+    (let* ([full-authors (feed-pubmed-full-authors article)]
+           [short-authors (feed-pubmed-short-authors article)]
+           [citation (feed-pubmed-citation article)]
+           [short-journal-citation
+            (feed-pubmed-short-journal-citation article)]
+           [summary (feed-pubmed-summary article)]
+           [docsum-pmid (feed-pubmed-docsum-pmid article)]
+           [key (string-append
+                 feed-prefix
+                 "pubmed:"
+                 (if (string? docsum-pmid)
+                     docsum-pmid
+                     (bytes->string/utf-8 docsum-pmid)))])
+      (unless (redis-has-key? c key)
+        (redis-zset-add!
+         c
+         (string-append feed-prefix "pubmed-score:")
+         key
+         0)
+        (redis-hash-set! c key "full-authors" full-authors)
+        (redis-hash-set! c key "short-authors" short-authors)
+        (redis-hash-set! c key "citation" citation)
+        (redis-hash-set!
+         c key "short-journal-citation" short-journal-citation)
+        (redis-hash-set! c key "summary" summary)
+        (redis-hash-set! c key "docsum-pmid" docsum-pmid))))
+  (~>> articles
+       (map serialize-pubmed-feed)
+       (map (curry store-article! client))))
