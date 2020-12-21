@@ -7,7 +7,7 @@
          html-parsing
          sxml/sxpath)
 
-(provide extract-content/articles
+(provide html->list/pubmed-feed-struct
          serialize-pubmed-feed
          (struct-out feed-pubmed))
 
@@ -70,7 +70,7 @@
      summary
      docsum-pmid)))
 
-(define (extract-content/articles html)
+(define (html->list/pubmed-feed-struct html)
   "Extract html from input and return dict of values"
   (let ([articles/xml
          (~> html

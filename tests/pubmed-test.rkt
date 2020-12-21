@@ -10,7 +10,7 @@
    (open-input-file "tests/test-pubmed-content.html") #:close? #t))
 
 
-(check-equal? (extract-content/articles test-html-content)
+(check-equal? (html->list/pubmed-feed-struct test-html-content)
               (list
                (feed-pubmed
                 "Afzali M, Ryazantsev SV, Shakeri A."
