@@ -9,7 +9,8 @@
          html-parsing
          sxml/sxpath)
 
-(provide html->list/pubmed-feed-struct
+(provide get-pubmed-articles/redis
+         html->list/pubmed-feed-struct
          serialize-pubmed-feed
          store-pubmed-articles!
          (struct-out feed-pubmed))
@@ -118,3 +119,18 @@
   (~>> articles
        (map serialize-pubmed-feed)
        (map (curry store-article! client))))
+
+(define (get-pubmed-articles/redis
+         client
+         #:key [key "pubmed-score:"]
+         #:start [start 0]
+         #:stop [stop -1]
+         #:reverse? [reverse? #t]
+         #:feed-prefix [feed-prefix ""])
+  (~>> (redis-subzset
+        client
+        (string-append feed-prefix key)
+        #:start start
+        #:stop stop
+        #:reverse? reverse?)
+       (map (curry redis-hash-get client))))
