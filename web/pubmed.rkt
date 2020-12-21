@@ -2,11 +2,13 @@
 
 (require threading
          racket/string
+         racket/struct
          sxml
          html-parsing
          sxml/sxpath)
 
 (provide extract-content/articles
+         serialize-pubmed-feed
          (struct-out feed-pubmed))
 
 
@@ -76,3 +78,7 @@
              ((sxpath '(// (div (@ (equal? (class "docsum-content"))))))))])
     (~>> articles/xml
          (map sxpath->feed-struct))))
+
+(define (serialize-pubmed-feed article)
+  (apply feed-pubmed (~>> (~> article struct->list)
+                         (map string->bytes/utf-8))))

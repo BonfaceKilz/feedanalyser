@@ -39,3 +39,9 @@
                 "Response to COVID-19 in Cyprus: policy changes and epidemic trends."
                 "33338320"))
               "Check correct struct")
+
+
+(let ([test-feed-struct (feed-pubmed "a" "b" "c" "d" "e" "f")])
+  (check-equal?
+   (serialize-pubmed-feed test-feed-struct)
+   (feed-pubmed #"a" #"b" #"c" #"d" #"e" #"f")))
