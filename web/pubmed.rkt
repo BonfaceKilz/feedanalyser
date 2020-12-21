@@ -13,6 +13,9 @@
          html->list/pubmed-feed-struct
          serialize-pubmed-feed
          store-pubmed-articles!
+         remove-expired-articles!
+         remove-all-articles!
+         vote-article!
          (struct-out feed-pubmed))
 
 
@@ -134,3 +137,19 @@
         #:stop stop
         #:reverse? reverse?)
        (map (curry redis-hash-get client))))
+
+
+(define (remove-expired-articles! client #:feed-prefix [feed-prefix ""])
+  (remove-expired-keys! client (list
+                                (string-append feed-prefix "pubmed-score:"))))
+
+
+(define (remove-all-articles! client #:feed-prefix [feed-prefix ""])
+  (remove-all-keys! client
+                    (string-append feed-prefix "pubmed*")))
+
+(define (vote-article! client key
+                       #:upvote? [upvote? #t]
+                       #:feed-prefix [feed-prefix ""])
+  (vote! client (string-append feed-prefix "pubmed-score:")
+         key #:upvote? upvote?))
