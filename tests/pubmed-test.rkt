@@ -3,14 +3,16 @@
 (require racket/port
          rackunit
          threading
+         html-parsing
          "../web/pubmed.rkt")
 
 (define test-html-content
-  (port->string
-   (open-input-file "tests/test-pubmed-content.html") #:close? #t))
+  (html->xexp
+   (port->string
+    (open-input-file "tests/test-pubmed-content.html") #:close? #t)))
 
 
-(check-equal? (html->list/pubmed-feed-struct test-html-content)
+(check-equal? (xexp->list/pubmed-feed-struct test-html-content)
               (list
                (feed-pubmed
                 "Afzali M, Ryazantsev SV, Shakeri A."

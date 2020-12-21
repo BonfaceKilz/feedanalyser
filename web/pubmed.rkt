@@ -6,11 +6,11 @@
          racket/struct
          redis
          sxml
-         html-parsing
          sxml/sxpath)
 
-(provide get-pubmed-articles/redis
-         html->list/pubmed-feed-struct
+(provide get-articles/pubmed
+         get-pubmed-articles/redis
+         xexp->list/pubmed-feed-struct
          serialize-pubmed-feed
          store-pubmed-articles!
          remove-expired-articles!
@@ -77,11 +77,10 @@
      summary
      docsum-pmid)))
 
-(define (html->list/pubmed-feed-struct html)
+(define (xexp->list/pubmed-feed-struct html)
   "Extract html from input and return dict of values"
   (let ([articles/xml
          (~> html
-             html->xexp
              ((sxpath '(// (div (@ (equal? (class "docsum-content"))))))))])
     (~>> articles/xml
          (map sxpath->feed-struct))))
