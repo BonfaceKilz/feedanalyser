@@ -18,6 +18,9 @@
 ;; Use any twitter's advanced search options here
 (twitter-search-terms . "(covid OR covid19 OR corona OR COVID OR COVID19 OR SARS2 OR SARS-CoV-2 OR SARS OR CoV2) -Trump -trump")
 
+;; This differst slightly with twitter's advanced search
+(pubmed-search-terms . "(covid OR covid19 OR corona OR COVID OR COVID19 OR SARS2 OR SARS-CoV-2 OR SARS OR CoV2)")
+
 (min-retweets . 20)
 
 ;; Limit from twitter is 20 users

@@ -19,6 +19,7 @@
 ;; Use any twitter's advanced search options here
 (twitter-search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump")
 
+(pubmed-search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics)")
 
 ;; Have a list of users from which you can fetch tweets from
 (twitter-users . "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2")
