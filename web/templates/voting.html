@@ -48,7 +48,7 @@
          }
          .column {
              float: left;
-             width: 50%;
+             width: 33.33%;
              padding: 10px;
          }
          .commit .hash {
@@ -151,6 +151,19 @@
 
         <section class="row">
 
+            <div class="pubmed column">
+                <h1>PubMed Articles</h1>
+                <div id="pubmed-select-by" class="select-by">
+                    <div class="button timeposted">Most Recent</div>
+                    <div class="button score">Vote Score</div>
+                </div>
+                <p>Order by:</p>
+                <div id="pubmed-order" class="order-by">
+                    <div class="button" data-tag="asc">ascending</div>
+                    <div class="button" data-tag="desc">descending</div>
+                </div>
+                <ul id="pubmed-articles"></ul>
+            </div>
             <div class="tweets column">
                 <h1>Tweets</h1>
                 <div id="tweet-select-by" class="select-by">
