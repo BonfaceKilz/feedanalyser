@@ -33,6 +33,11 @@ This is a demo. Update as required!
 ;;; Default params for twitter
 (define twitter-search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
+
+;;; Default params for pubmed
+(define twitter-search-terms
+  (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics)"))
+
 (define twitter-users
   (make-parameter "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund"))
 
@@ -55,6 +60,7 @@ This is a demo. Update as required!
     (repos (hash-ref server/settings 'repos))
     (feed-prefix (hash-ref server/settings 'feed-prefix))
     (twitter-search-terms (hash-ref server/settings 'twitter-search-terms))
+    (pubmed-search-terms (hash-ref server/settings 'pubmed-search-terms))
     (tweets-per-user (hash-ref server/settings 'tweets-per-user))
     (min-retweets (hash-ref server/settings 'min-retweets))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
@@ -92,8 +98,16 @@ This is a demo. Update as required!
       #:feed-prefix (feed-prefix)))
    (repos))
   (displayln "Done Adding commits")
+  ;; Adding Pubmed Articles
+  (displayln "Adding pubmed articles:")
+  (store-pubmed-articles!
+   client
+   (get-articles/pubmed "(covid19 OR covid-19 OR Sars OR SARS)")
+   #:feed-prefix (feed-prefix))
+  (displayln "Done Adding articles")
   (remove-expired-tweets! client #:feed-prefix (feed-prefix))
-  (remove-expired-commits! client #:feed-prefix (feed-prefix)))
+  (remove-expired-commits! client #:feed-prefix (feed-prefix))
+  (remove-expired-articles! client #:feed-prefix (feed-prefix)))
 
 ;; Initial addition of contents
 (add-content-to-redis)
@@ -108,6 +122,7 @@ This is a demo. Update as required!
 (let loop ()
   (remove-expired-tweets! client #:feed-prefix (feed-prefix))
   (remove-expired-commits! client #:feed-prefix (feed-prefix))
+  (remove-expired-articles! client #:feed-prefix (feed-prefix))
   (when (> (current-seconds) script/refresh-contents-seconds)
     (set! script/refresh-contents-seconds
       (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
