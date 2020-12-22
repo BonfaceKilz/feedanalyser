@@ -17,7 +17,7 @@
 (server-port . 6011)
 
 ;; Use any twitter's advanced search options here
-(search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump")
+(twitter-search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump")
 
 
 ;; Have a list of users from which you can fetch tweets from

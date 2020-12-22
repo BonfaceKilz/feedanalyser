@@ -16,7 +16,7 @@
 (server-port . 8022)
 
 ;; Use any twitter's advanced search options here
-(search-terms . "(covid OR covid19 OR corona OR COVID OR COVID19 OR SARS2 OR SARS-CoV-2 OR SARS OR CoV2) -Trump -trump")
+(twitter-search-terms . "(covid OR covid19 OR corona OR COVID OR COVID19 OR SARS2 OR SARS-CoV-2 OR SARS OR CoV2) -Trump -trump")
 
 (min-retweets . 20)
 

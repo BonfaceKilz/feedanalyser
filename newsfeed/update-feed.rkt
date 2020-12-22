@@ -31,7 +31,7 @@ This is a demo. Update as required!
 (define min-retweets (make-parameter 20))
 
 ;;; Default params for twitter
-(define search-terms
+(define twitter-search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
 (define twitter-users
   (make-parameter "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund"))
@@ -54,7 +54,7 @@ This is a demo. Update as required!
     (refresh-time/hrs  (hash-ref server/settings 'refresh-time/hrs))
     (repos (hash-ref server/settings 'repos))
     (feed-prefix (hash-ref server/settings 'feed-prefix))
-    (search-terms (hash-ref server/settings 'search-terms))
+    (twitter-search-terms (hash-ref server/settings 'twitter-search-terms))
     (tweets-per-user (hash-ref server/settings 'tweets-per-user))
     (min-retweets (hash-ref server/settings 'min-retweets))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
@@ -77,7 +77,7 @@ This is a demo. Update as required!
   (store-tweets!
    client
    (get-tweets/twitter (twitter-users)
-                       #:search-terms (search-terms)
+                       #:search-terms (twitter-search-terms)
                        #:number (tweets-per-user))
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
