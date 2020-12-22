@@ -506,7 +506,6 @@
                      voteURL = "/vote/commits"
                  if (hash.includes("pubmed:"))
                      voteURL = "/vote/pubmed"
-                 console.log(hash);
                  fetch(voteURL, {
                      method: "POST",
                      body: JSON.stringify({
@@ -516,14 +515,27 @@
                      headers: {"content-type": "application/json"},
                  })
                          .then(function(res) {
-                         console.log(res);
-                         if (res.ok) { // ok if status is 2xx
-                             window.location.reload(true);
-                         } else {
-                             console.log('Request failed');
-                         }
-                     })
-                     .catch(function(err) {
+                             return res.json();
+                         })
+                         .then(function(data) {
+                             if (hash.includes("tweet:")) {
+                                 addSortedEls(sort(data,
+                                                   document.querySelector("#tweet-select-by .selected").dataset.tag,
+                                                   document.querySelector("#tweet-order .selected").dataset.tag),
+                                              "tweets");
+                             } else if (hash.includes("commit:")) {
+                                 addSortedEls(sort(data,
+                                                   document.querySelector("#commit-select-by .selected").dataset.tag,
+                                                   document.querySelector("#commit-order .selected").dataset.tag),
+                                              "commits");
+                             } else if (hash.includes("pubmed:")) {
+                                 addSortedEls(sort(data,
+                                                   document.querySelector("#pubmed-select-by .selected").dataset.tag,
+                                                   document.querySelector("#pubmed-order .selected").dataset.tag),
+                                              "pubmed-articles");
+                             }
+                         })
+                         .catch(function(err) {
                          console.log(err);
                      });
              }
