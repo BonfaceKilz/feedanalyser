@@ -399,7 +399,7 @@
                              }
                              else if(id.includes("articles")) {
                                  hash = getCookie(
-                                     sortedEls[i]['docsum-pmid']);
+                                     ("pubmed--"+sortedEls[i]['docsum-pmid']));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
                                      downvote = "";
