@@ -405,7 +405,7 @@
                                      downvote = "";
                                  }
                                  content = `
-                    <li class="pubmed" data-hash='${sortedEls[i]['citation']}'>
+                    <li class="pubmed" data-hash='pubmed:${sortedEls[i]['docsum-pmid']}'>
                         <div class="wrap">
                             ${upvote}
                             <div class="stat">
@@ -502,8 +502,11 @@
                  let hash = this.parentElement.parentElement.parentElement.dataset.hash;
                  let vote = this.parentElement.dataset.vote;
                  let voteURL = "/vote/tweets";
-                 if (!(hash.includes("tweet:")))
+                 if (hash.includes("commit:"))
                      voteURL = "/vote/commits"
+                 if (hash.includes("pubmed:"))
+                     voteURL = "/vote/pubmed"
+                 console.log(hash);
                  fetch(voteURL, {
                      method: "POST",
                      body: JSON.stringify({

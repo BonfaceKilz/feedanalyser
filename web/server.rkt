@@ -10,11 +10,12 @@
          redis
          threading
          "twitter.rkt"
-         "github.rkt")
+         "github.rkt"
+         "pubmed.rkt")
 
 (provide start-server)
 
-(define (redis-output->json redis/output prefix)
+(define (redis-output->json redis/output)
   (with-output-to-string
     (lambda ()
       (write-json (map (lambda (h)
@@ -72,19 +73,23 @@
 
   (get "/"
        (lambda (req)
-         (let ([tweets
+         (let ([articles
+                (redis-output->json
+                 (get-pubmed-articles/redis
+                  client
+                  #:key "pubmed-score:"
+                  #:feed-prefix feed-prefix))]
+               [tweets
                 (redis-output->json
                  (get-tweets/redis
                   client
                   #:key "tweet-score:"
-                  #:feed-prefix feed-prefix)
-                 feed-prefix)]
+                  #:feed-prefix feed-prefix))]
                [commits
                 (redis-output->json
                  (get-commits/redis
                   client
-                  #:feed-prefix feed-prefix)
-                 feed-prefix)])
+                  #:feed-prefix feed-prefix))])
            (include-template "templates/voting.html"))))
 
   (post "/update-cookies"
@@ -94,13 +99,17 @@
                  [tweet-select-by (hash-ref json/vals 'tweet-select-by)]
                  [commit-order (hash-ref json/vals 'commit-order)]
                  [commit-select-by (hash-ref json/vals 'commit-select-by)]
+                 [pubmed-order (hash-ref json/vals 'pubmed-order)]
+                 [pubmed-select-by (hash-ref json/vals 'pubmed-select-by)]
                  [cookies-list
                   (map (lambda (el)
                          (create-cookie (car el) (cadr el)))
                        (list `("tweet-order" ,tweet-order)
                              `("tweet-select-by" ,tweet-select-by)
                              `("commit-order" ,commit-order)
-                             `("commit-select-by" ,commit-select-by)))])
+                             `("commit-select-by" ,commit-select-by)
+                             `("pubmed-order" ,pubmed-order)
+                             `("pubmed-select-by" ,pubmed-select-by)))])
             `(201 ,cookies-list "OK"))))
 
   (post "/vote/tweets"
@@ -125,6 +134,19 @@
               (vote-commit! client commit-hash
                           #:upvote? (string=? vote "upvote")
                           #:feed-prefix feed-prefix))
+            `(201 (,(car user-vote/cookie)) "OK"))))
+
+  (post "/vote/pubmed"
+        (lambda (req)
+          (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+                 [hash (hash-ref json/vals 'hash)]
+                 [vote (hash-ref json/vals 'vote)]
+                 [user-vote/cookie (track-per-user-vote req hash)])
+            (when (<= (cadr user-vote/cookie) 2)
+              (vote-article! client
+                             (string-append feed-prefix hash)
+                              #:upvote? (string=? vote "upvote")
+                              #:feed-prefix feed-prefix))
             `(201 (,(car user-vote/cookie)) "OK"))))
 
   (displayln (string-append "Running the server on port " (number->string port)))
