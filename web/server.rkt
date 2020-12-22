@@ -122,7 +122,11 @@
               (vote-tweet! client tweet-hash
                            #:upvote? (string=? vote "upvote")
                            #:feed-prefix feed-prefix))
-            `(201 (,(car user-vote/cookie)) "OK"))))
+            `(201 (,(car user-vote/cookie))
+                  ,(redis-output->json
+                    (get-commits/redis
+                     client
+                     #:feed-prefix feed-prefix))))))
 
   (post "/vote/commits"
         (lambda (req)
@@ -134,7 +138,11 @@
               (vote-commit! client commit-hash
                           #:upvote? (string=? vote "upvote")
                           #:feed-prefix feed-prefix))
-            `(201 (,(car user-vote/cookie)) "OK"))))
+            `(201 (,(car user-vote/cookie))
+                  ,(redis-output->json
+                    (get-commits/redis
+                     client
+                     #:feed-prefix feed-prefix))))))
 
   (post "/vote/pubmed"
         (lambda (req)
@@ -147,7 +155,11 @@
                              (string-append feed-prefix hash)
                               #:upvote? (string=? vote "upvote")
                               #:feed-prefix feed-prefix))
-            `(201 (,(car user-vote/cookie)) "OK"))))
+            `(201 (,(car user-vote/cookie))
+                  ,(redis-output->json
+                    (get-pubmed-articles/redis
+                     client
+                     #:feed-prefix feed-prefix))))))
 
   (displayln (string-append "Running the server on port " (number->string port)))
 
