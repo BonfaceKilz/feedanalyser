@@ -124,7 +124,7 @@
                            #:feed-prefix feed-prefix))
             `(201 (,(car user-vote/cookie))
                   ,(redis-output->json
-                    (get-commits/redis
+                    (get-tweets/redis
                      client
                      #:feed-prefix feed-prefix))))))
 
