@@ -133,7 +133,10 @@
         (redis-hash-set!
          c key "short-journal-citation" short-journal-citation)
         (redis-hash-set! c key "summary" summary)
-        (redis-hash-set! c key "docsum-pmid" docsum-pmid))))
+        (redis-hash-set! c key "score" "0")
+        (redis-hash-set! c key "docsum-pmid" docsum-pmid)
+        ;; Expire after 30 days
+        (redis-expire-in! c key (* 30 24 60 60 100)))))
   (~>> articles
        (map serialize-pubmed-feed)
        (map (curry store-article! client))))
@@ -166,5 +169,7 @@
 (define (vote-article! client key
                        #:upvote? [upvote? #t]
                        #:feed-prefix [feed-prefix ""])
+  ;; Increase expiry by 30 days
+  (redis-expire-in! client key (* 30 24 60 60 100))
   (vote! client (string-append feed-prefix "pubmed-score:")
          key #:upvote? upvote?))
