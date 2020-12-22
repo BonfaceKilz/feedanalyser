@@ -35,7 +35,7 @@ This is a demo. Update as required!
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
 
 ;;; Default params for pubmed
-(define twitter-search-terms
+(define pubmed-search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics)"))
 
 (define twitter-users
@@ -102,7 +102,7 @@ This is a demo. Update as required!
   (displayln "Adding pubmed articles:")
   (store-pubmed-articles!
    client
-   (get-articles/pubmed "(covid19 OR covid-19 OR Sars OR SARS)")
+   (get-articles/pubmed (pubmed-search-terms))
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding articles")
   (remove-expired-tweets! client #:feed-prefix (feed-prefix))
