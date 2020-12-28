@@ -21,6 +21,13 @@
 ;; This differst slightly with twitter's advanced search
 (pubmed-search-terms . "covid[Title/Abstract] OR corona virus[Title/Abstract] OR covid19[Title/Abstract] OR sars2[Title/Abstract] OR SARS-CoV-2[Title/Abstract] OR SARS-CoV2")
 
+(arxiv-search-terms . '((AND COVID-19 title)
+                        (OR SARS-CoV-2 abstract)
+                        (OR COVID-19 abstract)
+                        (OR SARS-CoV-2 title)
+                        (OR coronavirus title)
+                        (OR coronavirus abstract)))
+
 (min-retweets . 20)
 
 ;; Limit from twitter is 20 users
