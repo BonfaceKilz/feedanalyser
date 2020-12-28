@@ -55,12 +55,18 @@
   (let* ([hash-cookie (string-replace
                        hash ":" "--")]
          [cookie (extract-cookie req hash-cookie)]
+         (vote (hash-ref (~> req
+                             request-post-data/raw
+                             bytes->jsexpr)
+                        'vote))
          [cookie-hash-value
-                  (number->string
-                   (if
-                    cookie
-                    (+ (string->number
-                        (client-cookie-value cookie)) 1) 1))])
+          (number->string
+           (if
+            cookie
+            (+ (string->number
+                (client-cookie-value cookie))
+               (if (string=? vote "upvote") 1 0))
+            (if (string=? vote "upvote") 1 0)))])
     `(,(create-cookie hash-cookie cookie-hash-value)
       ,(string->number cookie-hash-value))))
 

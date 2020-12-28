@@ -338,7 +338,6 @@
                                          .replace(":", "--"));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
-                                     downvote = "";
                                  }
 
                                  content = `
@@ -376,7 +375,6 @@
                                          .replace(":", "--"));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
-                                     downvote = "";
                                  }
                                  content = `
     <li class="commit" data-hash='${sortedEls[i]['hash']}'>
@@ -402,7 +400,6 @@
                                      ("pubmed--"+sortedEls[i]['docsum-pmid']));
                                  if (!(hash === null || hash < 2)) {
                                      upvote = "";
-                                     downvote = "";
                                  }
                                  content = `
                     <li class="pubmed" data-hash='pubmed:${sortedEls[i]['docsum-pmid']}'>
