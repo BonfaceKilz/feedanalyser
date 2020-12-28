@@ -36,12 +36,12 @@
 (define (sxpath->feed-struct sxml)
   "Extract feed-struct out of a given pubmed sxpath"
   (define query (curry sxml-query sxml))
-  (let ([full-authors (query 'span "docsum-authors full-authors")]
-        [short-authors (query 'span "docsum-authors short-authors")]
-        [citation (query 'span "docsum-journal-citation full-journal-citation")]
-        [short-journal-citation (query 'span "docsum-journal-citation short-journal-citation")]
-        [docsum-pmid (query 'span "docsum-pmid")]
-        [summary (query 'a "docsum-title")])
+  (let ([full-authors (query "//span[contains(@class, 'full-authors')]")]
+        [short-authors (query "//span[contains(@class, 'short-authors')]")]
+        [citation (query "//span[contains(@class, 'full-journal-citation')]")]
+        [short-journal-citation (query "//span[contains(@class, 'short-journal-citation')]")]
+        [docsum-pmid (query "//span[contains(@class, 'docsum-pmid')]")]
+        [summary (query "//a[contains(@class, 'docsum-title')]")])
     (apply feed-pubmed
            (list full-authors
                  short-authors
