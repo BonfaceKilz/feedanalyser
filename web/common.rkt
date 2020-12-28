@@ -3,10 +3,12 @@
 (require racket/string
          racket/struct
          sxml
+         sxml/sxpath
          threading)
 
 (provide remove-markup
-         serialize-struct)
+         serialize-struct
+         sxml-query)
 
 ;; Adapted from:
 ;; https://docs.racket-lang.org/sxml/ssax.html?q=srl%3Asxml-%3Ehtml
@@ -37,3 +39,14 @@
          (~>> (~> feed/struct
                   struct->list)
               (map string->bytes/utf-8))))
+
+(define (sxml-query sxml el class-string)
+  "sxml query to extract elements given: sxml content SXML, a html
+element EL and a class CLASS-STRING"
+    (~> sxml
+        ((sxpath
+         `(// (,el (@ (equal? (class ,class-string)))))))
+        srl:sxml->html
+        open-input-string
+        remove-markup
+        string-normalize-spaces))

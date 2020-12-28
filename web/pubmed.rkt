@@ -35,28 +35,20 @@
 
 (define (sxpath->feed-struct sxml)
   "Extract feed-struct out of a given pubmed sxpath"
-  (define (query el class-string)
-    (~> sxml
-        ((sxpath
-         `(// (,el (@ (equal? (class ,class-string)))))))
-        srl:sxml->html
-        open-input-string
-        remove-markup
-        string-normalize-spaces))
-
+  (define query (curry sxml-query sxml))
   (let ([full-authors (query 'span "docsum-authors full-authors")]
         [short-authors (query 'span "docsum-authors short-authors")]
         [citation (query 'span "docsum-journal-citation full-journal-citation")]
         [short-journal-citation (query 'span "docsum-journal-citation short-journal-citation")]
         [docsum-pmid (query 'span "docsum-pmid")]
         [summary (query 'a "docsum-title")])
-    (feed-pubmed
-     full-authors
-     short-authors
-     citation
-     short-journal-citation
-     summary
-     docsum-pmid)))
+    (apply feed-pubmed
+           (list full-authors
+                 short-authors
+                 citation
+                 short-journal-citation
+                 summary
+                 docsum-pmid))))
 
 (define (xexp->list/pubmed-feed-struct html)
   "Extract html from input and return dict of values"
