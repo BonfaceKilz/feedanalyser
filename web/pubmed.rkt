@@ -14,11 +14,11 @@
 
 (provide get-articles/pubmed
          get-pubmed-articles/redis
-         xexp->list/pubmed-feed-struct
          store-pubmed-articles!
          remove-expired-articles!
          remove-all-articles!
          vote-pubmed-article!
+         sxpath->feed-struct/pubmed
          (struct-out feed-pubmed))
 
 
@@ -33,7 +33,7 @@
    docsum-pmid) #:transparent)
 
 
-(define (sxpath->feed-struct sxml)
+(define (sxpath->feed-struct/pubmed sxml)
   "Extract feed-struct out of a given pubmed sxpath"
   (define query (curry sxml-query sxml))
   (let ([full-authors (query "//span[contains(@class, 'full-authors')]")]
@@ -50,13 +50,6 @@
                  summary
                  docsum-pmid))))
 
-(define (xexp->list/pubmed-feed-struct html)
-  "Extract html from input and return dict of values"
-  (let ([articles/xml
-         (~> html
-             ((sxpath '(// (div (@ (equal? (class "docsum-content"))))))))])
-    (~>> articles/xml
-         (map sxpath->feed-struct))))
 
 (define (get-articles/pubmed search-terms/string)
   (let ([requester (update-ssl
@@ -72,7 +65,10 @@
                   (size . "20"))])
     (~> (get requester "/" #:params params)
         html-response-body
-        xexp->list/pubmed-feed-struct)))
+        ((curryr map-xexp
+                (string-append "//div[contains(@class, "
+                               "'docsum-content')]")
+                sxpath->feed-struct/pubmed)))))
 
 
 (define (store-pubmed-articles! client articles
