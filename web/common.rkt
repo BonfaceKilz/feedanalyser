@@ -8,7 +8,8 @@
 
 (provide remove-markup
          serialize-struct
-         sxml-query)
+         sxml-query
+         map-xexp)
 
 ;; Adapted from:
 ;; https://docs.racket-lang.org/sxml/ssax.html?q=srl%3Asxml-%3Ehtml
@@ -49,3 +50,9 @@ element EL and a class CLASS-STRING"
         open-input-string
         remove-markup
         string-normalize-spaces))
+
+(define (map-xexp xexp query fn)
+  "Apply FN to list of XEXPs extracted using QUERY"
+  (~>> (~> xexp
+           ((sxpath query)))
+       (map fn)))
