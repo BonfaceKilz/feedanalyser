@@ -95,7 +95,8 @@
         [params `((term . ,(~> search-terms/string
                                form-urlencoded-encode))
                   (show_snippets . "off")
-                  (sort . "date")
+                  (sort . "pubdate")
+                  (sort_order . "desc")
                   (size . "20"))])
     (~> (get requester "/" #:params params)
         html-response-body
