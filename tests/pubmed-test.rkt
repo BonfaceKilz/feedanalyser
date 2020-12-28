@@ -4,7 +4,8 @@
          rackunit
          threading
          html-parsing
-         "../web/pubmed.rkt")
+         "../web/pubmed.rkt"
+         "../web/common.rkt")
 
 (define test-html-content
   (html->xexp
@@ -12,7 +13,10 @@
     (open-input-file "tests/test-pubmed-content.html") #:close? #t)))
 
 
-(check-equal? (xexp->list/pubmed-feed-struct test-html-content)
+(check-equal? (map-xexp test-html-content
+                        (string-append "//div[contains(@class, "
+                                       "'docsum-content')]")
+                        sxpath->feed-struct/pubmed)
               (list
                (feed-pubmed
                 "Afzali M, Ryazantsev SV, Shakeri A."
