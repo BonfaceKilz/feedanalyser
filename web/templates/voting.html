@@ -476,10 +476,10 @@
                  });
                  let container = this.parentElement.parentElement;
                  let key = container
-                     .querySelector(`.select-by .selected`)
+                     .querySelector(".select-by .selected")
                      .getAttribute("data-tag");
                  let order = container
-                     .querySelector(`.order-by .selected`)
+                     .querySelector(".order-by .selected")
                      .getAttribute("data-tag");
                  if (id.includes("tweet")) {
                      addSortedEls(sort(tweets, key, order), "tweets");
