@@ -40,12 +40,11 @@
                   struct->list)
               (map string->bytes/utf-8))))
 
-(define (sxml-query sxml el class-string)
+(define (sxml-query sxml query/string)
   "sxml query to extract elements given: sxml content SXML, a html
 element EL and a class CLASS-STRING"
     (~> sxml
-        ((sxpath
-         `(// (,el (@ (equal? (class ,class-string)))))))
+        ((sxpath query/string))
         srl:sxml->html
         open-input-string
         remove-markup
