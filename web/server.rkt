@@ -157,7 +157,7 @@
                  [vote (hash-ref json/vals 'vote)]
                  [user-vote/cookie (track-per-user-vote req hash)])
             (when (<= (cadr user-vote/cookie) 2)
-              (vote-article! client
+              (vote-pubmed-article! client
                              (string-append feed-prefix hash)
                               #:upvote? (string=? vote "upvote")
                               #:feed-prefix feed-prefix))

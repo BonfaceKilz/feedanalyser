@@ -18,7 +18,7 @@
          store-pubmed-articles!
          remove-expired-articles!
          remove-all-articles!
-         vote-article!
+         vote-pubmed-article!
          (struct-out feed-pubmed))
 
 
@@ -169,7 +169,7 @@
   (remove-all-keys! client
                     (string-append feed-prefix "pubmed*")))
 
-(define (vote-article! client key
+(define (vote-pubmed-article! client key
                        #:upvote? [upvote? #t]
                        #:feed-prefix [feed-prefix ""])
   ;; Increase expiry by 30 days
