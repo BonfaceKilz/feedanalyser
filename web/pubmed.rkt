@@ -97,6 +97,8 @@
                   (show_snippets . "off")
                   (sort . "pubdate")
                   (sort_order . "desc")
+                  (filter . "simsearch2.ffrft")
+                  (filter . "articleattr.data")
                   (size . "20"))])
     (~> (get requester "/" #:params params)
         html-response-body
