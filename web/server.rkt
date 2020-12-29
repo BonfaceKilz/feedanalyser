@@ -10,6 +10,7 @@
          redis
          threading
          "common.rkt"
+         "arxiv.rkt"
          "github.rkt"
          "pubmed.rkt"
          "twitter.rkt")
@@ -92,6 +93,12 @@
                   client
                   #:key "tweet-score:"
                   #:feed-prefix feed-prefix))]
+               [arxiv-articles
+                (redis-output->json
+                 (get-items/redis
+                  client
+                  #:key "arxiv-score:"
+                  #:feed-prefix feed-prefix))]
                [commits
                 (redis-output->json
                  (get-items/redis
@@ -109,6 +116,8 @@
                  [commit-select-by (hash-ref json/vals 'commit-select-by)]
                  [pubmed-order (hash-ref json/vals 'pubmed-order)]
                  [pubmed-select-by (hash-ref json/vals 'pubmed-select-by)]
+                 [arxiv-order (hash-ref json/vals 'arxiv-order)]
+                 [arxiv-select-by (hash-ref json/vals 'arxiv-select-by)]
                  [cookies-list
                   (map (lambda (el)
                          (create-cookie (car el) (cadr el)))
@@ -117,7 +126,10 @@
                              `("commit-order" ,commit-order)
                              `("commit-select-by" ,commit-select-by)
                              `("pubmed-order" ,pubmed-order)
-                             `("pubmed-select-by" ,pubmed-select-by)))])
+                             `("pubmed-select-by" ,pubmed-select-by)
+                             `("arxiv-order" ,arxiv-order)
+                             `("arxiv-select-by" ,arxiv-select-by)
+                             ))])
             `(201 ,cookies-list "OK"))))
 
   (post "/vote/tweets"
@@ -134,6 +146,7 @@
                   ,(redis-output->json
                     (get-items/redis
                      client
+                     #:key "tweet-score:"
                      #:feed-prefix feed-prefix))))))
 
   (post "/vote/commits"
@@ -150,6 +163,7 @@
                   ,(redis-output->json
                     (get-items/redis
                      client
+                     #:key "commit-score:"
                      #:feed-prefix feed-prefix))))))
 
   (post "/vote/pubmed"
@@ -167,8 +181,27 @@
                   ,(redis-output->json
                     (get-items/redis
                      client
+                     #:key "pubmed-score:"
                      #:feed-prefix feed-prefix))))))
 
+  ;; TODO: use generic function generate voting endpoints
+  (post "/vote/arxiv"
+        (lambda (req)
+          (let* ([json/vals (bytes->jsexpr (request-post-data/raw req))]
+                 [hash (hash-ref json/vals 'hash)]
+                 [vote (hash-ref json/vals 'vote)]
+                 [user-vote/cookie (track-per-user-vote req hash)])
+            (when (<= (cadr user-vote/cookie) 2)
+              (vote-arxiv-article! client
+                                   hash
+                                   #:upvote? (string=? vote "upvote")
+                                   #:feed-prefix feed-prefix))
+            `(201 (,(car user-vote/cookie))
+                  ,(redis-output->json
+                    (get-items/redis
+                     client
+                     #:key "arxiv-score:"
+                     #:feed-prefix feed-prefix))))))
   (displayln (string-append "Running the server on port " (number->string port)))
 
   (run #:port port #:log-file log-file))
