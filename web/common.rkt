@@ -6,7 +6,8 @@
          redis
          sxml
          sxml/sxpath
-         threading)
+         threading
+         "votes.rkt")
 
 (provide remove-markup
          remove-expired-items!
