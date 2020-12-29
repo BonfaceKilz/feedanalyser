@@ -106,7 +106,7 @@ This is a demo. Update as required!
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding articles")
   (remove-expired-items! client
-                         '("tweet-score" "tweet-time:")
+                         '("tweet-score:" "tweet-time:")
                          #:feed-prefix (feed-prefix))
   (remove-expired-items! client
                          '("commit-score:" "commit-time:")
@@ -127,7 +127,7 @@ This is a demo. Update as required!
 
 (let loop ()
   (remove-expired-items! client
-                         '("tweet-score" "tweet-time:")
+                         '("tweet-score:" "tweet-time:")
                          #:feed-prefix (feed-prefix))
   (remove-expired-items! client
                          '("commit-score:" "commit-time:")
