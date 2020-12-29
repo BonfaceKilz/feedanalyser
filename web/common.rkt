@@ -2,6 +2,7 @@
 
 (require racket/string
          racket/struct
+         redis
          sxml
          sxml/sxpath
          threading)
@@ -9,7 +10,8 @@
 (provide remove-markup
          serialize-struct
          sxml-query
-         map-xexp)
+         map-xexp
+         get-items/redis)
 
 ;; Adapted from:
 ;; https://docs.racket-lang.org/sxml/ssax.html?q=srl%3Asxml-%3Ehtml
@@ -56,3 +58,17 @@ element EL and a class CLASS-STRING"
   (~>> (~> xexp
            ((sxpath query)))
        (map fn)))
+
+(define (get-items/redis client
+                         #:key [key ""]
+                         #:start [start 0]
+                         #:stop [stop -1]
+                         #:reverse? [reverse? #t]
+                         #:feed-prefix [feed-prefix ""])
+  (~>> (redis-subzset client
+                      (string-append feed-prefix key)
+                      #:start start
+                      #:stop stop
+                      #:reverse? reverse?)
+       (map (curry redis-hash-get client))))
+

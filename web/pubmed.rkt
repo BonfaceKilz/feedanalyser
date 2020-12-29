@@ -13,7 +13,6 @@
          "votes.rkt")
 
 (provide get-articles/pubmed
-         get-pubmed-articles/redis
          store-pubmed-articles!
          remove-expired-articles!
          remove-all-articles!
@@ -106,21 +105,6 @@
   (~>> articles
        (map (curry serialize-struct feed-pubmed))
        (map (curry store-article! client))))
-
-(define (get-pubmed-articles/redis
-         client
-         #:key [key "pubmed-score:"]
-         #:start [start 0]
-         #:stop [stop -1]
-         #:reverse? [reverse? #t]
-         #:feed-prefix [feed-prefix ""])
-  (~>> (redis-subzset
-        client
-        (string-append feed-prefix key)
-        #:start start
-        #:stop stop
-        #:reverse? reverse?)
-       (map (curry redis-hash-get client))))
 
 
 (define (remove-expired-articles! client #:feed-prefix [feed-prefix ""])
