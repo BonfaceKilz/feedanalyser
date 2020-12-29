@@ -7,8 +7,7 @@
          "votes.rkt")
 
 
-(provide get-tweets/redis
-         get-tweets/twitter
+(provide get-tweets/twitter
          store-tweets!
          vote-tweet!
          remove-expired-tweets!
@@ -129,24 +128,6 @@
                               #:number number
                               #:min-retweets min-retweets
                               #:since since))))))
-
-
-(define (get-tweets/redis
-         client
-         #:key [key "tweet-score:"]
-         #:start [start 0]
-         #:stop [stop -1]
-         #:reverse? [reverse? #t]
-         #:feed-prefix [feed-prefix ""])
-  (let ([tweet-scores (redis-subzset
-                       client
-                       (string-append feed-prefix key)
-                       #:start start
-                       #:stop stop
-                       #:reverse? reverse?)])
-    (map (lambda (tweet-hash)
-           (redis-hash-get client tweet-hash))
-         tweet-scores)))
 
 
 (define (vote-tweet! client key
