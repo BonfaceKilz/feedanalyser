@@ -9,9 +9,10 @@
          json
          redis
          threading
-         "twitter.rkt"
+         "common.rkt"
          "github.rkt"
-         "pubmed.rkt")
+         "pubmed.rkt"
+         "twitter.rkt")
 
 (provide start-server)
 
@@ -81,19 +82,19 @@
        (lambda (req)
          (let ([articles
                 (redis-output->json
-                 (get-pubmed-articles/redis
+                 (get-items/redis
                   client
                   #:key "pubmed-score:"
                   #:feed-prefix feed-prefix))]
                [tweets
                 (redis-output->json
-                 (get-tweets/redis
+                 (get-items/redis
                   client
                   #:key "tweet-score:"
                   #:feed-prefix feed-prefix))]
                [commits
                 (redis-output->json
-                 (get-commits/redis
+                 (get-items/redis
                   client
                   #:feed-prefix feed-prefix))])
            (include-template "templates/voting.html"))))
@@ -130,7 +131,7 @@
                            #:feed-prefix feed-prefix))
             `(201 (,(car user-vote/cookie))
                   ,(redis-output->json
-                    (get-tweets/redis
+                    (get-items/redis
                      client
                      #:feed-prefix feed-prefix))))))
 
@@ -146,7 +147,7 @@
                           #:feed-prefix feed-prefix))
             `(201 (,(car user-vote/cookie))
                   ,(redis-output->json
-                    (get-commits/redis
+                    (get-items/redis
                      client
                      #:feed-prefix feed-prefix))))))
 
@@ -163,7 +164,7 @@
                               #:feed-prefix feed-prefix))
             `(201 (,(car user-vote/cookie))
                   ,(redis-output->json
-                    (get-pubmed-articles/redis
+                    (get-items/redis
                      client
                      #:feed-prefix feed-prefix))))))
 
