@@ -105,9 +105,15 @@ This is a demo. Update as required!
    (get-articles/pubmed (pubmed-search-terms))
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding articles")
-  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
-  (remove-expired-commits! client #:feed-prefix (feed-prefix))
-  (remove-expired-articles! client #:feed-prefix (feed-prefix)))
+  (remove-expired-items! client
+                         '("tweet-score" "tweet-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("commit-score:" "commit-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("pubmed-score:")
+                         #:feed-prefix (feed-prefix)))
 
 ;; Initial addition of contents
 (add-content-to-redis)
@@ -120,9 +126,15 @@ This is a demo. Update as required!
       (loop)))))
 
 (let loop ()
-  (remove-expired-tweets! client #:feed-prefix (feed-prefix))
-  (remove-expired-commits! client #:feed-prefix (feed-prefix))
-  (remove-expired-articles! client #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("tweet-score" "tweet-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("commit-score:" "commit-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("pubmed-score:")
+                         #:feed-prefix (feed-prefix))
   (when (> (current-seconds) script/refresh-contents-seconds)
     (set! script/refresh-contents-seconds
       (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
