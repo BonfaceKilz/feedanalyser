@@ -78,7 +78,7 @@ element EL and a class CLASS-STRING"
 (define (remove-expired-items! client
                                zset/list
                                #:feed-prefix [feed-prefix ""])
-  "Remove all expired elements for the zset ZSET/LIST"
+  "Remove all expired elements from the zset ZSET/LIST"
   (remove-expired-keys! client
                         (~>> zset/list
                              (map (curry string-append feed-prefix)))))
