@@ -15,6 +15,7 @@
          sxpath->feed-struct/arxiv
          store-arxiv-articles!
          vote-arxiv-article!
+         get-articles/arxiv
          (struct-out feed-arxiv))
 
 (struct feed-arxiv
