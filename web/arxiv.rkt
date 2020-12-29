@@ -91,7 +91,8 @@
 (define (get-articles/arxiv search-terms)
   (let ([requester (update-ssl
                     (update-host html-requester
-                                 "arxiv.org") #t)]
+                                 "arxiv.org")
+                    #t)]
         [params `(,@(parse-arxiv-search-terms '() 0 search-terms)
                   (advanced . "")
                   (classification-physics_archives . "all")
@@ -112,7 +113,8 @@
                                "'arxiv-result')]")
                 sxpath->feed-struct/arxiv)))))
 
-(define (store-arxiv-articles! client articles
+(define (store-arxiv-articles! client
+                               articles
                                #:feed-prefix [feed-prefix ""])
   (define (store-article! c article)
     (let* ([title (feed-arxiv-title article)]
@@ -128,11 +130,10 @@
                      hash
                      (bytes->string/utf-8 hash)))])
       (unless (redis-has-key? c key)
-        (redis-zset-add!
-         c
-         (string-append feed-prefix "arxiv-score:")
-         key
-         0)
+        (redis-zset-add! c
+                         (string-append feed-prefix "arxiv-score:")
+                         key
+                         0)
         (redis-hash-set! c key "title" title)
         (redis-hash-set! c key "authors" authors)
         (redis-hash-set! c key "abstract" abstract)
@@ -153,4 +154,5 @@
   (redis-expire-in! client key (* 30 24 60 60 100))
   (vote! client
          (string-append feed-prefix "arxiv-score:")
-         key #:upvote? upvote?))
+         key
+         #:upvote? upvote?))
