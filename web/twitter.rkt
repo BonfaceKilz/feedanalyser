@@ -10,20 +10,12 @@
 (provide get-tweets/twitter
          store-tweets!
          vote-tweet!
-         remove-expired-tweets!
          remove-all-tweets!
          (struct-out feed-tweet))
 
 
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
 (struct feed-tweet (author content timeposted hash replies retweets likes url) #:transparent)
-
-
-;; Check for tweets that have expired and remove them
-(define (remove-expired-tweets! client #:feed-prefix [feed-prefix ""])
-  (remove-expired-keys! client (list
-                                (string-append feed-prefix "tweet-score:")
-                                (string-append feed-prefix "tweet-time:"))))
 
 
 ;; Remove all tweets from Redis
