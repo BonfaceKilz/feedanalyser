@@ -13,6 +13,7 @@
  "web/pubmed.rkt"
  "web/server.rkt"
  "web/common.rkt"
+ "web/arxiv.rkt"
  redis)
 
 
