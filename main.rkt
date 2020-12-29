@@ -12,6 +12,7 @@
  "web/github.rkt"
  "web/pubmed.rkt"
  "web/server.rkt"
+ "web/common.rkt"
  redis)
 
 
