@@ -96,6 +96,7 @@
                 (redis-output->json
                  (get-items/redis
                   client
+                  #:key "commit-score:"
                   #:feed-prefix feed-prefix))])
            (include-template "templates/voting.html"))))
 
