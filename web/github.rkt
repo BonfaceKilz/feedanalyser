@@ -10,20 +10,12 @@
 
 (provide get-commits/github
          store-commits!
-         remove-all-commits!
          vote-commit!
          (struct-out feed-commit))
 
 
 ; A struct type to store details about commits from various places
 (struct feed-commit (author repository content timeposted hash url repository-url) #:transparent)
-
-
-;; Remove all commits
-(define (remove-all-commits! client #:feed-prefix [feed-prefix ""])
-  (remove-all-keys! client
-                    (string-append feed-prefix "commit*")))
-
 
 ;; Get tweets from github, storing them in a struct
 (define (get-commits/github username reponame #:page [page 1] #:per-page [per-page 10])

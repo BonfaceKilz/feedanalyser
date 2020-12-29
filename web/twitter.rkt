@@ -10,18 +10,10 @@
 (provide get-tweets/twitter
          store-tweets!
          vote-tweet!
-         remove-all-tweets!
          (struct-out feed-tweet))
-
 
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
 (struct feed-tweet (author content timeposted hash replies retweets likes url) #:transparent)
-
-
-;; Remove all tweets from Redis
-(define (remove-all-tweets! client #:feed-prefix [feed-prefix ""])
-  (remove-all-keys! client
-                    (string-append feed-prefix "tweet*")))
 
 
 (define (get-raw-tweets userlist

@@ -14,8 +14,6 @@
 
 (provide get-articles/pubmed
          store-pubmed-articles!
-         remove-expired-articles!
-         remove-all-articles!
          vote-pubmed-article!
          sxpath->feed-struct/pubmed
          (struct-out feed-pubmed))
@@ -106,15 +104,6 @@
        (map (curry serialize-struct feed-pubmed))
        (map (curry store-article! client))))
 
-
-(define (remove-expired-articles! client #:feed-prefix [feed-prefix ""])
-  (remove-expired-keys! client (list
-                                (string-append feed-prefix "pubmed-score:"))))
-
-
-(define (remove-all-articles! client #:feed-prefix [feed-prefix ""])
-  (remove-all-keys! client
-                    (string-append feed-prefix "pubmed*")))
 
 (define (vote-pubmed-article! client key
                        #:upvote? [upvote? #t]

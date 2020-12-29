@@ -11,6 +11,7 @@
 
 (provide remove-markup
          remove-expired-items!
+         remove-all-items!
          serialize-struct
          sxml-query
          map-xexp
@@ -82,3 +83,8 @@ element EL and a class CLASS-STRING"
   (remove-expired-keys! client
                         (~>> zset/list
                              (map (curry string-append feed-prefix)))))
+
+(define (remove-all-items! client key-regex #:feed-prefix [feed-prefix ""])
+  "Remove all items from Redis that match KEY-REGEX .e.g. 'tweet*'"
+  (remove-all-keys! client
+                    (string-append feed-prefix key-regex)))
