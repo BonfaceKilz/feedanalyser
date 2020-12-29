@@ -4,11 +4,11 @@
          gregor
          redis
          simple-http
+         "common.rkt"
          "votes.rkt")
 
 
 (provide get-commits/github
-         get-commits/redis
          store-commits!
          remove-expired-commits!
          remove-all-commits!
@@ -67,7 +67,7 @@
      commits)))
 
 
-(define (get-commits/redis
+(define (get-items/redis
          client
          #:key [key "commit-time:"]
          #:start [start 0]
