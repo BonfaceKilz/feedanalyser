@@ -12,6 +12,7 @@
 
 (provide parse-arxiv-search-terms
          sxpath->feed-struct/arxiv
+         store-arxiv-articles!
          (struct-out feed-arxiv))
 
 (struct feed-arxiv
@@ -109,3 +110,30 @@
                 (string-append "//li[contains(@class, "
                                "'arxiv-result')]")
                 sxpath->feed-struct/arxiv)))))
+
+(define (store-arxiv-articles! client articles
+                               #:feed-prefix [feed-prefix ""])
+  (define (store-article! c article)
+    (let* ([title (feed-arxiv-title article)]
+           [authors (feed-arxiv-authors article)]
+           [abstract (feed-arxiv-abstract article)]
+           [submission (feed-arxiv-submission article)]
+           [url (feed-arxiv-url article)]
+           [hash (feed-arxiv-hash article)])
+      (unless (redis-has-key? c key)
+        (redis-zset-add!
+         c
+         (string-append feed-prefix "arxiv-score:")
+         key
+         0)
+        (redis-hash-set! c key "authors" authors)
+        (redis-hash-set! c key "abstract" abstract)
+        (redis-hash-set! c key "submission" submission)
+        (redis-hash-set! c key "url" url)
+        (redis-hash-set! c key "hash" hash)
+        (redis-hash-set! c key "score" "0")
+        ;; Expire after 30 days
+        (redis-expire-in! c key (* 30 24 60 60 100)))))
+  (~>> articles
+       (map (curry serialize-struct feed-arxiv))
+       (map (curry store-article! client-arxiv))))
