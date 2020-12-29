@@ -38,6 +38,15 @@ This is a demo. Update as required!
 (define pubmed-search-terms
   (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics)"))
 
+;;; Default params for arxiv
+(define arxiv-search-terms
+  (make-parameter '((AND COVID-19 title)
+                    (OR SARS-CoV-2 abstract)
+                    (OR COVID-19 abstract)
+                    (OR SARS-CoV-2 title)
+                    (OR coronavirus title)
+                    (OR coronavirus abstract))))
+
 (define twitter-users
   (make-parameter "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund"))
 
@@ -61,6 +70,7 @@ This is a demo. Update as required!
     (feed-prefix (hash-ref server/settings 'feed-prefix))
     (twitter-search-terms (hash-ref server/settings 'twitter-search-terms))
     (pubmed-search-terms (hash-ref server/settings 'pubmed-search-terms))
+    (arxiv-search-terms (hash-ref server/settings 'arxiv-search-terms))
     (tweets-per-user (hash-ref server/settings 'tweets-per-user))
     (min-retweets (hash-ref server/settings 'min-retweets))
     (twitter-users (hash-ref server/settings 'twitter-users)))])
@@ -77,6 +87,19 @@ This is a demo. Update as required!
 (define script/refresh-contents-seconds
   (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
 
+(define (expire-feed-items)
+  (remove-expired-items! client
+                         '("tweet-score:" "tweet-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("commit-score:" "commit-time:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("pubmed-score:")
+                         #:feed-prefix (feed-prefix))
+  (remove-expired-items! client
+                         '("arxiv-score:")
+                         #:feed-prefix (feed-prefix)))
 
 (define (add-content-to-redis)
   (displayln "Adding tweets:")
@@ -91,50 +114,40 @@ This is a demo. Update as required!
   (displayln "Adding commits:")
   (for-each
    (lambda (repo)
-     (store-commits!
-      client
-      (get-commits/github (car repo)
-                          (cdr repo))
-      #:feed-prefix (feed-prefix)))
+     (store-commits! client
+                     (get-commits/github (car repo)
+                                         (cdr repo))
+                     #:feed-prefix (feed-prefix)))
    (repos))
   (displayln "Done Adding commits")
+
   ;; Adding Pubmed Articles
   (displayln "Adding pubmed articles:")
-  (store-pubmed-articles!
-   client
-   (get-articles/pubmed (pubmed-search-terms))
-   #:feed-prefix (feed-prefix))
+  (store-pubmed-articles! client
+                          (get-articles/pubmed (pubmed-search-terms))
+                          #:feed-prefix (feed-prefix))
   (displayln "Done Adding articles")
-  (remove-expired-items! client
-                         '("tweet-score:" "tweet-time:")
+
+  ;; Adding arxiv articles
+  (displayln "Adding arxiv articles:")
+  (store-arxiv-articles! client
+                         (get-articles/arxiv (arxiv-search-terms))
                          #:feed-prefix (feed-prefix))
-  (remove-expired-items! client
-                         '("commit-score:" "commit-time:")
-                         #:feed-prefix (feed-prefix))
-  (remove-expired-items! client
-                         '("pubmed-score:")
-                         #:feed-prefix (feed-prefix)))
+  (displayln "Done Adding arxiv artiles")
+  
+  (expire-feed-items))
 
 ;; Initial addition of contents
 (add-content-to-redis)
 
 (void
- (thread
-  (lambda _
-    (let loop ()
-      (sleep 10)
-      (loop)))))
+ (thread (lambda _
+           (let loop ()
+             (sleep 10)
+             (loop)))))
 
 (let loop ()
-  (remove-expired-items! client
-                         '("tweet-score:" "tweet-time:")
-                         #:feed-prefix (feed-prefix))
-  (remove-expired-items! client
-                         '("commit-score:" "commit-time:")
-                         #:feed-prefix (feed-prefix))
-  (remove-expired-items! client
-                         '("pubmed-score:")
-                         #:feed-prefix (feed-prefix))
+  (expire-feed-items)
   (when (> (current-seconds) script/refresh-contents-seconds)
     (set! script/refresh-contents-seconds
       (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
