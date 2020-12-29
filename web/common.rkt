@@ -9,6 +9,7 @@
          threading)
 
 (provide remove-markup
+         remove-expired-items!
          serialize-struct
          sxml-query
          map-xexp
@@ -73,3 +74,9 @@ element EL and a class CLASS-STRING"
                       #:reverse? reverse?)
        (map (curry redis-hash-get client))))
 
+(define (remove-expired-items! client
+                               zset/list
+                               #:feed-prefix [feed-prefix ""])
+  "Remove all expired elements for the zset ZSET/LIST"
+  (remove-expired-keys! (~>> zset/list
+                             (map (curry string-append feed-prefix)))))
