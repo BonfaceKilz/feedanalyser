@@ -5,6 +5,7 @@
          racket/function
          racket/port
          racket/string
+         redis
          simple-http
          sxml/sxpath
          "common.rkt"
