@@ -10,7 +10,6 @@
 
 (provide get-commits/github
          store-commits!
-         remove-expired-commits!
          remove-all-commits!
          vote-commit!
          (struct-out feed-commit))
@@ -18,12 +17,6 @@
 
 ; A struct type to store details about commits from various places
 (struct feed-commit (author repository content timeposted hash url repository-url) #:transparent)
-
-;; Check for tweets that have expired and remove them
-(define (remove-expired-commits! client #:feed-prefix [feed-prefix ""])
-  (remove-expired-keys! client (list
-                                (string-append feed-prefix "commit-score:")
-                                (string-append feed-prefix "commit-time:"))))
 
 
 ;; Remove all commits
