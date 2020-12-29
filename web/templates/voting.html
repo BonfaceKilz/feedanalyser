@@ -15,11 +15,16 @@
              font-size: 2rem;
              text-align: left;
              font-weight: 500;
+             margin: 0;
          }
 
          body {
              font-family: sans-serif;
              background: #eee;
+             overflow-x: scroll;
+         }
+         .row {
+             width: max-content;
          }
          .row:after {
              content: "";
@@ -48,24 +53,31 @@
          }
          .column {
              float: left;
-             width: 33.33%;
-             padding: 10px;
+             width: 33vw;
+             padding: 0;
+             margin: 0;
              word-wrap: anywhere;
+         }
+
+         .column ul {
+             height: 75vh;
+             overflow-y: scroll;
          }
          .commit .hash {
              color: #5ebd73;
              font-weight: bolder;
          }
-
          .commit a, .commit a:visited,
          .tweet a, .tweet a:visited,
-         .pubmed a, .pubmed a:visited{
+         .arxiv a, .arxiv a:visited,
+         .pubmed a, .pubmed a:visited {
              color: #24292e;
              text-decoration: none;
              font-weight: bold;
          }
 
          .commit a:hover,
+         .arxiv a:hover,
          .pubmed a:hover {
              color: #2d7fdd;
              text-decoration: underline;
@@ -83,9 +95,10 @@
          }
          .tweet,
          .commit .content,
-         .pubmed .content{
-             padding: 15px;
-             line-height: 1.5;
+         .arxiv .content,
+         .pubmed .content {
+             padding: 7px;
+             line-height: 1.1;
          }
 
          .tweet-stats, .tweet-stats small {
@@ -100,7 +113,10 @@
              max-width: 30px;
              margin: 10px 10px 0 0;
          }
-         .tweets li, .commits li, .pubmed li {
+         .tweets li,
+         .commits li,
+         .pubmed li,
+         .arxiv li {
              display: flex;
              flex-direction: row;
              align-items: center;
@@ -161,7 +177,7 @@
             <div class="pubmed column">
                 <h1>PubMed Articles</h1>
                 <div id="pubmed-select-by" class="select-by">
-                    <div class="button timeposted" data-tag="timeposted">
+                    <div class="button" data-tag="timeposted">
                         Most Recent
                     </div>
                     <div class="button score" data-tag="score">
@@ -176,6 +192,25 @@
                 <ul id="pubmed-articles">
                 </ul>
             </div>
+
+            <div class="arxiv column">
+                <h1>Arxiv Articles</h1>
+                <div id="arxiv-select-by" class="select-by">
+                    <div class="button" data-tag="timeposted">
+                        Most Recent
+                    </div>
+                    <div class="button score" data-tag="score">
+                        Vote Score
+                    </div>
+                </div>
+                <p>Order by:</p>
+                <div id="arxiv-order" class="order-by">
+                    <div class="button" data-tag="asc">ascending</div>
+                    <div class="button" data-tag="desc">descending</div>
+                </div>
+                <ul id="arxiv-articles"></ul>
+            </div>
+            
             <div class="tweets column">
                 <h1>Tweets</h1>
                 <div id="tweet-select-by" class="select-by">
@@ -232,6 +267,8 @@
              }
              let pubmedArticles = @articles
 
+             let arxivArticles = @arxiv-articles
+
              let tweets = @tweets
              
              let commits = @commits
@@ -251,9 +288,17 @@
              let commitSelectBy = getCookie("commit-select-by") ||
                                   "timeposted";
 
+             let arxivArticleOrder = getCookie("arxiv-order") || "desc";
+             let arxivArticleSelectBy = getCookie("arxiv-select-by") ||
+                                         "timeposted";
+
              document.querySelector(`#pubmed-order [data-tag='${pubmedArticleOrder}']`)
                      .classList.add("selected");
              document.querySelector(`#pubmed-select-by [data-tag='${pubmedArticleSelectBy}']`)
+                     .classList.add("selected");
+             document.querySelector(`#arxiv-order [data-tag='${arxivArticleOrder}']`)
+                     .classList.add("selected");
+             document.querySelector(`#arxiv-select-by [data-tag='${arxivArticleSelectBy}']`)
                      .classList.add("selected");
              document.querySelector(`#tweet-order [data-tag='${tweetOrder}']`)
                      .classList.add("selected");
@@ -273,6 +318,11 @@
              addSortedEls(sort(pubmedArticles,
                                pubmedArticleSelectBy,
                                pubmedArticleOrder), "pubmed-articles");
+             if (pubmedArticleSelectBy === "timeposted")
+                 pubmedArticleSelectBy = "submission";
+             addSortedEls(sort(arxivArticles,
+                               arxivArticleSelectBy,
+                               arxivArticleOrder), "arxiv-articles")
 
              function isNumeric(str) {
                  if (typeof str != "string") return false;
@@ -305,6 +355,11 @@
                      } else {
                          m = isNumeric(a[key]) ? Number(a[key]) : a[key];
                          n = isNumeric(b[key]) ? Number(b[key]) : b[key];
+                         // Check if key is date. True for arxiv submitted date
+                         if (!isNaN(Date.parse(a[key]))) {
+                             m = Number(Date.parse(a[key]));
+                             n = Number(Date.parse(b[key]));
+                         }
                      }
                      if (order === "asc")
                          return m > n ? 1 : -1;
@@ -398,7 +453,7 @@
     </li>
                                  `;
                              }
-                             else if(id.includes("articles")) {
+                             else if(id.includes("pubmed")) {
                                  hash = getCookie(
                                      ("pubmed--"+sortedEls[i]['docsum-pmid']));
                                  if (!(hash === null || hash < 2)) {
@@ -420,6 +475,32 @@
                             <small><i>Full Authors:</i> ${sortedEls[i]['full-authors']}</small><br/>
                             <small><i>Short Journal Citation:</i> ${sortedEls[i]['short-journal-citation']}</small><br/>
                             <small><i>Citation:</i> ${sortedEls[i]['citation']}</small>
+                        </div>
+
+                    </li>`;
+                             }
+                             else if(id.includes("arxiv")) {
+                                 hash = getCookie(
+                                     (sortedEls[i]['hash']));
+                                 if (!(hash === null || hash < 2)) {
+                                     upvote = "";
+                                 }
+                                 content = `
+                    <li class="arxiv" data-hash='${sortedEls[i]['hash']}'>
+                        <div class="wrap">
+                            ${upvote}
+                            <div class="stat">
+                                <span class="score">
+                                    ${sortedEls[i]['score']}
+                                </span>
+                            </div>
+                            ${downvote}
+                        </div>
+                        <div class="content">
+                            <p><a href="${sortedEls[i]['url']}" target="_blank">${sortedEls[i]['title']}</a></p>
+                            <p>${sortedEls[i]['abstract']} ...</p>
+                            <small><i>Authors: </i>${sortedEls[i]['authors']}</small><br/>
+                            <small><i>Submission: </i>${sortedEls[i]['submission']}</small>
                         </div>
 
                     </li>
@@ -474,6 +555,12 @@
                          "pubmed-order": document
                              .querySelector("#pubmed-order .selected")
                              .getAttribute("data-tag"),
+                         "arxiv-select-by": document
+                             .querySelector("#arxiv-select-by .selected")
+                             .getAttribute("data-tag"),
+                         "arxiv-order": document
+                             .querySelector("#arxiv-order .selected")
+                             .getAttribute("data-tag"),
                      }),
                      headers: {"content-type": "application/json"},
                  });
@@ -489,6 +576,11 @@
                  }
                  else if (id.includes("commit")) {
                      addSortedEls(sort(commits, key, order), "commits");
+                 }
+                 else if (id.includes("arxiv")) {
+                     if (key === "timeposted")
+                         key = "submission"
+                     addSortedEls(sort(arxivArticles, key, order), "arxiv-articles");
                  }
                  else if (id.includes("pubmed")) {
                      if (key === "timeposted")
@@ -507,6 +599,8 @@
                      voteURL = "/vote/commits"
                  if (hash.includes("pubmed:"))
                      voteURL = "/vote/pubmed"
+                 if (hash.includes("arxiv:"))
+                     voteURL = "/vote/arxiv"
                  function updateScore(data, hashKey, tagPrefix, columnType) {
                      if (document
                          .querySelector(`#${tagPrefix}-select-by .selected`)
@@ -521,7 +615,6 @@
                          for (let i = 0; i < data.length; i++) {
                              console.log(hash, hashKey);
                              if (data[i][hashKey] === hash.replace("pubmed:", "")) {
-                                 console.log("loooolz");
                                  new_score = data[i]['score'];
                                  let actual_score = curEl.parentElement.parentElement.parentElement.querySelector("span.score")
                                  cookieHash = getCookie(hash.replace(":", "--"))
@@ -558,6 +651,11 @@
                                              "hash",
                                              "commit",
                                              "commits");
+                             } else if (hash.includes("arxiv:")) {
+                                 updateScore(data,
+                                             "hash",
+                                             "arxiv",
+                                             "arxiv-articles");
                              } else if (hash.includes("pubmed:")) {
                                  updateScore(data,
                                              "docsum-pmid",
