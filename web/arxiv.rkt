@@ -120,13 +120,20 @@
            [abstract (feed-arxiv-abstract article)]
            [submission (feed-arxiv-submission article)]
            [url (feed-arxiv-url article)]
-           [hash (feed-arxiv-hash article)])
+           [hash (feed-arxiv-hash article)]
+           [key (string-append
+                 feed-prefix
+                 "arxiv:"
+                 (if (string? hash)
+                     hash
+                     (bytes->string/utf-8 hash)))])
       (unless (redis-has-key? c key)
         (redis-zset-add!
          c
          (string-append feed-prefix "arxiv-score:")
          key
          0)
+        (redis-hash-set! c key "title" title)
         (redis-hash-set! c key "authors" authors)
         (redis-hash-set! c key "abstract" abstract)
         (redis-hash-set! c key "submission" submission)
