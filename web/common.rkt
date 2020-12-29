@@ -2,6 +2,7 @@
 
 (require racket/string
          racket/struct
+         racket/function
          redis
          sxml
          sxml/sxpath
