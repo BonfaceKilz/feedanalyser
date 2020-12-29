@@ -50,7 +50,7 @@
                   ((sxpath (string-append "//p[contains(@class, "
                                           "'list-title')]/a/@href/text()")))
                   car)]
-         [hash (~> title equal-hash-code)])
+         [hash (~> title equal-hash-code number->string)])
     (apply feed-arxiv
            (list title
                  authors

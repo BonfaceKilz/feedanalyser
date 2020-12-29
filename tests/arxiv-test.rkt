@@ -51,12 +51,12 @@
                   "We consider real-time timely tracking of infection status (e.g., - ) of individuals in a population. In this work, a health care provider wants to detect infected people as well as people who recovered from the disease as quickly as possible. In order to measure the timeliness of the tracking process, we use the"
                   "24 December, 2020"
                   "https://arxiv.org/abs/2012.13393"
-                  -3836862324113911226)
+                  "-3836862324113911226")
                  (feed-arxiv
                   "Simple mathematical models for controlling COVID-19 transmission through social distancing and community awareness"
                   "Ahmed S. Elgazzar"
                   "The novel -"
                   "24 December, 2020"
                   "https://arxiv.org/abs/2012.13361"
-                  452229514406158235))
+                  "452229514406158235"))
               "Check correct struct")
