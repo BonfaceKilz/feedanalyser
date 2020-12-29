@@ -141,7 +141,7 @@
         (redis-hash-set! c key "abstract" abstract)
         (redis-hash-set! c key "submission" submission)
         (redis-hash-set! c key "url" url)
-        (redis-hash-set! c key "hash" hash)
+        (redis-hash-set! c key "hash" key)
         (redis-hash-set! c key "score" "0")
         ;; Expire after 30 days
         (redis-expire-in! c key (* 30 24 60 60 100)))))
