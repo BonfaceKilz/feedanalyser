@@ -145,7 +145,7 @@
         (redis-expire-in! c key (* 30 24 60 60 100)))))
   (~>> articles
        (map (curry serialize-struct feed-arxiv))
-       (map (curry store-article! client-arxiv))))
+       (map (curry store-article! client))))
 
 (define (vote-arxiv-article! client key
                              #:upvote? [upvote? #t]
