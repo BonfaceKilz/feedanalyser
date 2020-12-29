@@ -13,6 +13,7 @@
 (provide parse-arxiv-search-terms
          sxpath->feed-struct/arxiv
          store-arxiv-articles!
+         vote-arxiv-article!
          (struct-out feed-arxiv))
 
 (struct feed-arxiv
@@ -137,3 +138,12 @@
   (~>> articles
        (map (curry serialize-struct feed-arxiv))
        (map (curry store-article! client-arxiv))))
+
+(define (vote-arxiv-article! client key
+                             #:upvote? [upvote? #t]
+                             #:feed-prefix [feed-prefix ""])
+  ;; Increase expiry by 30 days
+  (redis-expire-in! client key (* 30 24 60 60 100))
+  (vote! client
+         (string-append feed-prefix "arxiv-score:")
+         key #:upvote? upvote?))
