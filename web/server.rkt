@@ -89,10 +89,10 @@
                   #:feed-prefix feed-prefix))]
                [tweets
                 (redis-output->json
-                 (get-items/redis
-                  client
-                  #:key "tweet-score:"
-                  #:feed-prefix feed-prefix))]
+                 (truncate-spammy-tweets
+                  (get-items/redis client
+                                   #:key "tweet-score:"
+                                   #:feed-prefix feed-prefix)))]
                [arxiv-articles
                 (redis-output->json
                  (get-items/redis
