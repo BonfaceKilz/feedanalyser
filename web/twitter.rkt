@@ -1,6 +1,7 @@
 #lang racket
 
-(require gregor
+(require algorithms
+         gregor
          racket/date
          redis
          threading
@@ -10,6 +11,7 @@
 (provide get-tweets/twitter
          store-tweets!
          vote-tweet!
+         truncate-spammy-tweets
          (struct-out feed-tweet))
 
 ; A simple (placeholder) tweet type, that contains metadata about a tweet
@@ -201,3 +203,30 @@
               (string->bytes/utf-8 (feed-tweet-retweets tweet))
               (string->bytes/utf-8 (feed-tweet-likes tweet))
               (string->bytes/utf-8 (feed-tweet-url tweet))))
+
+
+(define (truncate-spammy-tweets tweets
+                                #:threshold [thresh 7]
+                                #:take-n [take-n 5])
+  "From a list of TWEETS hashes, if the tweets from a single twitter
+handle exceeds THRESHOLD, only take TAKE-N items from that handle's
+tweets. A spammer is considered as someone who exceeds a certain
+amount of tweets defined by THRESHOLD."
+  (define (bytes->number x)
+    ((lambda~> bytes->string/utf-8
+               string->number)
+     x))
+  (let [(groups (group-by (lambda (x) (hash-ref x #"author"))
+                          (filter-not hash-empty? tweets)))]
+    ((lambda~>>
+      (map (lambda (group)
+             (if (> (length group) thresh)
+                 (~> (sort group
+                           #:key (lambda (x)
+                                   (~> (hash-ref x #"retweets")
+                                        bytes->number))
+                           >=)
+                     ((curryr take take-n)))
+                 group)))
+      flatten)
+     groups)))
