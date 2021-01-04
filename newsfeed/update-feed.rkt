@@ -107,6 +107,7 @@ This is a demo. Update as required!
    client
    (get-tweets/twitter (twitter-users)
                        #:search-terms (twitter-search-terms)
+                       #:min-retweets (min-retweets)
                        #:number (tweets-per-user))
    #:feed-prefix (feed-prefix))
   (displayln "Done Adding tweets")
