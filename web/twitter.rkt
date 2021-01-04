@@ -72,7 +72,7 @@
                                       (~t (-weeks (today) 2) "y-M-d"))])
   "Get tweets from Twitter"
   (let [(users (string-split userlist ","))]
-    (if (< (length users) 20)
+    (if (< (length users) 13)
         (unless (empty? users)
           (map
            (lambda (tweet)
