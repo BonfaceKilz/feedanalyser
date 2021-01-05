@@ -15,6 +15,7 @@
 (define server-port (make-parameter 6379))
 (define log-file/path (make-parameter "feed.log"))
 (define feed-prefix (make-parameter ""))
+(define feed-client-url (make-parameter ""))
 
 (define parser
   (command-line
@@ -33,6 +34,7 @@
          (load-config (conf-filepath)))]
     (redis-conf (hash-ref server/settings 'redis-conf))
     (feed-prefix (hash-ref server/settings 'feed-prefix))
+    (feed-client-url (hash-ref server/settings 'feed-client-url))
     (server-port (hash-ref server/settings 'server-port))
     (log-file/path (hash-ref server/settings 'log-file)))])
 
@@ -44,4 +46,5 @@
 (start-server client
               #:port (server-port)
               #:log-file (log-file/path)
-              #:feed-prefix (feed-prefix))
+              #:feed-prefix (feed-prefix)
+              #:feed-client-url (feed-client-url))

@@ -82,7 +82,8 @@
          client
          #:port [port 8000]
          #:log-file [log-file "feed.log"]
-         #:feed-prefix [feed-prefix ""])
+         #:feed-prefix [feed-prefix ""]
+         #:feed-client-url [feed-client-url ""])
 
   (get "/"
        (lambda (req)
@@ -109,7 +110,8 @@
                  (get-items/redis
                   client
                   #:key "commit-score:"
-                  #:feed-prefix feed-prefix))])
+                  #:feed-prefix feed-prefix))]
+               [feed-client-url feed-client-url])
            (include-template "templates/voting.html"))))
 
   (post "/update-cookies"
