@@ -19,13 +19,26 @@
 ;; Use any twitter's advanced search options here
 (twitter-search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR pangenome OR browser OR workflows OR bioinformatic OR GeneNetwork OR conference OR sequences OR genotype OR phenotype OR guix OR RDF OR SPARQL OR genome OR biology OR Genomics OR OPAR OR genetics OR research OR ontologies OR variation)")
 
-(pubmed-search-terms . "(genenetwork OR genenetwork2 OR rat OR mouse OR pangenome OR genome browser)")
+(pubmed-search-terms . "(genenetwork[Title/Abstract] OR genenetwork2[Title/Abstract] OR rat[Title/Abstract] OR mouse[Title/Abstract] OR pangenome[Title/Abstract] OR genome browser[Title/Abstract] NOT (keyboard OR interactive))")
 
 (arxiv-search-terms . '((AND genenetwork title)
                         (OR genenetwork2 abstract)
                         (OR genome-browser abstract)
                         (OR pangenome abstract)
-                        (OR mouse title)))
+                        (OR mouse title)
+                        (NOT cursor title)
+                        (NOT cursor abstract)
+                        (NOT interactive title)
+                        (NOT interactive abstract)
+                        (NOT pointer title)
+                        (NOT pointer abstract)
+                        (NOT Computer+Mouse title)
+                        (NOT Computer+Mouse abstract)
+                        (NOT Mouse-tracking+data abstract)
+                        (NOT keyboard title)
+                        (NOT keyboard abstract)
+                        (NOT interactive title)
+                        (NOT interactive abstract)))
 
 (min-retweets . 4)
 
