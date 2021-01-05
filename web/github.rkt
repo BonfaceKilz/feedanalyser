@@ -71,21 +71,23 @@
 
 (define (store-commits! client commits #:feed-prefix [feed-prefix ""])
   (define (store-commit! c commit*)
-    (let [(key (string-append
-                feed-prefix
-                "commit:"
-                (feed-commit-hash commit*)))
-          (timeposted/seconds (->posix
-                               (iso8601->datetime
-                                (feed-commit-timeposted commit*))))]
+    (let* [(serialized-commit (serialize-struct feed-commit commit*))
+           (key (string-append
+                 feed-prefix
+                 "commit:"
+                 (feed-commit-hash commit*)))
+           (timeposted/seconds (->posix
+                                (iso8601->datetime
+                                 (feed-commit-timeposted commit*))))]
       (cond
        [(not (redis-has-key? c key))
-        (redis-hash-set! c key "author" (feed-commit-author commit*))
-        (redis-hash-set! c key "content" (feed-commit-content commit*))
-        (redis-hash-set! c key "repository" (feed-commit-repository commit*))
-        (redis-hash-set! c key "repository-url" (feed-commit-repository-url commit*))
+        (redis-hash-set! c key "author" (feed-commit-author serialized-commit))
+        (redis-hash-set! c key "content" (feed-commit-content
+                                          serialized-commit))
+        (redis-hash-set! c key "repository" (feed-commit-repository serialized-commit))
+        (redis-hash-set! c key "repository-url" (feed-commit-repository-url serialized-commit))
         (redis-hash-set! c key "timeposted" (feed-commit-timeposted commit*))
-        (redis-hash-set! c key "url" (feed-commit-url commit*))
+        (redis-hash-set! c key "url" (feed-commit-url serialized-commit))
         (redis-hash-set! c key "hash" key)
         (redis-hash-set! c key "score" "0")
         (redis-zset-add! c (string-append feed-prefix "commit-score:")
