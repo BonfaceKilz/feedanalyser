@@ -30,7 +30,7 @@
 (min-retweets . 4)
 
 ;; Have a list of users from which you can fetch tweets from
-(twitter-users . "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2,commonwl,simonheumos,gedankenstuecke,DCGenomics,pvanheus,miles_benton,wait_sasha,ewanbirney,BenedictPaten,sjackman,webyrd,BioMickWatson,drtkeane,GA4GH,KaczorowskiLab,AMelquiond,justsaysinmice,OPARProject,erikgarrisonDannyArends,JamesEKrause,Eric_Fauman,jlane_boston,arcova,FrontGenetics,AngelicaLeeOli1,bonfacekilz,fermatslibrary,arxiv,francois_sabot,metegenomez,MColebrook,GenoLabgem,pangenomepapers")
+(twitter-users . "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2,commonwl,simonheumos,gedankenstuecke,DCGenomics,pvanheus,miles_benton,wait_sasha,ewanbirney,BenedictPaten,sjackman,webyrd,BioMickWatson,drtkeane,GA4GH,KaczorowskiLab,AMelquiond,justsaysinmice,OPARProject,erikgarrisonDannyArends,JamesEKrause,Eric_Fauman,jlane_boston,arcova,FrontGenetics,AngelicaLeeOli1,bonfacekilz,fermatslibrary,arxiv,francois_sabot,metegenomez,MColebrook,GenoLabgem,pangenomepapers,firefoxx66")
 
 
 ;; All the repos you want to fetch commits from

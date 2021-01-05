@@ -32,7 +32,7 @@
 
 ;; Limit from twitter is 20 users
 ;; See: https://github.com/twintproject/twint/issues/360#issuecomment-464308253
-(twitter-users . "BonfaceKilz,wolfgangkhuber,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2,Joepdl,ewanbirney,mattmight,BioMickWatson,wait_sasha,saunaksen,dustyweb,SamHarrisOrg,timberners_lee,Atul_Gawande,OliverSacks,EricTopol,MarcusduSautoy,phylogenomics,Evolutionistrue,SCOTTeHENSLEY,lbthackray,CCDD_HSPH,nature,medrxivpreprint,ScienceMagazine,NeAnder349,HelenChuMD,dgmacarthur,JohnAllenPaulos,DrVes,NatureMedicine,KimberlyBlumen1,mbeisen,neuroconscience")
+(twitter-users . "BonfaceKilz,wolfgangkhuber,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund,pjotrprins,GeneNetwork2,Joepdl,ewanbirney,mattmight,BioMickWatson,wait_sasha,saunaksen,dustyweb,SamHarrisOrg,timberners_lee,Atul_Gawande,OliverSacks,EricTopol,MarcusduSautoy,phylogenomics,Evolutionistrue,SCOTTeHENSLEY,lbthackray,CCDD_HSPH,nature,medrxivpreprint,ScienceMagazine,NeAnder349,HelenChuMD,dgmacarthur,JohnAllenPaulos,DrVes,NatureMedicine,KimberlyBlumen1,mbeisen,neuroconscience,firefoxx66")
 
 ;; All the repos you want to fetch commits from
 (repos . '(("arvados" . "bh20-seq-resource")))
