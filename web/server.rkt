@@ -28,7 +28,12 @@
                           (map bytes->string/utf-8)
                           (map string->symbol))
                      (~>> (hash-values h)
-                          (map bytes->string/utf-8)))))
+                          (map
+                           (lambda (x)
+                             (with-handlers ([exn:fail?
+                                              (lambda (exn)
+                                                (bytes->string/utf-8 x))])
+                               (bytes->string/latin-1 x))))))))
                  (filter-not hash-empty? redis/output))))))
 
 (define (extract-cookie req cookie-key)
