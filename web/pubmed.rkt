@@ -52,8 +52,7 @@
   (let ([requester (update-ssl
                     (update-host html-requester
                                  "pubmed.ncbi.nlm.nih.gov") #t)]
-        [params `((term . ,(~> search-terms/string
-                               form-urlencoded-encode))
+        [params `((term . ,search-terms/string)
                   (show_snippets . "off")
                   (sort . "pubdate")
                   (sort_order . "desc")
