@@ -8,6 +8,8 @@
 ;; Prefix to the redis columns
 (feed-prefix . "gn2-")
 
+(feed-client-url . "http://covid19.genenetwork.org")
+
 (tweets-per-user . 2)
 
 ;; The log file

@@ -7,6 +7,8 @@
 ;; Prefix to the redis columns
 (feed-prefix . "bh20-")
 
+(feed-client-url . "http://genenetwork.org")
+
 (tweets-per-user . 2)
 
 ;; The log file
