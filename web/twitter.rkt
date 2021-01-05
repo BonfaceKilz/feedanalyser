@@ -5,6 +5,7 @@
          racket/date
          redis
          threading
+         "common.rkt"
          "votes.rkt")
 
 
@@ -127,7 +128,7 @@
 (define (store-tweets! client tweets #:feed-prefix [feed-prefix ""])
   (define (store-tweet! c tweet)
     "Store tweets to REDIS. The tweets expire after 1 month"
-    (let* [(serialized-tweet (serialize-tweet tweet))
+    (let* [(serialized-tweet (serialize-struct feed-tweet tweet))
            (author (feed-tweet-author serialized-tweet))
            (content (feed-tweet-content serialized-tweet))
            (hash (feed-tweet-hash tweet))
@@ -190,19 +191,6 @@
                   `(,tweets)))
     #t]
    [else #f]))
-
-
-;; Serialize a tweet into a form that can be stored in REDIS
-(define (serialize-tweet tweet)
-  (feed-tweet (string->bytes/utf-8 (feed-tweet-author tweet))
-              (string->bytes/utf-8 (feed-tweet-content tweet))
-              (string->bytes/utf-8 (number->string
-                                    (feed-tweet-timeposted tweet)))
-              (string->bytes/utf-8 (feed-tweet-hash tweet))
-              (string->bytes/utf-8 (feed-tweet-replies tweet))
-              (string->bytes/utf-8 (feed-tweet-retweets tweet))
-              (string->bytes/utf-8 (feed-tweet-likes tweet))
-              (string->bytes/utf-8 (feed-tweet-url tweet))))
 
 
 (define (truncate-spammy-tweets tweets
