@@ -42,10 +42,19 @@
       (string-join (reverse strings) "")))
 
 (define (serialize-struct struct-fn feed/struct)
+  "serialize a struct FEED/STRUCT using the constructor STRUCT-FN"
   (apply struct-fn
          (~>> (~> feed/struct
                   struct->list)
-              (map string->bytes/utf-8))))
+              (map (lambda (x)
+                     (cond ((number? x)
+                            (~> x
+                             number->string
+                             string->bytes/utf-8))
+                           ((string? x)
+                            (~> x
+                                string->bytes/utf-8))
+              (else x)))))))
 
 (define (sxml-query sxml query/string)
   "sxml query to extract elements given: sxml content SXML, a html
