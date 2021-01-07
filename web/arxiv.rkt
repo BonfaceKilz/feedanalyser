@@ -72,11 +72,11 @@
         string->symbol))
   (apply append
          (map (match-lambda
-                [(list op term field)
-                 (let ([i (index-of terms (list op term field))])
+                [(list op term fld)
+                 (let ([i (index-of terms (list op term fld))])
                    `((,(termify-i i "-operator") . ,(symbol->string op))
                      (,(termify-i i "-term") . ,(symbol->string term))
-                     (,(termify-i i "-field") . ,(symbol->string field))))]
+                     (,(termify-i i "-field") . ,(symbol->string fld))))]
                 [(list op term)
                  (let ([i (index-of terms (list op term))])
                    `((,(termify-i i "-operator") . ,(symbol->string op))
