@@ -13,9 +13,7 @@
       port->string
       html->xexp))
 
-(check-equal? (parse-arxiv-search-terms '()
-                                        0
-                                        '((AND COVID-19 title)
+(check-equal? (parse-arxiv-search-terms '((AND COVID-19 title)
                                           (OR SARS-CoV-2 abstract)
                                           (OR COVID-19 abstract)
                                           (OR SARS-CoV-2 title)
