@@ -5,6 +5,7 @@
          racket/function
          racket/port
          racket/string
+         racket/match
          redis
          simple-http
          sxml/sxpath
@@ -63,39 +64,31 @@
                  url
                  hash))))
 
-(define (parse-arxiv-search-terms n counter terms)
-  (define counter/num (number->string counter))
-  (if (empty? terms)
-      n
-      (let* ([counter/num (number->string counter)]
-             [operator (~> (string-append "terms-"
-                                          counter/num
-                                          "-operator")
-                           string->symbol)]
-             [term (~> (string-append "terms-"
-                                      counter/num
-                                      "-term")
-                       string->symbol)]
-             [field (~> (string-append "terms-"
-                                       counter/num
-                                       "-field")
-                        string->symbol)]
-             (op/value (~> terms caar symbol->string))
-             (term/value (~> terms cadar symbol->string))
-             (field/value (~> terms caddar symbol->string)))
-        (parse-arxiv-search-terms (append n
-                                          `((,operator . ,op/value)
-                                            (,term . ,term/value)
-                                            (,field . ,field/value)))
-                                  (+ 1 counter)
-                                  (rest terms)))))
+(define (parse-arxiv-search-terms terms)
+  (define (termify-i i word)
+    (~> (string-append "terms-"
+                       (number->string i)
+                       word)
+        string->symbol))
+  (apply append
+         (map (match-lambda
+                [(list op term field)
+                 (let ([i (index-of terms (list op term field))])
+                   `((,(termify-i i "-operator") . ,(symbol->string op))
+                     (,(termify-i i "-term") . ,(symbol->string term))
+                     (,(termify-i i "-field") . ,(symbol->string field))))]
+                [(list op term)
+                 (let ([i (index-of terms (list op term))])
+                   `((,(termify-i i "-operator") . ,(symbol->string op))
+                     (,(termify-i i "-term") . ,(symbol->string term))))])
+              terms)))
 
 (define (get-articles/arxiv search-terms)
   (let ([requester (update-ssl
                     (update-host html-requester
                                  "arxiv.org")
                     #t)]
-        [params `(,@(parse-arxiv-search-terms '() 0 search-terms)
+        [params `(,@(parse-arxiv-search-terms search-terms)
                   (advanced . "")
                   (classification-physics_archives . "all")
                   (classification-include_cross_list . "include")
