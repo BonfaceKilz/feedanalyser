@@ -90,7 +90,7 @@ it's required by one of the Racket packages. The *-N* flag allows you
 to connect to the internet, and to also connect to redis which runs
 outside your container):
 
-: ./pre-inst-env guix time-machine -C channels.scm -- environment -N -C --expose=/usr/share/zoneinfo --ad-hoc racket-minimal python-twint nss-certs coreutils
+: ./pre-inst-env guix time-machine -C channels.scm -- environment -N -C --expose=/usr/share/zoneinfo --ad-hoc racket python-twint nss-certs coreutils
 
 Now export the SSL_CERTS so that you can use Racket over the internet:
 
@@ -114,7 +114,7 @@ racket newsfeed/voting-server.rkt -c etc/biohackathon.conf.rkt
 PS: You could set racket up in it's own profile by running something
 like:
 
-: ./pre-inst-env guix time-machine -C channels.scm -- install racket-minimal python-twint -p ~/opt/racket
+: ./pre-inst-env guix time-machine -C channels.scm -- install racket python-twint -p ~/opt/racket
 *** Suggestions/ Help Wanted
 
 - Fetch data from Slack
