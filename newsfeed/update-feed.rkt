@@ -13,43 +13,7 @@ This is a demo. Update as required!
          feedanalyser)
 
 
-;; Conf parameters
 (define conf-filepath (make-parameter #f))
-(define redis-conf (make-parameter '((host . "127.0.0.1")
-                                     (port . 6379)
-                                     (username . #f)
-                                     (password . #f))))
-(define refresh-time/hrs (make-parameter 24))
-
-;;; Default repos to fetch data from
-(define repos (make-parameter '(("genenetwork" . "genenetwork2")
-                                ("arvados" . "bh20-seq-resource"))))
-
-(define feed-prefix (make-parameter ""))
-
-(define tweets-per-user (make-parameter 2))
-(define min-retweets (make-parameter 20))
-
-;;; Default params for twitter
-(define twitter-search-terms
-  (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics) -Trump -trump"))
-
-;;; Default params for pubmed
-(define pubmed-search-terms
-  (make-parameter "(genenetwork OR genenetwork2 OR rat OR mouse OR biology OR statistics)"))
-
-;;; Default params for arxiv
-(define arxiv-search-terms
-  (make-parameter '((AND COVID-19 title)
-                    (OR SARS-CoV-2 abstract)
-                    (OR COVID-19 abstract)
-                    (OR SARS-CoV-2 title)
-                    (OR coronavirus title)
-                    (OR coronavirus abstract))))
-
-(define twitter-users
-  (make-parameter "wolfgangkhuber,Y_Gliad,MarkGerstein,mstephens999,PaulFlicek,SagivShifman,Jericho,danjgaffney,bartdeplancke,robbie_stats,ClarissaCParker,DavidAshbrook,StatGenDan,GSCollins,MikeBradburn2,tobiaskurth,yudapearl,phuenermund"))
-
 
 (define parser
   (command-line
@@ -60,56 +24,87 @@ This is a demo. Update as required!
     (conf-filepath filepath)]
    #:args () (void)))
 
-(cond
- [(conf-filepath)
-  (let [(server/settings
-         (load-config (conf-filepath)))]
-    (redis-conf (hash-ref server/settings 'redis-conf))
-    (refresh-time/hrs  (hash-ref server/settings 'refresh-time/hrs))
-    (repos (hash-ref server/settings 'repos))
-    (feed-prefix (hash-ref server/settings 'feed-prefix))
-    (twitter-search-terms (hash-ref server/settings 'twitter-search-terms))
-    (pubmed-search-terms (hash-ref server/settings 'pubmed-search-terms))
-    (arxiv-search-terms (hash-ref server/settings 'arxiv-search-terms))
-    (tweets-per-user (hash-ref server/settings 'tweets-per-user))
-    (min-retweets (hash-ref server/settings 'min-retweets))
-    (twitter-users (hash-ref server/settings 'twitter-users)))])
+
+(unless (conf-filepath)
+  (error "Please provide a configuration file!"))
 
 
-(define client (make-redis #:host (assoc-val 'host (redis-conf))
-                           #:port (assoc-val 'port (redis-conf))
-                           #:username (assoc-val 'username (redis-conf))
-                           #:password (assoc-val 'password (redis-conf))))
+(define server/settings (load-config (conf-filepath)))
+
+
+;; Conf parameters
+(define refresh-time/hrs (hash-ref server/settings 'refresh-time/hrs))
+
+
+;; Feed prefix for each feed
+(define feed-prefix (hash-ref server/settings 'feed-prefix))
+
+
+;;; Params for commits feed
+(define repos (hash-ref server/settings 'repos))
+
+
+;;; Params for twitter feed
+(define tweets-per-user (hash-ref server/settings
+                                  'tweets-per-user))
+(define min-retweets (hash-ref server/settings
+                               'min-retweets))
+(define twitter-users (hash-ref server/settings
+                                'twitter-users))
+(define twitter-search-terms (hash-ref server/settings
+                                        'twitter-search-terms))
+
+
+;;; Params for pubmed feed
+(define pubmed-search-terms (hash-ref server/settings
+                                      'pubmed-search-terms))
+
+
+;;; Params for arxiv feed
+(define arxiv-search-terms (hash-ref server/settings
+                                     'arxiv-search-terms))
+
+
+;; Redis Client
+(define redis-conf (hash-ref server/settings 'redis-conf))
+(define client (make-redis #:host (assoc-val 'host redis-conf)
+                           #:port (assoc-val 'port redis-conf)
+                           #:username (assoc-val 'username redis-conf)
+                           #:password (assoc-val 'password redis-conf)))
 
 
 (define (hours->seconds hours) (* hours 60 60))
 
+
 (define script/refresh-contents-seconds
-  (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
+  (+ (current-seconds)
+     (hours->seconds refresh-time/hrs)))
+
 
 (define (expire-feed-items)
   (remove-expired-items! client
                          '("tweet-score:" "tweet-time:")
-                         #:feed-prefix (feed-prefix))
+                         #:feed-prefix feed-prefix)
   (remove-expired-items! client
                          '("commit-score:" "commit-time:")
-                         #:feed-prefix (feed-prefix))
+                         #:feed-prefix feed-prefix)
   (remove-expired-items! client
                          '("pubmed-score:")
-                         #:feed-prefix (feed-prefix))
+                         #:feed-prefix feed-prefix)
   (remove-expired-items! client
                          '("arxiv-score:")
-                         #:feed-prefix (feed-prefix)))
+                         #:feed-prefix feed-prefix))
+
 
 (define (add-content-to-redis)
   (displayln "Adding tweets:")
   (store-tweets!
    client
-   (get-tweets/twitter (twitter-users)
-                       #:search-terms (twitter-search-terms)
-                       #:min-retweets (min-retweets)
-                       #:number (tweets-per-user))
-   #:feed-prefix (feed-prefix))
+   (get-tweets/twitter twitter-users
+                       #:search-terms twitter-search-terms
+                       #:min-retweets min-retweets
+                       #:number tweets-per-user)
+   #:feed-prefix feed-prefix)
   (displayln "Done Adding tweets")
   ;; Adding commits
   (displayln "Adding commits:")
@@ -118,28 +113,30 @@ This is a demo. Update as required!
      (store-commits! client
                      (get-commits/github (car repo)
                                          (cdr repo))
-                     #:feed-prefix (feed-prefix)))
-   (repos))
+                     #:feed-prefix feed-prefix))
+   repos)
   (displayln "Done Adding commits")
 
   ;; Adding Pubmed Articles
   (displayln "Adding pubmed articles:")
   (store-pubmed-articles! client
-                          (get-articles/pubmed (pubmed-search-terms))
-                          #:feed-prefix (feed-prefix))
+                          (get-articles/pubmed pubmed-search-terms)
+                          #:feed-prefix feed-prefix)
   (displayln "Done Adding articles")
 
   ;; Adding arxiv articles
   (displayln "Adding arxiv articles:")
   (store-arxiv-articles! client
-                         (get-articles/arxiv (arxiv-search-terms))
-                         #:feed-prefix (feed-prefix))
+                         (get-articles/arxiv arxiv-search-terms)
+                         #:feed-prefix feed-prefix)
   (displayln "Done Adding arxiv artiles")
   
   (expire-feed-items))
 
+
 ;; Initial addition of contents
 (add-content-to-redis)
+
 
 (void
  (thread (lambda _
@@ -147,11 +144,12 @@ This is a demo. Update as required!
              (sleep 10)
              (loop)))))
 
+
 (let loop ()
   (expire-feed-items)
   (when (> (current-seconds) script/refresh-contents-seconds)
     (set! script/refresh-contents-seconds
-      (+ (current-seconds) (hours->seconds (refresh-time/hrs))))
+      (+ (current-seconds) (hours->seconds refresh-time/hrs)))
     (add-content-to-redis))
   (sleep 10)
   (loop))
